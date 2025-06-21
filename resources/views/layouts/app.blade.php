@@ -12,12 +12,12 @@
 
   @if (session('message'))
     @php
-      $toast_class = 'text-bg-' . session('message_type', 'warning');
+      $toastClass = 'text-bg-' . session('messageType', 'warning');
     @endphp
 
     {{-- Toast do Bootstrap para exibir mensagens --}}
     <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
-      <div id="toast_message" class="toast align-items-center {{ $toast_class }} border-0" role="alert"
+      <div id="toastMessage" class="toast align-items-center {{ $toastClass }} border-0" role="alert"
         aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
           <div class="toast-body">
