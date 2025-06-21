@@ -32,6 +32,8 @@
   @endif
 
   @yield('content')
+
+  <x-spinner />
 </body>
 
 </html>
