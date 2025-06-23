@@ -1,13 +1,13 @@
 // Este módulo fornece funções para mostrar e esconder um spinner de carregamento
 // que pode ser usado para indicar que uma ação está em progresso, como o envio de um formulário.
-function showSpinner() {
+export function showSpinner() {
   const spinner = document.getElementById('loading-spinner');
   if (spinner) {
     spinner.classList.remove('d-none');
   }
 }
 
-function hideSpinner() {
+export function hideSpinner() {
   const spinner = document.getElementById('loading-spinner');
   if (spinner) {
     spinner.classList.add('d-none');

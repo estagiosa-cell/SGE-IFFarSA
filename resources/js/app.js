@@ -5,8 +5,11 @@ import * as bootstrap from 'bootstrap';
 window.bootstrap = bootstrap;
 
 import { initializeToast } from './components/toast.js';
-import { initializeSpinner } from './components/spinner.js';
+import { initializeSpinner, showSpinner, hideSpinner } from './components/spinner.js';
 
+// Disponibiliza as funções do spinner globalmente
+window.showSpinner = showSpinner;
+window.hideSpinner = hideSpinner;
 
 document.addEventListener('DOMContentLoaded', () => {
   // Inicializa os toasts
@@ -14,5 +17,4 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Inicializa o spinner
   initializeSpinner();
-  
 });
