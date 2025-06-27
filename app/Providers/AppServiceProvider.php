@@ -20,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Model::preventLazyLoading();
+        // Ativa a prevenção de lazy loading somente fora do ambiente de produção
+        Model::preventLazyLoading(!app()->isProduction());
     }
 }
