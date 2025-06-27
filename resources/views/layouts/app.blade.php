@@ -9,7 +9,7 @@
   @vite(['resources/css/app.scss', 'resources/js/app.js'])
 </head>
 
-<body>
+<body class="bg-light">
   <x-toast />
 
   @yield('content')
