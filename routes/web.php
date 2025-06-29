@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ShowWelcomePageController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', ShowWelcomePageController::class)->name('welcome');
