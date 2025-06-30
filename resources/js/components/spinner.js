@@ -19,8 +19,16 @@ export function initializeSpinner() {
   // Gatilho para formulários
   const forms = document.querySelectorAll('form');
   forms.forEach(form => {
-    form.addEventListener('submit', function () {
-      showSpinner();
+    form.addEventListener('submit', function(event) {
+      // Só mostra o spinner se o formulário for válido
+      if (form.checkValidity()) {
+        showSpinner();
+      } else {
+        // Se não for válido, previne o envio do formulário
+        event.preventDefault();
+        event.stopPropagation();
+        form.classList.add('was-validated');
+      }
     });
   });
 
