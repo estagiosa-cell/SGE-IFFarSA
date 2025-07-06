@@ -5,7 +5,7 @@
     $toastClass = 'text-bg-' . session('messageType', 'warning');
   @endphp
   {{-- Toast do Bootstrap para exibir mensagens --}}
-  <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+  <div class="toast-container position-fixed top-0 end-0 m-3 shadow-lg">
     <div id="toastMessage" class="toast align-items-center {{ $toastClass }} border-0" role="alert"
       aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
