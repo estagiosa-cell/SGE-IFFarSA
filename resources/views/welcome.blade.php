@@ -20,7 +20,7 @@
     </div>
 
     <!-- Lado Direito - Formulário de Login -->
-    <div class="col-12 col-lg-4 d-flex align-items-center bg-white">
+    <div class="col-12 col-lg-4 d-flex align-items-center">
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-md-10 col-lg-12">
