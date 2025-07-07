@@ -1,6 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ShowWelcomePageController;
+use App\Http\Controllers\SessionController;
 
-Route::get('/', ShowWelcomePageController::class)->name('welcome');
+Route::get('/', [SessionController::class, 'create'])->name('login');
