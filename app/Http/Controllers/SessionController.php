@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class SessionController extends Controller
 {
@@ -11,13 +13,35 @@ class SessionController extends Controller
         return view('auth.login');
     }
 
-    public function store()
+    public function store(Request $request)
     {
-        // Lógica para autenticar o usuário
+        $attributes = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (!Auth::attempt($attributes)) {
+            throw ValidationException::withMessages([
+                'email' => 'As credenciais fornecidas não coincidem com nossos registros.',
+            ]);
+        }
+
+        $request->session()->regenerate();
+        
+        return redirect()->intended(route('dashboard'))
+            ->with('message', 'Usuário autenticado com sucesso!')
+            ->with('messageType', 'success');
     }
 
-    public function destroy()
+    public function destroy(Request $request)
     {
-        // Lógica para encerrar a sessão do usuário
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect(route('login'))
+            ->with('message', 'Você foi deslogado com sucesso!')
+            ->with('messageType', 'success');
     }
 }
