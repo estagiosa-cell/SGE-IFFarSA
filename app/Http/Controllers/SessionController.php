@@ -22,7 +22,7 @@ class SessionController extends Controller
 
         if (!Auth::attempt($attributes)) {
             throw ValidationException::withMessages([
-                'email' => 'As credenciais fornecidas não coincidem com nossos registros.',
+                'login_error' => __('auth.failed'),
             ]);
         }
 

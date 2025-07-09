@@ -37,6 +37,20 @@
                   <p class="text-muted">Faça login para acessar o SIGE-IFFarSA</p>
                 </div>
 
+                <!-- Alerta de erro de credenciais -->
+                @if ($errors->has('login_error'))
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                      <div>
+                        <strong>Erro de autenticação:</strong><br>
+                        {{ $errors->first('login_error') }}
+                      </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                  </div>
+                @endif
+
                 <form class="needs-validation" action="/login" method="POST" novalidate>
                   @csrf
                   <div class="mb-3">
@@ -47,7 +61,7 @@
                         @if ($errors->has('email'))
                           {{ $errors->first('email') }}
                         @else
-                          Por favor, insira seu e-mail.
+                          O campo e-mail é obrigatório.
                         @endif
                       </div>
                     </div>
@@ -61,7 +75,7 @@
                         @if ($errors->has('password'))
                           {{ $errors->first('password') }}
                         @else
-                          Por favor, insira sua senha.
+                          O campo senha é obrigatório.
                         @endif
                       </div>
                     </div>
