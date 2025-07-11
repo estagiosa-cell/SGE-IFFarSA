@@ -9,7 +9,7 @@
         <div class="row justify-content-center">
           <div class="col-md-8">
             <div class="text-center mb-5">
-              <img src="{{ asset('images/logo_iffar_c.png') }}" alt="Logo IFFar" class="img-fluid mb-4" style="max-width: 200px; filter: brightness(0) invert(1);">
+              <img src="{{ Vite::asset('resources/images/logo_iffar_c.png') }}" alt="Logo IFFar" class="img-fluid mb-4" style="max-width: 200px; filter: brightness(0) invert(1);">
               <h1 class="display-4 fw-bold mb-4">SIGE-IFFarSA</h1>
               <h2 class="h4 mb-4">Sistema Integrado de Gestão de Estágios</h2>
               <p class="lead">Instituto Federal Farroupilha - Campus Santo Augusto</p>
@@ -26,7 +26,7 @@
           <div class="col-md-10 col-lg-12">
             <!-- Logo para telas pequenas/médias -->
             <div class="text-center mb-4 d-lg-none">
-              <img src="{{ asset('images/logo_iffar_c.png') }}" alt="Logo IFFar" class="img-fluid mb-3" style="max-width: 120px;">
+              <img src="{{ Vite::asset('resources/images/logo_iffar_c.png') }}" alt="Logo IFFar" class="img-fluid mb-3" style="max-width: 120px;">
               <h4 class="fw-bold mb-2">SIGE-IFFarSA</h4>
               <p class="text-muted small mb-4">Sistema Integrado de Gestão de Estágios</p>
             </div>
