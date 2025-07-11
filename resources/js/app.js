@@ -1,5 +1,8 @@
 import './bootstrap';
 import * as bootstrap from 'bootstrap';
+import.meta.glob([
+  '../images/**'
+]);
 
 // Disponibiliza o bootstrap globalmente para ser usado por outros scripts
 window.bootstrap = bootstrap;
