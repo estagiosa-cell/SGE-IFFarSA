@@ -14,7 +14,7 @@
 <div class="d-none d-lg-flex bg-white flex-column min-vh-100 p-3 border-end col-lg-2">
   <h5 class="text-muted m-0">SIGE-IFFarSA</h5>
   <hr>
-  <div class="flex-grow-1 overflow-auto" style="max-height: calc(100vh - 200px);">
+  <div class="flex-grow-1 overflow-y-auto overflow-x-hidden" style="max-height: calc(100vh - 200px);">
     <x-sidebar-nav />
   </div>
   <div class="mt-auto">
@@ -40,7 +40,7 @@
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body d-flex flex-column">
-    <div class="flex-grow-1 overflow-auto">
+    <div class="flex-grow-1 overflow-y-auto overflow-x-hidden">
       <x-sidebar-nav />
     </div>
     <div class="mt-auto">
