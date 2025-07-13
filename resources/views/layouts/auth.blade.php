@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-  <div class="row">
+  <div class="container-fluid">
+    <div class="row">
       <x-sidebar />
-    <div class="col-lg-10">
-      @yield('main-content')
+      <div class="col-lg-10">
+        @yield('main-content')
+      </div>
     </div>
   </div>
-</div>
 @endsection

@@ -3,5 +3,5 @@
 @section('title', 'Dashboard')
 
 @section('main-content')
-{{-- Para fazer --}}
+  {{-- Para fazer --}}
 @endsection

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class SessionController extends Controller
@@ -20,14 +20,14 @@ class SessionController extends Controller
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($attributes)) {
+        if (! Auth::attempt($attributes)) {
             throw ValidationException::withMessages([
                 'login_error' => __('auth.failed'),
             ]);
         }
 
         $request->session()->regenerate();
-        
+
         return redirect()->intended(route('dashboard'))
             ->with('message', 'Usuário autenticado com sucesso!')
             ->with('messageType', 'success');

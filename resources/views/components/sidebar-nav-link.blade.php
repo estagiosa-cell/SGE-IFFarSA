@@ -10,7 +10,8 @@
 @endphp
 
 <li class="nav-item mb-2">
-  <a class="nav-link {{ $isActive ? 'active' : 'text-dark bg-white nav-link-sidebar-inactive' }}" href="{{ $url }}">
+  <a class="nav-link {{ $isActive ? 'active' : 'text-dark bg-white nav-link-sidebar-inactive' }}"
+    href="{{ $url }}">
     @if ($icon)
       <i class="bi bi-{{ $icon }} me-2"></i>
     @endif
