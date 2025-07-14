@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\LoginRequest;
-use Illuminate\Support\Facades\Gate;
+use App\Services\LoginRedirectService;
 
 class SessionController extends Controller
 {
@@ -21,9 +20,8 @@ class SessionController extends Controller
     /**
      * Processa o login do usuário
      */
-    public function store(LoginRequest $request)
+    public function store(LoginRequest $request, LoginRedirectService $redirector)
     {
-
         // Tenta autenticar o usuário com as credenciais fornecidas
         if (! Auth::attempt($request->validated())) {
             // Se falhar, lança uma exceção de validação com mensagem de erro
@@ -35,8 +33,11 @@ class SessionController extends Controller
         // Se a autenticação for bem-sucedida
         session()->regenerate();
 
+        // 3. Pede ao serviço para determinar a rota correta, passando o utilizador logado
+        $redirectRouteName = $redirector->getRedirectRoute(Auth::user());
+
         // Redireciona o usuário para a rota pretendida ou para o dashboard
-        return redirect()->intended(route('dashboard'))
+        return redirect()->intended(route($redirectRouteName))
             ->with('message', 'Usuário autenticado com sucesso!')
             ->with('messageType', 'success');
     }
