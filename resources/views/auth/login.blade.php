@@ -92,8 +92,8 @@
                     </div>
 
                     <div class="text-center">
-                      <a href="#" class="text-decoration-none small">
-                        <i class="bi bi-question-circle me-1"></i>Esqueceu a senha?
+                      <a href="#" class="text-decoration-none small fw-semibold">
+                        Esqueceu a Senha?
                       </a>
                     </div>
                   </form>
