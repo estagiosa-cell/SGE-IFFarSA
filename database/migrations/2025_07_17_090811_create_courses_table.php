@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('level'); // Médio/Superior...
+            $table->string('type'); // Técnico/Bacharelado/Licenciatura/Técnologia...
+            $table->foreignId('coordenador_id')->nullable()->constrained('users');
             $table->timestamps();
         });
     }
