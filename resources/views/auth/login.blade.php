@@ -1,6 +1,10 @@
 @extends('layouts.guest')
 @section('title', 'Login')
 @section('main-content')
+  <div class="text-center mb-4">
+    <h3 class="card-title mb-3">Acesso ao Sistema</h3>
+    <p class="text-muted">Faça login para acessar o SIGE-IFFarSA</p>
+  </div>
   <!-- Alerta de erro de credenciais -->
   @if ($errors->has('login_error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">

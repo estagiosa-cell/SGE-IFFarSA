@@ -34,11 +34,6 @@
               </div>
               <div class="card shadow border-0">
                 <div class="card-body p-3">
-                  <div class="text-center mb-4">
-                    <h3 class="card-title mb-3">Acesso ao Sistema</h3>
-                    <p class="text-muted">Faça login para acessar o SIGE-IFFarSA</p>
-                  </div>
-
                   @yield('main-content')
                 </div>
               </div>
