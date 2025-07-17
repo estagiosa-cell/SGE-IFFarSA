@@ -92,7 +92,7 @@
                     </div>
 
                     <div class="text-center">
-                      <a href="#" class="text-decoration-none small fw-semibold">
+                      <a href="{{ route('password.request') }}" class="text-decoration-none small fw-semibold">
                         Esqueceu a Senha?
                       </a>
                     </div>
