@@ -25,4 +25,9 @@ class PasswordResetController extends Controller
             ? back()->with(['status' => __($status)])
             : back()->withErrors(['email' => __($status)]);
     }
+
+    public function edit($token)
+    {
+        return view('auth.passwords.reset', ['token' => $token]);
+    }
 }
