@@ -46,6 +46,7 @@ class ResetPasswordNotification extends Notification
             ->line('Você está recebendo este e-mail porque recebemos um pedido de redefinição de senha para sua conta.')
             ->action('Redefinir Senha', $this->url) // Usa a URL customizada
             ->line('Este link de redefinição de senha irá expirar em ' . config('auth.passwords.users.expire') . ' minutos.')
+            ->line('**Importante:** O acesso ao sistema só é possível quando conectado na rede do campus.')
             ->line('Se você não solicitou uma redefinição de senha, nenhuma ação adicional é necessária.');
     }
 
