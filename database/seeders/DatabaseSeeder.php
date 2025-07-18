@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Enums\UserRole;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,27 +14,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        
-
         // Criar usuário Admin
         User::factory()->create([
             'name' => 'Administrador',
-            'email' => 'admin@iffar.edu.br',
+            'email' => 'admin@teste.com',
             'role' => UserRole::ADMIN,
+            'password' => Hash::make('123'),
         ]);
 
         // Criar usuário Coordenador
         User::factory()->create([
             'name' => 'Coordenador',
-            'email' => 'coordenador@iffar.edu.br',
+            'email' => 'coordenador@teste.com',
             'role' => UserRole::COORDENADOR,
+            'password' => Hash::make('123'),
         ]);
 
         // Criar usuário Orientador
         User::factory()->create([
             'name' => 'Orientador',
-            'email' => 'orientador@iffar.edu.br',
+            'email' => 'orientador@teste.com',
             'role' => UserRole::ORIENTADOR,
+            'password' => Hash::make('123'),
         ]);
     }
 }
