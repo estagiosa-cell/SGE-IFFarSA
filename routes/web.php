@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::get('/', [SessionController::class, 'create'])->name('login');
 Route::post('/login', [SessionController::class, 'store']);
@@ -18,6 +19,10 @@ Route::put('/reset-password', [PasswordResetController::class, 'update'])->name(
 Route::middleware(['auth'])->group(function () {
     Route::middleware(['can:is-admin'])->group(function () {
         Route::view('/dashboard', 'admin.dashboard')->name('admin.dashboard'); // rota temporária, apenas para testes
+
+        // Rotas para desaticvar e reativar usuários
+        Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('admin.users.deactivate');
+        Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('admin.users.reactivate');
     });
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
