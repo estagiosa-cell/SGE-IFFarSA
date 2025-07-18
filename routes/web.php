@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\InternshipTypeController;
 
 Route::get('/', [SessionController::class, 'create'])->name('login');
 Route::post('/login', [SessionController::class, 'store'])->name('store.login');
@@ -27,6 +29,14 @@ Route::middleware(['auth'])->group(function () {
         // Rotas para desaticvar e reativar usuários
         Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('admin.users.deactivate');
         Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('admin.users.reactivate');
+
+        // Rotas de Cursos
+        Route::get('/courses', [CourseController::class, 'index'])->name('admin.courses.index');
+        Route::get('/courses/create', [CourseController::class, 'create'])->name('admin.courses.create');
+
+        // Rotas de Tipos de Estágio
+        Route::get('/internship-types', [InternshipTypeController::class, 'index'])->name('admin.internship-types.index');
+        Route::get('/internship-types/create', [InternshipTypeController::class, 'create'])->name('admin.internship-types.create');
     });
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
