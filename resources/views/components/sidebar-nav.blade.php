@@ -1,7 +1,7 @@
 <ul class="nav nav-pills flex-column">
 
   @can('is-admin')
-    <x-sidebar-nav-link route="dashboard" icon="columns-gap">
+    <x-sidebar-nav-link route="admin.dashboard" icon="columns-gap">
       Dashboard
     </x-sidebar-nav-link>
   @endcan
