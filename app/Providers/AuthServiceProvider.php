@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,21 +26,21 @@ class AuthServiceProvider extends ServiceProvider
          * Gate para verificar se o usuário é Administrador.
          */
         Gate::define('is-admin', function (User $user) {
-            return $user->role === 'admin';
+            return $user->role === UserRole::ADMIN;
         });
 
         /**
          * Gate para verificar se o usuário é Coordenador.
          */
         Gate::define('is-coordenador', function (User $user) {
-            return $user->role === 'coordenador';
+            return $user->role === UserRole::COORDENADOR;
         });
 
         /**
          * Gate para verificar se o usuário é Orientador.
          */
         Gate::define('is-orientador', function (User $user) {
-            return $user->role === 'orientador';
+            return $user->role === UserRole::ORIENTADOR;
         });
     }
 }
