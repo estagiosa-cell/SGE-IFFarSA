@@ -16,7 +16,7 @@
       <p class="text-muted small fw-bold text-uppercase mb-1">Configurações</p>
     </li>
 
-    <x-sidebar-nav-link route="" icon="people">
+    <x-sidebar-nav-link route="admin.users.index" icon="people">
       Gerenciar Usuários
     </x-sidebar-nav-link>
 

@@ -20,6 +20,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['can:is-admin'])->group(function () {
         Route::view('/dashboard', 'admin.dashboard')->name('admin.dashboard'); // rota temporária, apenas para testes
 
+        // Rotas de Usuários
+        Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+        Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
+
         // Rotas para desaticvar e reativar usuários
         Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('admin.users.deactivate');
         Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('admin.users.reactivate');
