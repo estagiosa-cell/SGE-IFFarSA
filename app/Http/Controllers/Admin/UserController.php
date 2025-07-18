@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -69,8 +70,12 @@ class UserController extends Controller
      */
     public function deactivate(User $user)
     {
+        if ($user->id === Auth::id()) {
+            return back()->with('message', 'Você não pode desativar sua própria conta!')->with('messageType', 'danger');
+        }
+
         $user->update(['deactivated_at' => now()]);
-        return back()->with('message', 'Usuário desativado com sucesso!')->with('messageType', 'warning');
+        return back()->with('message', 'Usuário desativado com sucesso!')->with('messageType', 'success');
     }
 
     /**
