@@ -28,7 +28,7 @@ class LoginRedirectService
         // Mapeamento de permissões para rotas de destino
         // Adicione novos perfis aqui conforme necessário
         $routes = [
-            'is-admin' => 'dashboard',
+            'is-admin' => 'admin.dashboard',
             'is-coordenador' => 'estagios',
             'is-orientador' => 'estagios',
         ];
