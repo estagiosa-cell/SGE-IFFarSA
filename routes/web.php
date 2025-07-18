@@ -16,7 +16,10 @@ Route::put('/reset-password', [PasswordResetController::class, 'update'])->name(
 
 // Rotas dos usuários autenticados
 Route::middleware(['auth'])->group(function () {
-    Route::view('/dashboard', 'dashboard')->name('dashboard'); // rota temporária, apenas para testes
+    Route::middleware(['can:is-admin'])->group(function () {
+        Route::view('/dashboard', 'dashboard')->name('dashboard'); // rota temporária, apenas para testes
+    });
+
     Route::view('/estagios', 'dashboard')->name('estagios'); // rota temporária, apenas para testes
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 });
