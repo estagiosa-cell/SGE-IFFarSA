@@ -19,7 +19,7 @@
     </div>
   @endif
 
-  <form class="needs-validation" action="/login" method="POST" novalidate>
+  <form class="needs-validation" action="{{ route('store.login') }}" method="POST" novalidate>
     @csrf
     <div class="mb-3">
       <div class="form-floating">

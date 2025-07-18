@@ -4,9 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Admin\UserController;
+use Faker\Guesser\Name;
 
 Route::get('/', [SessionController::class, 'create'])->name('login');
-Route::post('/login', [SessionController::class, 'store']);
+Route::post('/login', [SessionController::class, 'store'])->name('store.login');
 
 // Rotas de Recuperação de Senha
 Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
