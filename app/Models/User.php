@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'role',
         'password',
+        'deactivated_at',
     ];
 
     /**
@@ -44,6 +45,7 @@ class User extends Authenticatable
         return [
             'password' => 'hashed',
             'role' => UserRole::class,
+            'deactivated_at' => 'datetime',
         ];
     }
 
@@ -57,5 +59,13 @@ class User extends Authenticatable
 
         // Envia a notificação com a URL de redefinição de senha
         $this->notify(new ResetPasswordNotification($url));
+    }
+
+    /**
+     * Verifica se o usuário está ativo.
+     */
+    public function isActive(): bool
+    {
+        return $this->deactivated_at === null;
     }
 }

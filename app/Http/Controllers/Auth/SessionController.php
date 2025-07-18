@@ -31,6 +31,15 @@ class SessionController extends Controller
             ]);
         }
 
+        // Verifica se o usuário está ativo
+        if (!Auth::user()->isActive()) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'login_error' => 'Esta conta de usuário foi desativada.',
+            ]);
+        }
+
         // Se a autenticação for bem-sucedida
         session()->regenerate();
 
