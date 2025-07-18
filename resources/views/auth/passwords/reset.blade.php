@@ -48,7 +48,7 @@
         <div class="mb-3">
             <div class="form-floating">
                 <input type="password" name="password" id="password"
-                    class="form-control @error('password') is-invalid @enderror" placeholder="Nova Senha" required>
+                    class="form-control @error('password') is-invalid @enderror" placeholder="Nova Senha" maxlength="64" required>
                 <label for="password"><i class="bi bi-lock me-2"></i>Nova Senha</label>
                 <div class="invalid-feedback">
                     @if ($errors->has('password'))
@@ -64,7 +64,7 @@
             <div class="form-floating">
                 <input type="password" name="password_confirmation" id="password_confirmation"
                     class="form-control @error('password_confirmation') is-invalid @enderror"
-                    placeholder="Confirmar Nova Senha" required>
+                    placeholder="Confirmar Nova Senha" maxlength="64" required>
                 <label for="password_confirmation"><i class="bi bi-lock-fill me-2"></i>Confirmar Nova Senha</label>
                 <div class="invalid-feedback">
                     @if ($errors->has('password_confirmation'))
@@ -73,6 +73,17 @@
                         O campo confirmação de senha é obrigatório.
                     @endif
                 </div>
+            </div>
+            <div class="mt-1">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Requisitos da senha:
+                </small>
+                <ul class="mb-0 mt-1 small">
+                    <li class="text-muted">De 8 a 64 caracteres</li>
+                    <li class="text-muted">Pelo menos uma letra maiúscula e uma minúscula</li>
+                    <li class="text-muted">Pelo menos um número</li>
+                </ul>
             </div>
         </div>
 
