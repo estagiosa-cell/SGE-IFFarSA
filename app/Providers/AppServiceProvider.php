@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,5 +23,8 @@ class AppServiceProvider extends ServiceProvider
     {
         // Ativa a prevenção de lazy loading somente fora do ambiente de produção
         Model::preventLazyLoading(! app()->isProduction());
+
+        // Configura a paginação para usar Bootstrap 5
+        Paginator::useBootstrapFive();
     }
 }
