@@ -37,8 +37,8 @@
                             <div>
                                 <h5 class="card-title fw-bold text-dark mb-2">{{ $course->name }}</h5>
                                 <div class="d-flex gap-2 mb-2">
-                                    <span class="badge bg-primary">{{ $course->level }}</span>
-                                    <span class="badge bg-secondary">{{ $course->type }}</span>
+                                    <span class="badge bg-primary">{{ $course->level->label() }}</span>
+                                    <span class="badge bg-secondary">{{ $course->type->label() }}</span>
                                 </div>
                                 <p class="card-text mb-0">
                                     <i class="bi bi-person-check me-1"></i>
