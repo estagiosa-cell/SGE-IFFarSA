@@ -15,7 +15,7 @@ class CourseController extends Controller
     {
         $courses = Course::with('coordinator')
             ->orderBy('name')
-            ->paginate(10);
+            ->paginate(5);
 
         return view('admin.courses.index', compact('courses'));
     }
