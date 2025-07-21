@@ -13,7 +13,11 @@ class CourseController extends Controller
      */
     public function index()
     {
-        return view('admin.courses.index');
+        $courses = Course::with('coordinator')
+            ->orderBy('name')
+            ->paginate(10);
+
+        return view('admin.courses.index', compact('courses'));
     }
 
     /**
