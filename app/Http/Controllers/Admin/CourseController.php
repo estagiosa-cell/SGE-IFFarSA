@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 class CourseController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Exibe uma listagem dos cursos.
      */
     public function index(Request $request)
     {
@@ -44,7 +44,7 @@ class CourseController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Exibe o formulário para criação de um novo curso.
      */
     public function create()
     {
@@ -56,7 +56,7 @@ class CourseController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Armazena um novo curso no banco de dados.
      */
     public function store(CourseRequest $request)
     {
@@ -68,7 +68,7 @@ class CourseController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Exibe o formulário para edição do curso especificado.
      */
     public function edit(string $id)
     {
@@ -81,7 +81,7 @@ class CourseController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Atualiza o curso especificado no banco de dados.
      */
     public function update(CourseRequest $request, string $id)
     {
@@ -91,13 +91,5 @@ class CourseController extends Controller
         return redirect()
             ->route('admin.courses.index')
             ->with('success', 'Curso atualizado com sucesso!');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }
