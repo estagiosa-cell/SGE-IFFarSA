@@ -68,4 +68,15 @@ class User extends Authenticatable
     {
         return $this->deactivated_at === null;
     }
+
+    /**
+     * Retorna todos os coordenadores ativos
+     */
+    public static function coordinators()
+    {
+        return self::where('role', UserRole::COORDENADOR)
+            ->whereNull('deactivated_at')
+            ->orderBy('name')
+            ->get();
+    }
 }
