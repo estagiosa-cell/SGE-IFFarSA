@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\CourseLevel;
 use App\Enums\CourseType;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\ValidationException;
 
 class Course extends Model
 {
@@ -19,7 +20,7 @@ class Course extends Model
         'level' => CourseLevel::class,
         'type' => CourseType::class,
     ];
-    
+
     protected static function boot()
     {
         parent::boot();
@@ -28,9 +29,9 @@ class Course extends Model
             // Se tem nível E tipo, valida a compatibilidade
             if ($course->level && $course->type) {
                 if (!CourseType::isValidForLevel($course->type, $course->level)) {
-                    throw new \InvalidArgumentException(
-                        "Erro: O tipo '{$course->type->label()}' não pode ser do nível '{$course->level->label()}'"
-                    );
+                    throw ValidationException::withMessages([
+                        'type' => "O tipo '{$course->type->label()}' não é válido para o nível '{$course->level->label()}'."
+                    ]);
                 }
             }
         });

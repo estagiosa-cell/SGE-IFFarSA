@@ -27,20 +27,32 @@ class StoreCourseRequest extends FormRequest
             'type' => [
                 'required',
                 Rule::enum(CourseType::class),
-                function ($value, $fail) {
-                    $levelValue = request('level');
-                    $level = CourseLevel::tryFrom($levelValue);
-                    $type = CourseType::tryFrom($value);
-
-                    if ($level && $type) {
-                        if (!CourseType::isValidForLevel($type, $level)) {
-                            $fail("O tipo '{$type->label()}' não é válido para o nível '{$level->label()}'.");
-                        }
-                    }
-                }
             ],
             'coordinator_id' => ['nullable', 'exists:users,id'],
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $data = $validator->getData();
+            $levelValue = $data['level'] ?? null;
+            $typeValue = $data['type'] ?? null;
+
+            if ($levelValue && $typeValue) {
+                $level = CourseLevel::tryFrom($levelValue);
+                $type = CourseType::tryFrom($typeValue);
+
+                if ($level && $type) {
+                    if (!CourseType::isValidForLevel($type, $level)) {
+                        $validator->errors()->add('type', "O tipo '{$type->label()}' não é válido para o nível '{$level->label()}'.");
+                    }
+                }
+            }
+        });
     }
 
     /**
