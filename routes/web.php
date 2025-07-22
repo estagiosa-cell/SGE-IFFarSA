@@ -33,6 +33,7 @@ Route::middleware(['auth'])->group(function () {
         // Rotas de Cursos
         Route::get('/courses', [CourseController::class, 'index'])->name('admin.courses.index');
         Route::get('/courses/create', [CourseController::class, 'create'])->name('admin.courses.create');
+        Route::post('/courses', [CourseController::class, 'store'])->name('admin.courses.store');
 
         // Rotas de Tipos de Estágio
         Route::get('/internship-types', [InternshipTypeController::class, 'index'])->name('admin.internship-types.index');
