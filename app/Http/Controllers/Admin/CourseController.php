@@ -68,19 +68,16 @@ class CourseController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        //
+        $course = Course::findOrFail($id);
+        $levels = CourseLevel::cases();
+        $types = CourseType::cases();
+        $coordinators = User::coordinators();
+
+        return view('admin.courses.edit', compact('course', 'levels', 'types', 'coordinators'));
     }
 
     /**

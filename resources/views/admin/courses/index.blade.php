@@ -110,7 +110,7 @@
                                     <span>{{ $course->coordinator->name ?? 'Não há coordenador cadastrado' }}</span>
                                 </p>
                             </div>
-                            <a href="" class="btn btn-secondary px-3 py-2">
+                            <a href="{{ route('admin.courses.edit', $course->id) }}" class="btn btn-secondary px-3 py-2">
                                 <i class="bi bi-pencil me-1"></i>Editar
                             </a>
                         </div>
