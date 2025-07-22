@@ -15,13 +15,32 @@ class CourseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Course::with('coordinator')
-            ->orderBy('name')
-            ->paginate(5);
+        $query = Course::with('coordinator');
 
-        return view('admin.courses.index', compact('courses'));
+        // Filtro por nome
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Filtro por nível
+        if ($request->filled('level')) {
+            $query->where('level', $request->level);
+        }
+
+        // Filtro por tipo
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        $courses = $query->orderBy('name')->paginate(5)->withQueryString();
+
+        // Dados para os filtros
+        $levels = CourseLevel::cases();
+        $types = CourseType::cases();
+
+        return view('admin.courses.index', compact('courses', 'levels', 'types'));
     }
 
     /**
