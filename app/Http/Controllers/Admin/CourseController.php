@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\CourseLevel;
+use App\Enums\CourseType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCourseRequest;
 use App\Models\Course;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CourseController extends Controller
@@ -26,7 +29,11 @@ class CourseController extends Controller
      */
     public function create()
     {
-        return view('admin.courses.create');
+        $levels = CourseLevel::cases();
+        $types = CourseType::cases();
+        $coordinators = User::coordinators();
+
+        return view('admin.courses.create', compact('levels', 'types', 'coordinators'));
     }
 
     /**
