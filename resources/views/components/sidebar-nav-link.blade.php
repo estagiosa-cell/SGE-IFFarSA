@@ -7,9 +7,13 @@
 @php
     $isActive = $active;
     if ($route) {
-        // Pega a rota base (remove tudo após o último ponto) e adiciona *
-        $routeBase = substr($route, 0, strrpos($route, '.')) . '.*';
-        $isActive = request()->routeIs($route) || request()->routeIs($routeBase);
+        $isActive = request()->routeIs($route);
+
+        // Para rotas de recurso (como admin.courses.index), também ativa nos sub-recursos
+        if (!$isActive && str_contains($route, '.index')) {
+            $routeBase = substr($route, 0, strrpos($route, '.index')) . '.*';
+            $isActive = request()->routeIs($routeBase);
+        }
     }
     $url = $route ? route($route) : '#';
 @endphp
