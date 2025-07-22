@@ -11,7 +11,7 @@
             </a>
         </div>
 
-        <div class="card">
+        <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <form class="needs-validation" action="{{ route('admin.courses.store') }}" method="POST" novalidate>
                     @csrf
