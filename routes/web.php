@@ -40,6 +40,9 @@ Route::middleware(['auth'])->group(function () {
         // Rotas de Tipos de Estágio
         Route::get('/internship-types', [InternshipTypeController::class, 'index'])->name('admin.internship-types.index');
         Route::get('/internship-types/create', [InternshipTypeController::class, 'create'])->name('admin.internship-types.create');
+        Route::post('/internship-types', [InternshipTypeController::class, 'store'])->name('admin.internship-types.store');
+        Route::get('/internship-types/{id}/edit', [InternshipTypeController::class, 'edit'])->name('admin.internship-types.edit');
+        Route::put('/internship-types/{id}', [InternshipTypeController::class, 'update'])->name('admin.internship-types.update');
     });
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
