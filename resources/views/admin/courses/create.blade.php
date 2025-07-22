@@ -13,79 +13,89 @@
 
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('admin.courses.store') }}" method="POST">
+                <form class="needs-validation" action="{{ route('admin.courses.store') }}" method="POST" novalidate>
                     @csrf
 
                     <div class="row">
                         <!-- Nome do Curso -->
                         <div class="col-md-6 mb-3">
-                            <label for="name" class="form-label">
-                                <i class="bi bi-book me-1"></i>Nome do Curso *
-                            </label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
-                                name="name" value="{{ old('name') }}" placeholder="Ex: Técnico em Informática">
-                            @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="form-floating">
+                                <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                    id="name" name="name" value="{{ old('name') }}"
+                                    placeholder="Ex: Técnico em Informática" required>
+                                <label for="name"><i class="bi bi-book me-2"></i>Nome do Curso *</label>
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @else
+                                    <div class="invalid-feedback">O campo nome do curso é obrigatório.</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <!-- Nível do Curso -->
                         <div class="col-md-3 mb-3">
-                            <label for="level" class="form-label">
-                                <i class="bi bi-layers me-1"></i>Nível *
-                            </label>
-                            <select class="form-select @error('level') is-invalid @enderror" id="level" name="level">
-                                <option value="">Selecione o nível</option>
-                                @foreach ($levels as $level)
-                                    <option value="{{ $level->value }}"
-                                        {{ old('level') == $level->value ? 'selected' : '' }}>
-                                        {{ $level->label() }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('level')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="form-floating">
+                                <select class="form-select @error('level') is-invalid @enderror" id="level"
+                                    name="level" required>
+                                    <option value="">Selecione o nível</option>
+                                    @foreach ($levels as $level)
+                                        <option value="{{ $level->value }}"
+                                            {{ old('level') == $level->value ? 'selected' : '' }}>
+                                            {{ $level->label() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="level"><i class="bi bi-layers me-2"></i>Nível *</label>
+                                @error('level')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @else
+                                    <div class="invalid-feedback">Selecione o nível do curso.</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <!-- Tipo do Curso -->
                         <div class="col-md-3 mb-3">
-                            <label for="type" class="form-label">
-                                <i class="bi bi-tag me-1"></i>Tipo *
-                            </label>
-                            <select class="form-select @error('type') is-invalid @enderror" id="type" name="type">
-                                <option value="">Selecione o tipo</option>
-                                @foreach ($types as $type)
-                                    <option value="{{ $type->value }}" {{ old('type') == $type->value ? 'selected' : '' }}>
-                                        {{ $type->label() }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="form-floating">
+                                <select class="form-select @error('type') is-invalid @enderror" id="type"
+                                    name="type" required>
+                                    <option value="">Selecione o tipo</option>
+                                    @foreach ($types as $type)
+                                        <option value="{{ $type->value }}"
+                                            {{ old('type') == $type->value ? 'selected' : '' }}>
+                                            {{ $type->label() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="type"><i class="bi bi-tag me-2"></i>Tipo *</label>
+                                @error('type')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @else
+                                    <div class="invalid-feedback">Selecione o tipo do curso.</div>
+                                @enderror
+                            </div>
                         </div>
                     </div>
 
                     <div class="row">
                         <!-- Coordenador -->
                         <div class="col-md-6 mb-3">
-                            <label for="coordinator_id" class="form-label">
-                                <i class="bi bi-person-badge me-1"></i>Coordenador
-                            </label>
-                            <select class="form-select @error('coordinator_id') is-invalid @enderror" id="coordinator_id"
-                                name="coordinator_id">
-                                <option value="">Nenhum coordenador</option>
-                                @foreach ($coordinators as $coordinator)
-                                    <option value="{{ $coordinator->id }}"
-                                        {{ old('coordinator_id') == $coordinator->id ? 'selected' : '' }}>
-                                        {{ $coordinator->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('coordinator_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="form-floating">
+                                <select class="form-select @error('coordinator_id') is-invalid @enderror"
+                                    id="coordinator_id" name="coordinator_id">
+                                    <option value="">Nenhum coordenador</option>
+                                    @foreach ($coordinators as $coordinator)
+                                        <option value="{{ $coordinator->id }}"
+                                            {{ old('coordinator_id') == $coordinator->id ? 'selected' : '' }}>
+                                            {{ $coordinator->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="coordinator_id"><i class="bi bi-person-badge me-2"></i>Coordenador</label>
+                                @error('coordinator_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
                     </div>
 
