@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\CourseLevel;
 use App\Enums\CourseType;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCourseRequest;
+use App\Http\Requests\CourseRequest;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -58,7 +58,7 @@ class CourseController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCourseRequest $request)
+    public function store(CourseRequest $request)
     {
         Course::create($request->validated());
 
@@ -83,9 +83,14 @@ class CourseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(CourseRequest $request, string $id)
     {
-        //
+        $course = Course::findOrFail($id);
+        $course->update($request->validated());
+
+        return redirect()
+            ->route('admin.courses.index')
+            ->with('success', 'Curso atualizado com sucesso!');
     }
 
     /**
