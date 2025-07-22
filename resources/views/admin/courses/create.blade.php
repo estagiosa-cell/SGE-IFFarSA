@@ -111,13 +111,13 @@
                     </div>
 
                     <!-- Botões -->
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-check-circle me-2"></i>Cadastrar Curso
-                        </button>
+                    <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.courses.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancelar
                         </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle me-2"></i>Cadastrar Curso
+                        </button>
                     </div>
                 </form>
             </div>
