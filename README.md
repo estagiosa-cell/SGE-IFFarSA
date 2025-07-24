@@ -1,4 +1,4 @@
-# SIGE-IFFarSA - Sistema Integrado de Gestão de Estágios
+# SGE-IFFarSA - Sistema Integrado de Gestão de Estágios
 
 ## Tecnologias Utilizadas
 
@@ -23,7 +23,7 @@ Siga os passos abaixo para configurar o ambiente de desenvolvimento local.
 1. **Clone o repositório**:
 
    ```bash
-   git clone https://github.com/ArthurWillers/SIGE-IFFarSA.git
+   git clone https://github.com/ArthurWillers/SGE-IFFarSA.git
    cd seu-repositorio
    ```
 
@@ -61,7 +61,7 @@ Siga os passos abaixo para configurar o ambiente de desenvolvimento local.
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
    DB_PORT=3306
-   DB_DATABASE=sige_iffarsa
+   DB_DATABASE=sge_iffarsa
    DB_USERNAME=root
    DB_PASSWORD=
    ```

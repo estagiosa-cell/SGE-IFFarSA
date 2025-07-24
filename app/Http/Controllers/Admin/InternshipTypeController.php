@@ -9,23 +9,25 @@ use App\Models\InternshipType;
 class InternshipTypeController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Exibe a lista de tipos de estágio.
+     *
+     * @return \Illuminate\View\View
      */
     public function index()
     {
-        return view('admin.internship_types.index');
+        
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Exibe o formulário para criar um novo tipo de estágio.
      */
     public function create()
     {
-        return view('admin.internship_types.create');
+
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Armazena um novo tipo de estágio no banco de dados.
      */
     public function store(Request $request)
     {
@@ -33,15 +35,7 @@ class InternshipTypeController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
+     * Exibe o formulário para editar um tipo de estágio específico.
      */
     public function edit(string $id)
     {
@@ -49,17 +43,9 @@ class InternshipTypeController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Atualiza um tipo de estágio específico no banco de dados.
      */
     public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
     {
         //
     }
