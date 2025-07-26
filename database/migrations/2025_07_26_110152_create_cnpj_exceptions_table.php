@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('cnpj_exceptions', function (Blueprint $table) {
             $table->id();
-            $table->string('razao_social');
-            $table->string('cnpj_matriz');
+            $table->string('razao_social')->unique();
+            $table->string('cnpj_matriz')->unique();
             $table->timestamps();
         });
     }
