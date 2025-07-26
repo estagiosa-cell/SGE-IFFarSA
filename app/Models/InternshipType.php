@@ -6,5 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class InternshipType extends Model
 {
-    //
+    protected $fillable = [
+        'name',
+        'required_hours',
+        'course_id',
+    ];
 }

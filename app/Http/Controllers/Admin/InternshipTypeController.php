@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\InternshipTypeRequest;
 use App\Models\InternshipType;
+use App\Models\Course;
 
 class InternshipTypeController extends Controller
 {
@@ -15,7 +17,7 @@ class InternshipTypeController extends Controller
      */
     public function index()
     {
-        
+
     }
 
     /**
@@ -23,15 +25,19 @@ class InternshipTypeController extends Controller
      */
     public function create()
     {
-
+        $courses = Course::all();
+        return view('admin.internship_types.create', compact('courses'));
     }
 
     /**
      * Armazena um novo tipo de estágio no banco de dados.
      */
-    public function store(Request $request)
+    public function store(InternshipTypeRequest $request)
     {
-        //
+        $data = $request->validated();
+        InternshipType::create($data);
+        return redirect()->route('admin.internship-types.index')
+            ->with('success', 'Tipo de estágio cadastrado com sucesso!');
     }
 
     /**
