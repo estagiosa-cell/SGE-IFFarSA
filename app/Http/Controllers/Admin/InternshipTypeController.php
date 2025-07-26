@@ -55,8 +55,8 @@ class InternshipTypeController extends Controller
     public function update(InternshipTypeRequest $request, string $id)
     {
         $internshipType = InternshipType::findOrFail($id);
-        $data = $request->validated();
-        $internshipType->update($data);
+        $internshipType->update($request->validated());
+        
         return redirect()->route('admin.internship-types.index')
             ->with('success', 'Tipo de estágio atualizado com sucesso!');
     }
