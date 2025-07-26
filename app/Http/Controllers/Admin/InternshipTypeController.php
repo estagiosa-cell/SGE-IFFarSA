@@ -44,14 +44,20 @@ class InternshipTypeController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $internshipType = InternshipType::findOrFail($id);
+        $courses = Course::all();
+        return view('admin.internship_types.edit', compact('internshipType', 'courses'));
     }
 
     /**
      * Atualiza um tipo de estágio específico no banco de dados.
      */
-    public function update(Request $request, string $id)
+    public function update(InternshipTypeRequest $request, string $id)
     {
-        //
+        $internshipType = InternshipType::findOrFail($id);
+        $data = $request->validated();
+        $internshipType->update($data);
+        return redirect()->route('admin.internship-types.index')
+            ->with('success', 'Tipo de estágio atualizado com sucesso!');
     }
 }
