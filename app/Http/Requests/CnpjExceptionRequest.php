@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 
+/**
+ * @method mixed input(string $key = null, $default = null)
+ * @method mixed route($param = null, $default = null)
+ * @method mixed merge(array $input)
+ */
 class CnpjExceptionRequest extends FormRequest
 {
     public function authorize(): bool
