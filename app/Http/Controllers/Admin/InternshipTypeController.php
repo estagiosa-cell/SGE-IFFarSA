@@ -36,7 +36,8 @@ class InternshipTypeController extends Controller
         $data = $request->validated();
         InternshipType::create($data);
         return redirect()->route('admin.internship-types.index')
-            ->with('success', 'Tipo de estágio cadastrado com sucesso!');
+            ->with('message', 'Tipo de estágio cadastrado com sucesso!')
+            ->with('messageType', 'success');
     }
 
     /**
@@ -56,8 +57,9 @@ class InternshipTypeController extends Controller
     {
         $internshipType = InternshipType::findOrFail($id);
         $internshipType->update($request->validated());
-        
+
         return redirect()->route('admin.internship-types.index')
-            ->with('success', 'Tipo de estágio atualizado com sucesso!');
+            ->with('message', 'Tipo de estágio atualizado com sucesso!')
+            ->with('messageType', 'success');
     }
 }

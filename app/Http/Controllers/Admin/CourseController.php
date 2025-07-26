@@ -64,7 +64,8 @@ class CourseController extends Controller
 
         return redirect()
             ->route('admin.courses.index')
-            ->with('success', 'Curso criado com sucesso!');
+            ->with('message', 'Curso criado com sucesso!')
+            ->with('messageType', 'success');
     }
 
     /**
@@ -90,6 +91,7 @@ class CourseController extends Controller
 
         return redirect()
             ->route('admin.courses.index')
-            ->with('success', 'Curso atualizado com sucesso!');
+            ->with('message', 'Curso atualizado com sucesso!')
+            ->with('messageType', 'success');
     }
 }
