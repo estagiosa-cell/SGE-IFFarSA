@@ -28,7 +28,7 @@
             Gerenciar Tipos de Estágio
         </x-sidebar-nav-link>
 
-        <x-sidebar-nav-link route="" icon="exclamation-octagon">
+        <x-sidebar-nav-link route="admin.cnpj-exceptions.index" icon="exclamation-octagon">
             Gerenciar Exceções de CNPJ
         </x-sidebar-nav-link>
     @endcan
