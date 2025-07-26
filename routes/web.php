@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\InternshipTypeController;
+use App\Http\Controllers\Admin\CnpjExceptionController;
 
 Route::get('/', [SessionController::class, 'create'])->name('login');
 Route::post('/login', [SessionController::class, 'store'])->name('store.login');
@@ -26,7 +27,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
         Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
 
-        // Rotas para desaticvar e reativar usuários
+        // Rotas para desativar e reativar usuários
         Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('admin.users.deactivate');
         Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('admin.users.reactivate');
 
@@ -43,6 +44,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/internship-types', [InternshipTypeController::class, 'store'])->name('admin.internship-types.store');
         Route::get('/internship-types/{id}/edit', [InternshipTypeController::class, 'edit'])->name('admin.internship-types.edit');
         Route::put('/internship-types/{id}', [InternshipTypeController::class, 'update'])->name('admin.internship-types.update');
+
+        // Rotas de Exceções de CNPJ
+        Route::get('/cnpj-exceptions', [CnpjExceptionController::class, 'index'])->name('admin.cnpj-exceptions.index');
+        Route::get('/cnpj-exceptions/create', [CnpjExceptionController::class, 'create'])->name('admin.cnpj-exceptions.create');
+        Route::post('/cnpj-exceptions', [CnpjExceptionController::class, 'store'])->name('admin.cnpj-exceptions.store');
+        Route::get('/cnpj-exceptions/{id}/edit', [CnpjExceptionController::class, 'edit'])->name('admin.cnpj-exceptions.edit');
+        Route::put('/cnpj-exceptions/{id}', [CnpjExceptionController::class, 'update'])->name('admin.cnpj-exceptions.update');
+        Route::delete('/cnpj-exceptions/{id}', [CnpjExceptionController::class, 'destroy'])->name('admin.cnpj-exceptions.destroy');
     });
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
