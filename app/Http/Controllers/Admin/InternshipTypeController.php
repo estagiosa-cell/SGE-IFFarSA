@@ -12,12 +12,11 @@ class InternshipTypeController extends Controller
 {
     /**
      * Exibe a lista de tipos de estágio.
-     *
-     * @return \Illuminate\View\View
      */
     public function index()
     {
-
+        $internshipTypes = InternshipType::with('course')->paginate(5);
+        return view('admin.internship_types.index', compact('internshipTypes'));
     }
 
     /**

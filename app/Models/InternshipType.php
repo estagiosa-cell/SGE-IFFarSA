@@ -11,4 +11,8 @@ class InternshipType extends Model
         'required_hours',
         'course_id',
     ];
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
 }
