@@ -19,9 +19,9 @@ class WelcomeNotification extends Notification implements ShouldQueue
      * @param  mixed  $user  Usuário que receberá a notificação
      * @return void
      */
-    public function __construct($user)
+    public function __construct()
     {
-        $this->user = $user;
+        //
     }
 
     /**
@@ -41,14 +41,14 @@ class WelcomeNotification extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail($notifiable = null): MailMessage
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject('Bem-vindo ao ' . env('APP_NAME', 'SGE') . '!')
-            ->greeting('Olá, ' . $this->user->name . '!')
+            ->greeting('Olá, ' . $notifiable->name . '!')
             ->line('Sua conta foi criada com sucesso no ' . env('APP_NAME', 'SGE') . '.')
             ->line('Para acessar o sistema, utilize o e-mail cadastrado e clique no link abaixo para definir sua senha:')
-            ->action('Definir senha', route('password.request', ['email' => $this->user->email]))
+            ->action('Definir senha', route('password.request', ['email' => $notifiable->email]))
             ->line('**Importante:** O acesso ao sistema só é possível quando conectado na rede do campus.');
     }
 }
