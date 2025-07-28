@@ -44,20 +44,9 @@ class UserController extends Controller
             }
         }
 
-        $users = $query->latest()->paginate(10)->withQueryString();
+        $users = $query->latest()->paginate(12)->withQueryString();
         $roles = UserRole::cases();
         return view('admin.users.index', compact('users', 'roles', 'showDeleted'));
-    }
-    /**
-     * Restaura um usuário deletado (soft deleted).
-     */
-    public function restore($id)
-    {
-        $user = User::onlyTrashed()->findOrFail($id);
-        $user->restore();
-        return redirect()->route('admin.users.index', ['show_deleted' => 1])
-            ->with('message', 'Usuário restaurado com sucesso!')
-            ->with('messageType', 'success');
     }
 
     /**
@@ -120,7 +109,34 @@ class UserController extends Controller
      */
     public function import(Request $request)
     {
-        //
+        $request->validate([
+            'file' => 'required|file|mimes:csv|max:10240', // 10MB max
+        ]);
+
+        $file = $request->file('file');
+        $handle = fopen($file->getRealPath(), 'r');
+
+        // Ignora o cabeçalho
+        fgetcsv($handle);
+
+        // Lê cada linha do CSV e cria um usuário
+        while (($row = fgetcsv($handle)) !== false) {
+            $data = [
+                'name' => $row[0],
+                'email' => $row[1],
+                'role' => UserRole::ORIENTADOR,
+                'password' => Str::random(40),
+            ];
+            $user = User::create($data);
+
+            // Envia notificação de boas-vindas (para fazer)
+        }
+
+        fclose($handle);
+
+        return redirect()->route('admin.users.index')
+            ->with('message', 'Usuários importados com sucesso!')
+            ->with('messageType', 'success');
     }
 
     /**
@@ -140,6 +156,17 @@ class UserController extends Controller
             ->with('messageType', 'success');
     }
 
+    /**
+     * Restaura um usuário deletado (soft deleted).
+     */
+    public function restore($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+        return redirect()->route('admin.users.index', ['show_deleted' => 1])
+            ->with('message', 'Usuário restaurado com sucesso!')
+            ->with('messageType', 'success');
+    }
     /**
      * Desativa um usuário.
      */
