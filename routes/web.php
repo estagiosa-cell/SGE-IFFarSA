@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
         Route::post('/users/import', [UserController::class, 'import'])->name('admin.users.import');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::patch('/users/{id}/restore', [UserController::class, 'restore'])->name('admin.users.restore');
         Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('admin.users.deactivate');
         Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('admin.users.reactivate');
 
