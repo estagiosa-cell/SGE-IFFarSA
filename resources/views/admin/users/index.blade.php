@@ -6,9 +6,16 @@
     <div class="container-fluid mt-4 mx-1">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h4 mb-0">Gerenciar Usuários</h2>
-            <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>Novo Usuário
-            </a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('admin.users.index', array_merge(request()->except('show_deleted'), ['show_deleted' => $showDeleted ? 0 : 1])) }}"
+                    class="btn btn-outline-{{ $showDeleted ? 'secondary' : 'danger' }}">
+                    <i class="bi bi-trash{{ $showDeleted ? '' : '-fill' }} me-2"></i>
+                    {{ $showDeleted ? 'Ver Ativos' : 'Ver Deletados' }}
+                </a>
+                <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Novo Usuário
+                </a>
+            </div>
         </div>
 
         <!-- Filtros de Pesquisa -->
@@ -65,13 +72,25 @@
                 <div class="card-body">
                     <div class="text-center py-5">
                         <div class="mb-4">
-                            @if (request()->hasAny(['search', 'role', 'status']))
+                            @if ($showDeleted)
+                                <i class="bi bi-trash text-muted" style="font-size: 4rem;"></i>
+                            @elseif (request()->hasAny(['search', 'role', 'status']))
                                 <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
                             @else
                                 <i class="bi bi-person-x text-muted" style="font-size: 4rem;"></i>
                             @endif
                         </div>
-                        @if (request()->hasAny(['search', 'role', 'status']))
+                        @if ($showDeleted)
+                            <h4 class="text-muted mb-3">Nenhum usuário deletado</h4>
+                            <p class="text-muted mb-4">
+                                Não há usuários deletados no momento.<br>
+                                Você pode alternar para ver os ativos.
+                            </p>
+                            <a href="{{ route('admin.users.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
+                                class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left me-2"></i>Ver Usuários Ativos
+                            </a>
+                        @elseif (request()->hasAny(['search', 'role', 'status']))
                             <h4 class="text-muted mb-3">Nenhum usuário encontrado</h4>
                             <p class="text-muted mb-4">
                                 Não foram encontrados usuários com os filtros aplicados.<br>
@@ -108,36 +127,27 @@
                                     <span class="badge bg-danger">Desativado</span>
                                 @endif
                             </div>
-                            <div class="col-md-2 text-end">
-                                <a href="{{ route('admin.users.edit', $user->id) }}"
-                                    class="btn btn-secondary btn-sm px-3 py-1">
-                                    <i class="bi bi-pencil me-1"></i>Editar
-                                </a>
+                            <div class="col-md-2 text-end d-flex gap-1 justify-content-end">
+                                @if ($showDeleted)
+                                    <form method="POST" action="{{ route('admin.users.restore', $user->id) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-success btn-sm px-3 py-1" title="Restaurar">
+                                            <i class="bi bi-arrow-clockwise me-1"></i>Restaurar
+                                        </button>
+                                    </form>
+                                @else
+                                    <a href="{{ route('admin.users.edit', $user->id) }}"
+                                        class="btn btn-secondary btn-sm px-3 py-1">
+                                        <i class="bi bi-pencil me-1"></i>Editar
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
             @endforeach
             {{ $users->links() }}
+        @endif
     </div>
-    @endif
-    </div>
-    @push('scripts')
-        <script>
-            // Auto-submit do formulário quando os selects mudarem
-            document.getElementById('role').addEventListener('change', function() {
-                this.form.submit();
-            });
-            document.getElementById('status').addEventListener('change', function() {
-                this.form.submit();
-            });
-            // Submit com Enter na busca
-            document.getElementById('search').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this.form.submit();
-                }
-            });
-        </script>
-    @endpush
 @endsection

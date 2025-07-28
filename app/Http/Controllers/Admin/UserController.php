@@ -19,6 +19,11 @@ class UserController extends Controller
     {
         $query = User::query();
 
+        $showDeleted = $request->input('show_deleted') === '1';
+        if ($showDeleted) {
+            $query = $query->onlyTrashed();
+        }
+
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
@@ -41,7 +46,18 @@ class UserController extends Controller
 
         $users = $query->latest()->paginate(10)->withQueryString();
         $roles = UserRole::cases();
-        return view('admin.users.index', compact('users', 'roles'));
+        return view('admin.users.index', compact('users', 'roles', 'showDeleted'));
+    }
+    /**
+     * Restaura um usuário deletado (soft deleted).
+     */
+    public function restore($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+        return redirect()->route('admin.users.index', ['show_deleted' => 1])
+            ->with('message', 'Usuário restaurado com sucesso!')
+            ->with('messageType', 'success');
     }
 
     /**
@@ -74,15 +90,29 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $user = User::findOrFail($id);
+        $roles = UserRole::cases();
+        return view('admin.users.edit', compact('user', 'roles'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UserRequest $request, string $id)
     {
-        //
+        $user = User::findOrFail($id);
+        $data = $request->validated();
+
+        // Não permitir alteração do próprio papel se for o próprio usuário
+        if ($user->id === Auth::id()) {
+            unset($data['role']);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('admin.users.edit', $user->id)
+            ->with('message', 'Usuário atualizado com sucesso!')
+            ->with('messageType', 'success');
     }
 
     /**
