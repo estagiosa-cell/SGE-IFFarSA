@@ -6,15 +6,42 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Enums\UserRole;
+use App\Http\Requests\UserRequest;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('admin.users.index');
+        $query = User::query();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%");
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        if ($request->filled('status')) {
+            if ($request->input('status') === 'active') {
+                $query->whereNull('deactivated_at');
+            } elseif ($request->input('status') === 'inactive') {
+                $query->whereNotNull('deactivated_at');
+            }
+        }
+
+        $users = $query->latest()->paginate(10)->withQueryString();
+        $roles = UserRole::cases();
+        return view('admin.users.index', compact('users', 'roles'));
     }
 
     /**
@@ -22,23 +49,24 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        $roles = UserRole::cases();
+        return view('admin.users.create', compact('roles'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        //
-    }
+        $data = $request->validated();
+        $data['password'] = Str::random(40);
+        $user = User::create($data);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        $user->sendWelcomeNotification();
+
+        return redirect()->route('admin.users.index')
+            ->with('message', 'Usuário cadastrado com sucesso!')
+            ->with('messageType', 'success');
     }
 
     /**
@@ -53,6 +81,14 @@ class UserController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Importa usuários de um arquivo CSV.
+     */
+    public function import(Request $request)
     {
         //
     }
