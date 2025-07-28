@@ -32,18 +32,18 @@
                             </div>
                         </div>
 
-                        <!-- Horas Obrigatórias -->
+                        <!-- Carga Horária -->
                         <div class="col-md-3 mb-3">
                             <div class="form-floating">
                                 <input type="number" min="1" max="9999"
                                     class="form-control @error('required_hours') is-invalid @enderror" id="required_hours"
                                     name="required_hours" value="{{ old('required_hours') }}" placeholder="Ex: 400"
                                     required>
-                                <label for="required_hours"><i class="bi bi-clock me-2"></i>Horas Obrigatórias *</label>
+                                <label for="required_hours"><i class="bi bi-clock me-2"></i>Carga Horária *</label>
                                 @error('required_hours')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @else
-                                    <div class="invalid-feedback">Informe as horas obrigatórias.</div>
+                                    <div class="invalid-feedback">Informe a Carga Horária.</div>
                                 @enderror
                             </div>
                         </div>
