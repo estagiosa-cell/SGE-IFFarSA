@@ -32,7 +32,7 @@ class UserRequest extends FormRequest
             'email' => [
                 'required',
                 'email',
-                Rule::unique('users')->ignore(optional($this->route('user'))->id ?? $this->route('user')),
+                Rule::unique('users')->ignore($this->route('id')),
             ],
             'role' => [
                 'required',
