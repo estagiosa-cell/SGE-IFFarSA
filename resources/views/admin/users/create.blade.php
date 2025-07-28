@@ -110,7 +110,6 @@
                         <li>A primeira linha deve ser o cabeçalho: <code>nome,email</code></li>
                         <li>Cada linha seguinte deve conter o nome completo e o e-mail do usuário.</li>
                         <li>As colunas devem ser separadas por <b>vírgula (,)</b>.</li>
-                        <li>No maximo 100 cadastros de usuários por vez.</li>
                         <li>Exemplo de conteúdo:
                             <pre class="mb-0">nome,email
 Nome,email@exemplo.com

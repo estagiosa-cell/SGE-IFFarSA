@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Enums\UserRole;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Str;
-use App\Notifications\WelcomeNotification;
-use Illuminate\Support\Facades\Notification;
 
 class UserController extends Controller
 {
@@ -67,9 +65,7 @@ class UserController extends Controller
     {
         $data = $request->validated();
         $data['password'] = Str::random(40);
-        $user = User::create($data);
-
-        $user->notify(new WelcomeNotification());
+        User::create($data);
 
         return redirect()->route('admin.users.index')
             ->with('message', 'Usuário cadastrado com sucesso!')
@@ -127,10 +123,6 @@ class UserController extends Controller
         }
         fclose($handle);
 
-        // Limite de 100 usuários
-        if (count($rows) > 100) {
-            return back()->with('importStatus', 'Você só pode importar no máximo 100 usuários por vez.');
-        }
 
         // Verifica duplicidade de e-mails no banco
         $emails = array_map(fn($r) => $r[1], $rows);
@@ -140,20 +132,17 @@ class UserController extends Controller
             return back()->with('importStatus', 'Os seguintes e-mails já existem no sistema: <br>' . implode('<br>', $existingEmails));
         }
 
-        $newUsers = collect();
         foreach ($rows as $row) {
-            $newUsers->push(User::create([
+            User::create([
                 'name'     => $row[0],
                 'email'    => $row[1],
                 'role'     => UserRole::ORIENTADOR,
                 'password' => bcrypt(Str::random(40)),
-            ]));
+            ]);
         }
 
-        // enviar email de boas-vindas
-
         return redirect()->route('admin.users.index')
-            ->with('message', 'Usuários importados com sucesso! Um e-mail de boas-vindas foi enviado para todos.')
+            ->with('message', 'Usuários importados com sucesso!')
             ->with('messageType', 'success');
     }
 
