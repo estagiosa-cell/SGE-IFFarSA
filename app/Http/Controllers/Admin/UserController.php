@@ -98,7 +98,16 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        if ($user->id === Auth::id()) {
+            return back()->with('message', 'Você não pode excluir sua própria conta!')->with('messageType', 'danger');
+        }
+
+        $user->delete();
+        return redirect()->route('admin.users.index')
+            ->with('message', 'Usuário excluído com sucesso!')
+            ->with('messageType', 'success');
     }
 
     /**
