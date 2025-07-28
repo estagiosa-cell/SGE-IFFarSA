@@ -26,8 +26,10 @@ Route::middleware(['auth'])->group(function () {
         // Rotas de Usuários
         Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
         Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
-
-        // Rotas para desativar e reativar usuários
+        Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
+        Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+        Route::put('/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::post('/users/import', [UserController::class, 'import'])->name('admin.users.import');
         Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('admin.users.deactivate');
         Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('admin.users.reactivate');
 
