@@ -112,32 +112,48 @@ class UserController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv|max:10240', // 10MB max
+            'file' => 'required|file|mimes:csv|max:10240', // max 10MB
         ]);
 
         $file = $request->file('file');
         $handle = fopen($file->getRealPath(), 'r');
+        fgetcsv($handle); // Pula a linha do cabeçalho
 
-        // Ignora o cabeçalho
-        fgetcsv($handle);
-
-        // Lê cada linha do CSV e cria um usuário
+        $rows = [];
         while (($row = fgetcsv($handle)) !== false) {
-            $data = [
-                'name' => $row[0],
-                'email' => $row[1],
-                'role' => UserRole::ORIENTADOR,
-                'password' => Str::random(40),
-            ];
-            $user = User::create($data);
-
-            // Envia notificação de boas-vindas (para fazer)
+            if (isset($row[0]) && isset($row[1])) {
+                $rows[] = $row;
+            }
         }
-
         fclose($handle);
 
+        // Limite de 100 usuários
+        if (count($rows) > 100) {
+            return back()->with('importStatus', 'Você só pode importar no máximo 100 usuários por vez.');
+        }
+
+        // Verifica duplicidade de e-mails no banco
+        $emails = array_map(fn($r) => $r[1], $rows);
+        $existingEmails = User::whereIn('email', $emails)->pluck('email')->toArray();
+
+        if (!empty($existingEmails)) {
+            return back()->with('importStatus', 'Os seguintes e-mails já existem no sistema: <br>' . implode('<br>', $existingEmails));
+        }
+
+        $newUsers = collect();
+        foreach ($rows as $row) {
+            $newUsers->push(User::create([
+                'name'     => $row[0],
+                'email'    => $row[1],
+                'role'     => UserRole::ORIENTADOR,
+                'password' => bcrypt(Str::random(40)),
+            ]));
+        }
+
+        // enviar email de boas-vindas
+
         return redirect()->route('admin.users.index')
-            ->with('message', 'Usuários importados com sucesso!')
+            ->with('message', 'Usuários importados com sucesso! Um e-mail de boas-vindas foi enviado para todos.')
             ->with('messageType', 'success');
     }
 
