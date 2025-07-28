@@ -89,6 +89,14 @@
             </div>
         </div>
 
+        {{-- Mensagem de erro na importação --}}
+        @if (session('importStatus'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Erro na importação:</strong> {!! session('importStatus') !!}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
+        @endif
+
         {{-- Cadastro em massa --}}
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body bg-light">
@@ -102,10 +110,11 @@
                         <li>A primeira linha deve ser o cabeçalho: <code>nome,email</code></li>
                         <li>Cada linha seguinte deve conter o nome completo e o e-mail do usuário.</li>
                         <li>As colunas devem ser separadas por <b>vírgula (,)</b>.</li>
+                        <li>No maximo 100 cadastros de usuários por vez.</li>
                         <li>Exemplo de conteúdo:
                             <pre class="mb-0">nome,email
-Maria Silva,maria@exemplo.com
-João Souza,joao@exemplo.com
+Nome,email@exemplo.com
+Nome1,email1@exemplo.com
                             </pre>
                         </li>
                     </ul>
