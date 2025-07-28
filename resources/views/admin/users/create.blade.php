@@ -96,10 +96,26 @@
                     <strong>Cadastro em massa:</strong> Para cadastrar vários orientadores de uma só vez, faça o
                     upload de um arquivo <code>.csv</code> com as colunas <b>nome</b> e <b>email</b>.<br>
                     Todos os usuários cadastrados por esse método terão o perfil de <b>Orientador</b>.
+                    <hr>
+                    <b>Instruções para o arquivo CSV:</b>
+                    <ul class="mb-1">
+                        <li>A primeira linha deve ser o cabeçalho: <code>nome,email</code></li>
+                        <li>Cada linha seguinte deve conter o nome completo e o e-mail do usuário.</li>
+                        <li>As colunas devem ser separadas por <b>vírgula (,)</b>.</li>
+                        <li>Exemplo de conteúdo:
+                            <pre class="mb-0">nome,email
+Maria Silva,maria@exemplo.com
+João Souza,joao@exemplo.com
+                            </pre>
+                        </li>
+                    </ul>
+                    <span class="text-muted">Apenas arquivos .csv com até 10MB são aceitos.</span>
                 </div>
-                <form id="csv-upload-form" action="{{ route('admin.users.import') }}" method="POST" enctype="multipart/form-data">
+                <form id="csv-upload-form" action="{{ route('admin.users.import') }}" method="POST"
+                    enctype="multipart/form-data">
+                    @csrf
                     <div class="input-group">
-                        <input type="file" class="form-control" name="csv_file" accept=".csv" required>
+                        <input type="file" class="form-control" name="file" accept=".csv" required>
                         <button class="btn btn-outline-primary" type="submit">
                             <i class="bi bi-upload me-1"></i>Importar CSV
                         </button>
