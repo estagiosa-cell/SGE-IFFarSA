@@ -13,17 +13,35 @@ class WelcomeNotification extends Notification implements ShouldQueue
 
     public $user;
 
+    /**
+     * Cria uma nova instância de notificação.
+     *
+     * @param  mixed  $user  Usuário que receberá a notificação
+     * @return void
+     */
     public function __construct($user)
     {
         $this->user = $user;
     }
 
-    public function via($notifiable)
+    /**
+     * Obtém os canais de entrega da notificação.
+     *
+     * @param  mixed  $notifiable
+     * @return array<int, string>
+     */
+    public function via($notifiable = null)
     {
         return ['mail'];
     }
 
-    public function toMail($notifiable)
+    /**
+     * Obtém a representação da notificação para o canal de e-mail.
+     *
+     * @param  mixed  $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
+     */
+    public function toMail($notifiable = null): MailMessage
     {
         return (new MailMessage)
             ->subject('Bem-vindo ao ' . env('APP_NAME', 'SGE') . '!')
