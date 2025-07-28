@@ -6,7 +6,6 @@ use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Notifications\WelcomeNotification;
 use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -61,11 +60,6 @@ class User extends Authenticatable
 
         // Envia a notificação com a URL de redefinição de senha
         $this->notify(new ResetPasswordNotification($url));
-    }
-
-    public function sendWelcomeNotification(): void
-    {
-        $this->notify(new WelcomeNotification($this));
     }
 
     /**
