@@ -23,7 +23,7 @@
 
                         <div class="col-md-2">
                             <select class="form-select form-select-sm" id="level" name="level">
-                                <option value="">Nível</option>
+                                <option value="">Todos os Níveis</option>
                                 @foreach ($levels as $level)
                                     <option value="{{ $level->value }}"
                                         {{ request('level') == $level->value ? 'selected' : '' }}>
@@ -35,7 +35,7 @@
 
                         <div class="col-md-2">
                             <select class="form-select form-select-sm" id="type" name="type">
-                                <option value="">Tipo</option>
+                                <option value="">Todos os Tipos</option>
                                 @foreach ($types as $type)
                                     <option value="{{ $type->value }}"
                                         {{ request('type') == $type->value ? 'selected' : '' }}>
