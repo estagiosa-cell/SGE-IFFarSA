@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Enums\UserRole;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Str;
+use App\Notifications\WelcomeNotification;
+use Illuminate\Support\Facades\Notification;
 
 class UserController extends Controller
 {
@@ -67,7 +69,7 @@ class UserController extends Controller
         $data['password'] = Str::random(40);
         $user = User::create($data);
 
-        $user->sendWelcomeNotification();
+        $user->notify(new WelcomeNotification());
 
         return redirect()->route('admin.users.index')
             ->with('message', 'Usuário cadastrado com sucesso!')
