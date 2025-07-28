@@ -23,7 +23,7 @@
         @csrf
         <div class="mb-3">
             <div class="form-floating">
-                <input type="email" name="email" id="email" value="{{ old('email') }}"
+                <input type="email" name="email" id="email" value="{{ old('email') ?? request('email') }}"
                     class="form-control @error('email') is-invalid @enderror" placeholder="E-mail" required>
                 <label for="email"><i class="bi bi-envelope me-2"></i>E-mail</label>
                 <div class="invalid-feedback">
