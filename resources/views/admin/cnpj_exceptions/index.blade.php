@@ -16,7 +16,7 @@
                 <div class="card-body">
                     <div class="text-center py-5">
                         <div class="mb-4">
-                            <i class="bi bi-shield-slash text-muted" style="font-size: 4rem;"></i>
+                            <i class="bi bi-exclamation-octagon text-muted" style="font-size: 4rem;"></i>
                         </div>
                         <h4 class="text-muted mb-3">Nenhuma exceção encontrada</h4>
                         <p class="text-muted mb-4">
