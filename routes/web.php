@@ -62,6 +62,10 @@ Route::middleware(['auth'])->group(function () {
         // Rotas de autenticação com Google
         Route::get('/google/redirect', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
         Route::get('/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
+
+        // Rota de sincronização de dados
+        Route::post('/sync/data', function () {dd('sync');})->name('admin.sync.data');
+
     });
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
