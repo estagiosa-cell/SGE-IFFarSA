@@ -4,7 +4,7 @@
 
 - **Backend**: Laravel 12 (PHP 8.2+)
 - **Frontend**: Bootstrap 5, SASS, Vite
-- **Banco de Dados**: SQL
+- **Banco de Dados**: SQLite (desenvolvimento) / MySQL/PostgreSQL (produção)
 - **Servidor de E-mail**: SMTP (configurável via .env)
 
 ## Configuração do Ambiente de Desenvolvimento
@@ -16,7 +16,6 @@ Siga os passos abaixo para configurar o ambiente de desenvolvimento local.
 - PHP >= 8.2
 - Composer
 - Node.js & NPM
-- Um servidor de banco de dados SQL
 
 ### Configuração Passo a Passo
 
@@ -24,7 +23,7 @@ Siga os passos abaixo para configurar o ambiente de desenvolvimento local.
 
    ```bash
    git clone https://github.com/ArthurWillers/SGE-IFFarSA.git
-   cd seu-repositorio
+   cd SGE-IFFarSA
    ```
 
 2. **Instale as dependências do PHP**:
@@ -55,20 +54,22 @@ Siga os passos abaixo para configurar o ambiente de desenvolvimento local.
 
 6. **Configure o Banco de Dados para Desenvolvimento**:
 
-   No arquivo `.env`, edite as variáveis DB\_\* com as credenciais do seu banco de dados de desenvolvimento:
+   No arquivo `.env`, configure para usar SQLite (mais simples para desenvolvimento):
 
    ```env
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=sge_iffarsa
-   DB_USERNAME=root
-   DB_PASSWORD=
+   DB_CONNECTION=sqlite
+   DB_DATABASE=database/database.sqlite
    ```
+
+   > **Nota**: O Laravel criará automaticamente o arquivo `database/database.sqlite` quando executar as migrations. Não é necessário criar manualmente.
+
+   **Alternativa para MySQL/PostgreSQL em desenvolvimento:**
+
+   Se preferir usar MySQL ou PostgreSQL, edite as variáveis DB_* com as credenciais do seu servidor.
 
 7. **Execute as Migrations**:
 
-   Este comando irá criar todas as tabelas necessárias no banco de dados:
+   Este comando irá criar o arquivo SQLite e todas as tabelas necessárias:
 
    ```bash
    php artisan migrate
@@ -86,6 +87,17 @@ Siga os passos abaixo para configurar o ambiente de desenvolvimento local.
    MAIL_PASSWORD=sua_senha_mailtrap
    MAIL_FROM_ADDRESS="email@exemplo.com"
    MAIL_FROM_NAME="${APP_NAME}"
+   ```
+
+9. **Configure a Integração com Google (Opcional)**:
+
+   Para funcionalidades que utilizam Google APIs (Google Drive, Sheets, etc.), adicione as credenciais no `.env`:
+
+   ```env
+   GOOGLE_CLIENT_ID=seu_client_id_google
+   GOOGLE_CLIENT_SECRET=seu_client_secret_google
+   GOOGLE_REDIRECT_URI=http://localhost:8000/google/callback
+   GOOGLE_ADMIN_ACCOUNT_EMAIL=admin@exemplo.com
    ```
 
 ## Executando a Aplicação em Desenvolvimento
@@ -110,6 +122,16 @@ Ou, se preferir, inicie os processos separadamente em terminais diferentes:
    ```
 
 A aplicação de desenvolvimento estará disponível em `http://localhost:8000`.
+
+## Banco de Dados
+
+### Desenvolvimento
+- **SQLite**: Usado por padrão para desenvolvimento (simples, sem configuração)
+- **Arquivo**: `database/database.sqlite` (criado automaticamente)
+
+### Produção
+- **MySQL/PostgreSQL**: Recomendado para ambiente de produção
+- **Configuração**: Via variáveis de ambiente no `.env`
 
 ## Tarefas Automatizadas (Scheduler)
 
