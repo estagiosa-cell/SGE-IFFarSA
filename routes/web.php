@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\InternshipTypeController;
 use App\Http\Controllers\Admin\CnpjExceptionController;
+use App\Http\Controllers\GoogleAuthController;
+
 
 Route::get('/', [SessionController::class, 'create'])->name('login');
 Route::post('/login', [SessionController::class, 'store'])->name('store.login');
@@ -56,6 +58,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/cnpj-exceptions/{id}/edit', [CnpjExceptionController::class, 'edit'])->name('admin.cnpj-exceptions.edit');
         Route::put('/cnpj-exceptions/{id}', [CnpjExceptionController::class, 'update'])->name('admin.cnpj-exceptions.update');
         Route::delete('/cnpj-exceptions/{id}', [CnpjExceptionController::class, 'destroy'])->name('admin.cnpj-exceptions.destroy');
+
+        // Rotas de autenticação com Google
+        Route::get('/google/redirect', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
+        Route::get('/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
     });
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');

@@ -43,7 +43,7 @@ class SessionController extends Controller
         // Se a autenticação for bem-sucedida
         session()->regenerate();
 
-        // 3. Pede ao serviço para determinar a rota correta, passando o utilizador logado
+        // Pede ao serviço para determinar a rota correta, passando o utilizador logado
         $redirectRouteName = $redirector->getRedirectRoute(Auth::user());
 
         // Redireciona o usuário para a rota pretendida ou para o dashboard
