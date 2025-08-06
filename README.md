@@ -1,4 +1,4 @@
-# SGE-IFFarSA - Sistema Integrado de Gestão de Estágios
+# SGE-IFFarSA - Sistema de Gestão de Estágios
 
 ## Tecnologias Utilizadas
 
