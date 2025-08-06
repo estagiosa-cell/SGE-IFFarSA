@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\InternshipTypeController;
 use App\Http\Controllers\Admin\CnpjExceptionController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\Admin\SyncDataController;
 
 
 Route::get('/', [SessionController::class, 'create'])->name('login');
@@ -64,7 +65,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
 
         // Rota de sincronização de dados
-        Route::post('/sync/data', function () {dd('sync');})->name('admin.sync.data');
+        Route::post('/sync/data', SyncDataController::class)->name('admin.sync.data');
 
     });
 
