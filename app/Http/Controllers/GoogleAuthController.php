@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Google_Client;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
+use Google\Service\Oauth2 as GoogleServiceOauth2;
 
 class GoogleAuthController extends Controller
 {
@@ -24,6 +25,7 @@ class GoogleAuthController extends Controller
             'https://www.googleapis.com/auth/drive',
             'https://www.googleapis.com/auth/spreadsheets',
             'https://www.googleapis.com/auth/documents',
+            'https://www.googleapis.com/auth/userinfo.email',
         ]);
 
         $client->setAccessType('offline');
@@ -55,6 +57,39 @@ class GoogleAuthController extends Controller
             Auth::logout();
             return redirect()->route('login')
                 ->with('message', 'Erro ao conectar com o Google. Tente novamente.')
+                ->with('messageType', 'danger');
+        }
+
+        $client->setAccessToken($token);
+
+        try {
+            $oauth2Service = new GoogleServiceOauth2($client);
+            $userInfo = $oauth2Service->userinfo->get();
+            $googleUserEmail = $userInfo->getEmail();
+
+            $allowedEmail = config('services.google.admin_email');
+
+            if (!$allowedEmail) {
+                throw new \Exception('E-mail de administrador não configurado');
+            }
+
+            if ($googleUserEmail !== $allowedEmail) {
+                $client->revokeToken($token['access_token']);
+                Auth::logout();
+
+                session()->invalidate();
+                session()->regenerateToken();
+
+                return redirect()->route('login')
+                    ->with('message', 'Conta Google não autorizada.')
+                    ->with('messageType', 'danger');
+            }
+        } catch (\Exception $e) {
+            $client->revokeToken($token['access_token']);
+            Auth::logout();
+
+            return redirect()->route('login')
+                ->with('message', 'Erro ao verificar dados da conta Google. Tente novamente.')
                 ->with('messageType', 'danger');
         }
 
