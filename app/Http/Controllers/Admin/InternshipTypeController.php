@@ -13,10 +13,26 @@ class InternshipTypeController extends Controller
     /**
      * Exibe a lista de tipos de estágio.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $internshipTypes = InternshipType::with('course')->paginate(5);
-        return view('admin.internship_types.index', compact('internshipTypes'));
+        $query = InternshipType::with('course');
+
+        // Filtro por nome
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Filtro por curso
+        if ($request->filled('course_id')) {
+            $query->where('course_id', $request->course_id);
+        }
+
+        $internshipTypes = $query->orderBy('name')->paginate(5)->withQueryString();
+
+        // Dados para os filtros
+        $courses = Course::orderBy('name')->get();
+
+        return view('admin.internship_types.index', compact('internshipTypes', 'courses'));
     }
 
     /**
