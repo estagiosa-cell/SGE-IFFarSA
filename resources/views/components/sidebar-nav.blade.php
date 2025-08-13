@@ -24,6 +24,10 @@
             Gerenciar Cursos
         </x-sidebar-nav-link>
 
+        <x-sidebar-nav-link route="admin.accreditations.index" icon="person-badge">
+            Gerenciar Credenciamentos
+        </x-sidebar-nav-link>
+
         <x-sidebar-nav-link route="admin.internship-types.index" icon="tags">
             Gerenciar Tipos de Estágio
         </x-sidebar-nav-link>
