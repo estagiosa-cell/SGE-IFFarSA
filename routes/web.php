@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\InternshipTypeController;
 use App\Http\Controllers\Admin\CnpjExceptionController;
+use App\Http\Controllers\Admin\AccreditationController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\Admin\SyncDataController;
 
@@ -60,13 +61,19 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/cnpj-exceptions/{id}', [CnpjExceptionController::class, 'update'])->name('admin.cnpj-exceptions.update');
         Route::delete('/cnpj-exceptions/{id}', [CnpjExceptionController::class, 'destroy'])->name('admin.cnpj-exceptions.destroy');
 
+        // Rotas de Credenciamentos
+        Route::get('/accreditations', [AccreditationController::class, 'index'])->name('admin.accreditations.index');
+        Route::get('/accreditations/create', [AccreditationController::class, 'create'])->name('admin.accreditations.create');
+        Route::post('/accreditations', [AccreditationController::class, 'store'])->name('admin.accreditations.store');
+        Route::get('/accreditations/{id}/edit', [AccreditationController::class, 'edit'])->name('admin.accreditations.edit');
+        Route::put('/accreditations/{id}', [AccreditationController::class, 'update'])->name('admin.accreditations.update');
+
         // Rotas de autenticação com Google
         Route::get('/google/redirect', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
         Route::get('/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
 
         // Rota de sincronização de dados
         Route::post('/sync/data', SyncDataController::class)->name('admin.sync.data');
-
     });
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
