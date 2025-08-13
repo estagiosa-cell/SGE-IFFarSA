@@ -101,6 +101,30 @@
                         </div>
                     </div>
 
+                    <!-- Informações adicionais -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar-plus me-1"></i>
+                                        <strong>Criado em:</strong> {{ $course->created_at->format('d/m/Y H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        <strong>Atualizado em:</strong> {{ $course->updated_at->format('d/m/Y H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Área de Informação sobre Compatibilidade -->
                     <div class="alert alert-info" role="alert">
                         <i class="bi bi-info-circle me-2"></i>

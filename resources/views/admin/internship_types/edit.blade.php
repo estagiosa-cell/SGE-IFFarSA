@@ -74,6 +74,31 @@
                         </div>
                     </div>
 
+                    <!-- Informações adicionais -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar-plus me-1"></i>
+                                        <strong>Criado em:</strong> {{ $internshipType->created_at->format('d/m/Y H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        <strong>Atualizado em:</strong>
+                                        {{ $internshipType->updated_at->format('d/m/Y H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Botões -->
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.internship-types.index') }}" class="btn btn-secondary">

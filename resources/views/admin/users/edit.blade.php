@@ -13,7 +13,8 @@
 
         <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <form class="needs-validation" action="{{ route('admin.users.update', $user->id) }}" method="POST" novalidate>
+                <form class="needs-validation" action="{{ route('admin.users.update', $user->id) }}" method="POST"
+                    novalidate>
                     @csrf
                     @method('PUT')
                     <div class="row">
@@ -21,7 +22,8 @@
                         <div class="mb-3 col-md-6">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                    id="name" name="name" value="{{ old('name', $user->name) }}" placeholder="Nome completo" required>
+                                    id="name" name="name" value="{{ old('name', $user->name) }}"
+                                    placeholder="Nome completo" required>
                                 <label for="name"><i class="bi bi-person me-2"></i>Nome *</label>
                                 @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -34,7 +36,8 @@
                         <div class="mb-3 col-md-6">
                             <div class="form-floating">
                                 <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                    id="email" name="email" value="{{ old('email', $user->email) }}" placeholder="E-mail" required>
+                                    id="email" name="email" value="{{ old('email', $user->email) }}"
+                                    placeholder="E-mail" required>
                                 <label for="email"><i class="bi bi-envelope me-2"></i>E-mail *</label>
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -48,10 +51,12 @@
                         <!-- Papel -->
                         <div class="mb-3 col-md-6">
                             <div class="form-floating">
-                                <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
+                                <select class="form-select @error('role') is-invalid @enderror" id="role"
+                                    name="role" required>
                                     <option value="">Selecione o papel</option>
                                     @foreach ($roles as $role)
-                                        <option value="{{ $role->value }}" {{ old('role', $user->role->value) == $role->value ? 'selected' : '' }}>
+                                        <option value="{{ $role->value }}"
+                                            {{ old('role', $user->role->value) == $role->value ? 'selected' : '' }}>
                                             {{ $role->label() ?? $role->value }}
                                         </option>
                                     @endforeach
@@ -67,11 +72,37 @@
                         <!-- Status -->
                         <div class="mb-3 col-md-6">
                             <div class="form-floating">
-                                <input type="text" class="form-control" id="status" value="{{ $user->isActive() ? 'Ativo' : 'Desativado' }}" disabled>
+                                <input type="text" class="form-control" id="status"
+                                    value="{{ $user->isActive() ? 'Ativo' : 'Desativado' }}" disabled>
                                 <label for="status"><i class="bi bi-activity me-2"></i>Status</label>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Informações adicionais -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar-plus me-1"></i>
+                                        <strong>Criado em:</strong> {{ $user->created_at->format('d/m/Y H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        <strong>Atualizado em:</strong> {{ $user->updated_at->format('d/m/Y H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancelar
@@ -85,12 +116,14 @@
                 <div class="d-flex gap-2 mt-3">
                     @if ($user->isActive())
                         <!-- Botão Desativar -->
-                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deactivateModal">
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                            data-bs-target="#deactivateModal">
                             <i class="bi bi-person-dash me-2"></i>Desativar Conta
                         </button>
                     @else
                         <!-- Botão Reativar -->
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#reactivateModal">
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                            data-bs-target="#reactivateModal">
                             <i class="bi bi-person-check me-2"></i>Reativar Conta
                         </button>
                     @endif
@@ -129,7 +162,8 @@
     </div>
 
     <!-- Modal Reativar -->
-    <div class="modal fade" id="reactivateModal" tabindex="-1" aria-labelledby="reactivateModalLabel" aria-hidden="true">
+    <div class="modal fade" id="reactivateModal" tabindex="-1" aria-labelledby="reactivateModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">

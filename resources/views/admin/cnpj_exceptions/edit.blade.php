@@ -40,6 +40,31 @@
                             readonly>
                     </div>
 
+                    <!-- Informações adicionais -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar-plus me-1"></i>
+                                        <strong>Criado em:</strong> {{ $cnpjException->created_at->format('d/m/Y H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        <strong>Atualizado em:</strong>
+                                        {{ $cnpjException->updated_at->format('d/m/Y H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-between mt-4">
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
                             <i class="bi bi-trash-fill me-2"></i>Excluir Exceção
