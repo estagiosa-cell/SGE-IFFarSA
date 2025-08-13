@@ -76,8 +76,8 @@
                     <div class="card-body py-2 px-3">
                         <div class="row align-items-center g-0">
                             <div class="col-md-4 fw-bold text-dark">{{ $accreditation->name }}</div>
-                            <div class="col-md-3 small"><strong>CPF: </strong>{{ $accreditation->cpf }}</div>
-                            <div class="col-md-3 small"><strong>Nº Processo: </strong>{{ $accreditation->process_number }}</div>
+                            <div class="col-md-3 small">{{ \App\Utils\Formatter::formatCpf($accreditation->cpf) }}</div>
+                            <div class="col-md-3 small">{{ $accreditation->process_number }}</div>
                             <div class="col-md-2 text-end">
                                 <a href="{{ route('admin.accreditations.edit', $accreditation->id) }}"
                                     class="btn btn-secondary btn-sm px-3 py-1">

@@ -38,7 +38,8 @@
                         <div class="col-md-3 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('cpf') is-invalid @enderror" id="cpf"
-                                    name="cpf" value="{{ old('cpf', $accreditation->cpf) }}"
+                                    name="cpf"
+                                    value="{{ old('cpf', \App\Utils\Formatter::formatCpf($accreditation->cpf)) }}"
                                     placeholder="000.000.000-00" maxlength="14" required>
                                 <label for="cpf"><i class="bi bi-person-vcard me-2"></i>CPF *</label>
                                 @error('cpf')
