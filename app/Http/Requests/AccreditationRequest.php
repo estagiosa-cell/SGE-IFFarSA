@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class AccreditationRequest extends FormRequest
 {
@@ -22,10 +23,22 @@ class AccreditationRequest extends FormRequest
      */
     public function rules(): array
     {
+        $accreditationId = request()->route('id');
+
         return [
             'name' => ['required', 'string', 'max:255'],
-            'cpf' => ['required', 'string', 'max:14'],
-            'process_number' => ['required', 'string', 'max:255'],
+            'cpf' => [
+                'required',
+                'string',
+                'max:14',
+                Rule::unique('accreditations')->ignore($accreditationId)
+            ],
+            'process_number' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('accreditations')->ignore($accreditationId)
+            ],
         ];
     }
 
@@ -41,9 +54,11 @@ class AccreditationRequest extends FormRequest
             'cpf.required' => 'O CPF é obrigatório.',
             'cpf.string' => 'O CPF deve ser um texto.',
             'cpf.max' => 'O CPF não pode ter mais de 14 caracteres.',
+            'cpf.unique' => 'Este CPF já está cadastrado.',
             'process_number.required' => 'O número do processo é obrigatório.',
             'process_number.string' => 'O número do processo deve ser um texto.',
             'process_number.max' => 'O número do processo não pode ter mais de 255 caracteres.',
+            'process_number.unique' => 'Este número de processo já está cadastrado.',
         ];
     }
 }
