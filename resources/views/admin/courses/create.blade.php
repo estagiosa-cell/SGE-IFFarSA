@@ -99,16 +99,15 @@
                         </div>
                     </div>
 
-                    <!-- Área de Informação sobre Compatibilidade -->
-                    <div class="alert alert-info" role="alert">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Regras de Compatibilidade:</strong>
-                        <ul class="mb-0 mt-2">
-                            <li><strong>Ensino Médio:</strong> Técnico, FIC</li>
-                            <li><strong>Ensino Superior:</strong> Bacharelado, Licenciatura, Tecnologia, Sequencial</li>
-                            <li><strong>Pós-graduação:</strong> Especialização, Mestrado, Doutorado</li>
-                        </ul>
-                    </div>
+                    <x-form-info-alert>
+                        <li>O nome do curso deve ser único no sistema</li>
+                        <li><strong>Compatibilidade por nível:</strong></li>
+                        <li style="margin-left: 20px;"><strong>Ensino Médio:</strong> Técnico, FIC</li>
+                        <li style="margin-left: 20px;"><strong>Ensino Superior:</strong> Bacharelado, Licenciatura,
+                            Tecnologia, Sequencial</li>
+                        <li style="margin-left: 20px;"><strong>Pós-graduação:</strong> Especialização, Mestrado, Doutorado
+                        </li>
+                    </x-form-info-alert>
 
                     <!-- Botões -->
                     <div class="d-flex justify-content-between">

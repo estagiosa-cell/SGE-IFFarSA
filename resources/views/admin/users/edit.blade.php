@@ -103,6 +103,12 @@
                         </div>
                     </div>
 
+                    <x-form-info-alert>
+                        <li>O e-mail deve ser válido e único no sistema</li>
+                        <li>Mudanças no e-mail podem afetar notificações futuras</li>
+                        <li>Alterações no papel afetarão as permissões do usuário</li>
+                    </x-form-info-alert>
+
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancelar

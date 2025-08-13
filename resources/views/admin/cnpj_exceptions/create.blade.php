@@ -31,11 +31,11 @@
                         </div>
                     </div>
 
-                    <div class="alert alert-info mt-3" role="alert">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        Digite o CNPJ da <strong>matriz</strong>. O sistema irá validar e buscar a Razão Social
-                        correspondente na BrasilAPI para salvar a exceção.
-                    </div>
+                    <x-form-info-alert>
+                        <li>Digite o CNPJ da <strong>matriz</strong> (empresa principal)</li>
+                        <li>O sistema irá validar e buscar automaticamente a Razão Social na BrasilAPI</li>
+                        <li>Apenas CNPJs válidos e existentes serão aceitos</li>
+                    </x-form-info-alert>
 
                     <div class="d-flex justify-content-between mt-4">
                         <a href="{{ route('admin.cnpj-exceptions.index') }}" class="btn btn-secondary">

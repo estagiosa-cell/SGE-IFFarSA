@@ -17,7 +17,6 @@
                     @csrf
 
                     <div class="row">
-                        <!-- Nome -->
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
@@ -32,7 +31,6 @@
                             </div>
                         </div>
 
-                        <!-- CPF -->
                         <div class="col-md-3 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('cpf') is-invalid @enderror" id="cpf"
@@ -42,38 +40,42 @@
                                 @error('cpf')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @else
-                                    <div class="invalid-feedback">O campo CPF é obrigatório.</div>
+                                    <div class="invalid-feedback">O campo CPF é obrigatório e deve ser válido.</div>
                                 @enderror
+                                <div class="form-text">
+                                    <small class="text-muted">
+                                        <i class="bi bi-lightbulb me-1"></i>Exemplo: 123.456.789-10
+                                    </small>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Número do Processo -->
                         <div class="col-md-3 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('process_number') is-invalid @enderror"
                                     id="process_number" name="process_number" value="{{ old('process_number') }}"
-                                    placeholder="Ex: 2024001" required>
+                                    placeholder="Ex: 2024-001" required>
                                 <label for="process_number"><i class="bi bi-file-text me-2"></i>Nº do Processo *</label>
                                 @error('process_number')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @else
                                     <div class="invalid-feedback">O campo número do processo é obrigatório.</div>
                                 @enderror
+                                <div class="form-text">
+                                    <small class="text-muted">
+                                        <i class="bi bi-lightbulb me-1"></i>Deve ser único no sistema
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Área de Informação -->
-                    <div class="alert alert-info" role="alert">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Informações importantes:</strong>
-                        <ul class="mb-0 mt-2">
-                            <li>Todos os campos marcados com (*) são obrigatórios</li>
-                            <li>Digite o CPF apenas com números</li>
-                        </ul>
-                    </div>
+                    <x-form-info-alert>
+                        <li>O CPF deve ser válido e único no sistema</li>
+                        <li>Você pode digitar o CPF com ou sem formatação (000.000.000-00)</li>
+                        <li>O número do processo deve ser único para cada credenciamento</li>
+                    </x-form-info-alert>
 
-                    <!-- Botões -->
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.accreditations.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancelar

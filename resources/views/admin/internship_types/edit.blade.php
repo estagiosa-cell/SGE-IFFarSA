@@ -99,6 +99,12 @@
                         </div>
                     </div>
 
+                    <x-form-info-alert>
+                        <li>O nome do tipo de estágio deve ser único para cada curso</li>
+                        <li>A carga horária deve ser definida em horas</li>
+                        <li>Alterações podem afetar estágios já cadastrados</li>
+                    </x-form-info-alert>
+
                     <!-- Botões -->
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.internship-types.index') }}" class="btn btn-secondary">

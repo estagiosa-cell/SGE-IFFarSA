@@ -77,6 +77,13 @@
                             @enderror
                         </div>
                     </div>
+
+                    <x-form-info-alert>
+                        <li>O e-mail deve ser válido e único no sistema</li>
+                        <li>Os e-mails de confirmação devem ser idênticos</li>
+                        <li>Uma senha aleatória será criada</li>
+                    </x-form-info-alert>
+
                     <div class="mt-4 d-flex justify-content-between">
                         <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancelar

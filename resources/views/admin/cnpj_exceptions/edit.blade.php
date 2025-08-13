@@ -65,6 +65,12 @@
                         </div>
                     </div>
 
+                    <x-form-info-alert>
+                        <li>Digite o CNPJ da <strong>matriz</strong> (empresa principal)</li>
+                        <li>O sistema irá validar e buscar automaticamente a Razão Social na BrasilAPI</li>
+                        <li>Alterações no CNPJ podem afetar registros relacionados</li>
+                    </x-form-info-alert>
+
                     <div class="d-flex justify-content-between mt-4">
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
                             <i class="bi bi-trash-fill me-2"></i>Excluir Exceção
