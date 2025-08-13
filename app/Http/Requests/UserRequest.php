@@ -27,13 +27,12 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => [
                 'required',
                 'email',
                 Rule::unique('users')->ignore($this->route('id')),
-                'confirmed',
             ],
             'role' => [
                 'required',
@@ -41,5 +40,12 @@ class UserRequest extends FormRequest
                 Rule::enum(UserRole::class),
             ],
         ];
+
+        // Se for criação , adiciona confirmação de email
+        if (request()->routeIs('admin.users.store')) {
+            $rules['email'][] = 'confirmed';
+        }
+
+        return $rules;
     }
 }
