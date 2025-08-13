@@ -28,7 +28,7 @@
                                 </button>
                                 <a href="{{ route('admin.accreditations.index') }}"
                                     class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-clockwise"></i> Limpar
+                                    <i class="bi bi-arrow-clockwise"></i> Limpar Filtros
                                 </a>
                             </div>
                         </div>
