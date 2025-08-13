@@ -76,7 +76,7 @@ class CnpjExceptionController extends Controller
             'razao_social' => $razaoSocial,
         ]);
 
-        return redirect()->route('admin.cnpj-exceptions.index')
+        return redirect()->route('admin.cnpj-exceptions.edit', $id)
             ->with('message', 'Exceção de CNPJ atualizada com sucesso.')
             ->with('messageType', 'success');
     }

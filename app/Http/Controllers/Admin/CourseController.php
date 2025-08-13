@@ -90,7 +90,7 @@ class CourseController extends Controller
         $course->update($request->validated());
 
         return redirect()
-            ->route('admin.courses.index')
+            ->route('admin.courses.edit', $id)
             ->with('message', 'Curso atualizado com sucesso!')
             ->with('messageType', 'success');
     }

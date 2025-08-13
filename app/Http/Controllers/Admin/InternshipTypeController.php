@@ -74,7 +74,7 @@ class InternshipTypeController extends Controller
         $internshipType = InternshipType::findOrFail($id);
         $internshipType->update($request->validated());
 
-        return redirect()->route('admin.internship-types.index')
+        return redirect()->route('admin.internship-types.edit', $id)
             ->with('message', 'Tipo de estágio atualizado com sucesso!')
             ->with('messageType', 'success');
     }

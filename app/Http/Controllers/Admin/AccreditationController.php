@@ -70,7 +70,7 @@ class AccreditationController extends Controller
         $accreditation->update($request->validated());
 
         return redirect()
-            ->route('admin.accreditations.index')
+            ->route('admin.accreditations.edit', $id)
             ->with('message', 'Credenciamento atualizado com sucesso!')
             ->with('messageType', 'success');
     }
