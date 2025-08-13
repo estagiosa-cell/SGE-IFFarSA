@@ -72,7 +72,6 @@
                     </div>
 
                     <x-form-info-alert>
-                        <li>O nome do tipo de estágio deve ser único para cada curso</li>
                         <li>A carga horária deve ser definida em horas</li>
                         <li>Cada curso pode ter múltiplos tipos de estágio</li>
                     </x-form-info-alert>

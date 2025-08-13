@@ -28,16 +28,11 @@ class InternshipTypeRequest extends FormRequest
      */
     public function rules(): array
     {
-        $internshipTypeId = $this->input('name') ?? null;
-
         return [
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('internship_types', 'name')
-                    ->ignore($internshipTypeId)
-                    ->where('course_id', $this->input('course_id')),
             ],
             'required_hours' => ['required', 'integer', 'min:1'],
             'course_id' => ['required', 'exists:courses,id'],
