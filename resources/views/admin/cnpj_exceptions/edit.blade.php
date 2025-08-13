@@ -73,35 +73,33 @@
                             <i class="bi bi-check-circle me-2"></i>Salvar Alterações
                         </button>
                     </div>
-                    <!-- Modal de confirmação de exclusão -->
-                    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header bg-danger text-white">
-                                    <h5 class="modal-title" id="deleteModalLabel">Confirmar Exclusão</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Fechar"></button>
-                                </div>
-                                <div class="modal-body">
-                                    Tem certeza que deseja excluir esta exceção? Esta ação não pode ser desfeita.
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Cancelar</button>
-                                    <form action="{{ route('admin.cnpj-exceptions.destroy', $cnpjException->id) }}"
-                                        method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="bi bi-trash-fill me-2"></i>Excluir Exceção
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Modal de confirmação de exclusão -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="deleteModalLabel">Confirmar Exclusão</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        Tem certeza que deseja excluir esta exceção? Esta ação não pode ser desfeita.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form action="{{ route('admin.cnpj-exceptions.destroy', $cnpjException->id) }}" method="POST"
+                            class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash-fill me-2"></i>Excluir Exceção
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
