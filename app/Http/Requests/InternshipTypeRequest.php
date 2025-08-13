@@ -5,7 +5,12 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
+/**
+ * @method mixed input(string $key = null, $default = null)
+ * @method mixed route($param = null, $default = null)
+ */
 class InternshipTypeRequest extends FormRequest
 {
     /**
@@ -23,8 +28,17 @@ class InternshipTypeRequest extends FormRequest
      */
     public function rules(): array
     {
+        $internshipTypeId = $this->input('name') ?? null;
+
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('internship_types', 'name')
+                    ->ignore($internshipTypeId)
+                    ->where('course_id', $this->input('course_id')),
+            ],
             'required_hours' => ['required', 'integer', 'min:1'],
             'course_id' => ['required', 'exists:courses,id'],
         ];
