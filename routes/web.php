@@ -78,10 +78,8 @@ Route::middleware(['auth'])->group(function () {
 
         // Rotas de Estágios
         Route::get('/internships', [InternshipController::class, 'index'])->name('admin.internships.index');
-        Route::get('/internships/{id}', [InternshipController::class, 'edit'])->name('admin.internships.edit');
-        Route::put('/internships/{id}', [InternshipController::class, 'update'])->name('admin.internships.update');
-
-
+        Route::get('/internships/{internship}', [InternshipController::class, 'edit'])->name('admin.internships.edit');
+        Route::put('/internships/{internship}', [InternshipController::class, 'update'])->name('admin.internships.update');
     });
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
