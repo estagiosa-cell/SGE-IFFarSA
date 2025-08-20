@@ -1,0 +1,137 @@
+@extends('layouts.auth')
+
+@section('title', 'Gerenciar Estágios')
+
+@section('main-content')
+    <div class="container-fluid mt-4 mx-1">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h4 mb-0">Gerenciar Estágios</h2>
+        </div>
+
+        <!-- Filtros de Pesquisa -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body py-3">
+                <form method="GET" action="{{ route('admin.internships.index') }}">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control form-control-sm" id="search" name="search"
+                                value="{{ request('search') }}" placeholder="Buscar por nome do estudante">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select class="form-select form-select-sm" id="status" name="status">
+                                <option value="">Todos os Status</option>
+                                @foreach ($statusOptions as $value => $label)
+                                    <option value="{{ $value }}" {{ request('status') == $value ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="d-flex gap-1">
+                                <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
+                                    <i class="bi bi-funnel"></i> Filtrar
+                                </button>
+                                <a href="{{ route('admin.internships.index') }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-arrow-clockwise"></i> Limpar Filtros
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if ($internships->isEmpty())
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            @if (request()->hasAny(['search', 'status']))
+                                <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+                            @else
+                                <i class="bi bi-briefcase text-muted" style="font-size: 4rem;"></i>
+                            @endif
+                        </div>
+                        @if (request()->hasAny(['search', 'status']))
+                            <h4 class="text-muted mb-3">Nenhum estágio encontrado</h4>
+                            <p class="text-muted mb-4">
+                                Não foram encontrados estágios com os filtros aplicados.<br>
+                                Tente ajustar os critérios de busca.
+                            </p>
+                            <a href="{{ route('admin.internships.index') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left me-2"></i>Ver Todos os Estágios
+                            </a>
+                        @else
+                            <h4 class="text-muted mb-3">Nenhum estágio encontrado</h4>
+                            <p class="text-muted mb-4">
+                                Ainda não existem estágios cadastrados no sistema.
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @else
+            @foreach ($internships as $internship)
+                <div class="card mb-3 shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h5 class="card-title fw-bold text-dark mb-2">{{ $internship->student_name }}</h5>
+                                <div class="d-flex gap-2 mb-3">
+                                    <span
+                                        class="badge bg-{{ $internship->status->color() }}">{{ $internship->status->label() }}</span>
+                                    <span class="badge bg-light text-dark">{{ $internship->course->name }}</span>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="card-text mb-1">
+                                            <i class="bi bi-envelope me-1"></i>
+                                            <strong>E-mail:</strong> {{ $internship->student_email }}
+                                        </p>
+                                        <p class="card-text mb-1">
+                                            <i class="bi bi-hash me-1"></i>
+                                            <strong>Matrícula:</strong> {{ $internship->student_registration_number }}
+                                        </p>
+                                        <p class="card-text mb-1">
+                                            <i class="bi bi-calendar me-1"></i>
+                                            <strong>Período:</strong>
+                                            {{ $internship->start_date?->format('d/m/Y') ?? 'Não definido' }} -
+                                            {{ $internship->end_date?->format('d/m/Y') ?? 'Não definido' }}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="card-text mb-1">
+                                            <i class="bi bi-building me-1"></i>
+                                            <strong>Empresa:</strong> {{ $internship->company_name }}
+                                        </p>
+                                        <p class="card-text mb-1">
+                                            <i class="bi bi-person-check me-1"></i>
+                                            <strong>Orientador:</strong> {{ $internship->advisor->name ?? 'Não definido' }}
+                                        </p>
+                                        <p class="card-text mb-1">
+                                            <i class="bi bi-tag me-1"></i>
+                                            <strong>Tipo:</strong>
+                                            {{ $internship->internshipType->name ?? 'Não definido' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ms-3">
+                                <a href="{{ route('admin.internships.edit', $internship->id) }}"
+                                    class="btn btn-secondary px-3 py-2">
+                                    <i class="bi bi-pencil me-1"></i>Editar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+            {{ $internships->links() }}
+        @endif
+    </div>
+@endsection
