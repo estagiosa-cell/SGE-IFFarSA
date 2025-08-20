@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\InternshipTypeController;
 use App\Http\Controllers\Admin\CnpjExceptionController;
 use App\Http\Controllers\Admin\AccreditationController;
+use App\Http\Controllers\Admin\InternshipController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\Admin\SyncDataController;
 
@@ -74,6 +75,13 @@ Route::middleware(['auth'])->group(function () {
 
         // Rota de sincronização de dados
         Route::post('/sync/data', SyncDataController::class)->name('admin.sync.data');
+
+        // Rotas de Estágios
+        Route::get('/internships', [InternshipController::class, 'index'])->name('admin.internships.index');
+        Route::get('/internships/{id}', [InternshipController::class, 'edit'])->name('admin.internships.edit');
+        Route::put('/internships/{id}', [InternshipController::class, 'update'])->name('admin.internships.update');
+
+
     });
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');

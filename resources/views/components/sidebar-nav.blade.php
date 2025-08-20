@@ -4,13 +4,11 @@
         <x-sidebar-nav-link route="admin.dashboard" icon="columns-gap">
             Dashboard
         </x-sidebar-nav-link>
-    @endcan
 
-    <x-sidebar-nav-link route="" icon="briefcase">
-        Estágios
-    </x-sidebar-nav-link>
+        <x-sidebar-nav-link route="admin.internships.index" icon="briefcase">
+            Estágios
+        </x-sidebar-nav-link>
 
-    @can('is-admin')
         <li class="nav-item">
             <hr>
             <p class="text-muted small fw-bold text-uppercase mb-1">Configurações</p>

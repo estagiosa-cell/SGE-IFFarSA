@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InternshipStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -94,6 +95,7 @@ class Internship extends Model
         'student_rg_issue_date' => 'date',
         'start_date' => 'date',
         'end_date' => 'date',
+        'status' => InternshipStatus::class,
         'is_remunerated' => 'boolean',
         'grant_value' => 'decimal:2',
         'transportation_allowance' => 'decimal:2',
