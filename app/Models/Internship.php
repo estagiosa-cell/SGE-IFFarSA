@@ -1,0 +1,153 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Internship extends Model
+{
+    protected $fillable = [
+        // Chaves Estrangeiras
+        'advisor_id',
+        'course_id',
+        'internship_type_id',
+
+        // Dados do Aluno
+        'student_name',
+        'student_email',
+        'student_registration_number',
+        'student_year_semester',
+        'student_birth_date',
+        'student_is_adult',
+        'student_rg',
+        'student_rg_issuer',
+        'student_rg_issue_date',
+        'student_cpf',
+        'student_phone',
+        'student_address_street',
+        'student_address_number',
+        'student_address_neighborhood',
+        'student_address_city',
+        'student_address_state',
+        'student_address_zip',
+
+        // Dados da Concedente
+        'company_legal_identifier_type',
+        'company_legal_identifier',
+        'company_name',
+        'company_phone',
+        'company_email',
+        'company_address_street',
+        'company_address_number',
+        'company_address_neighborhood',
+        'company_address_city',
+        'company_address_state',
+        'company_address_zip',
+        'company_representative_name',
+        'company_representative_role',
+        'internship_sector',
+
+        // Dados do Responsável Legal
+        'legal_guardian_name',
+        'legal_guardian_cpf',
+        'legal_guardian_kinship',
+        'legal_guardian_email',
+
+        // Dados do Supervisor
+        'supervisor_name',
+        'supervisor_phone',
+        'supervisor_email',
+        'supervisor_role',
+        'supervisor_qualification',
+        'supervisor_training',
+        'supervisor_experience',
+
+        // Dados do Estágio
+        'activities',
+        'start_date',
+        'end_date',
+        'status',
+        'notes',
+
+        // Carga Horária
+        'hours_sunday',
+        'hours_monday',
+        'hours_tuesday',
+        'hours_wednesday',
+        'hours_thursday',
+        'hours_friday',
+        'hours_saturday',
+
+        // Remuneração
+        'is_remunerated',
+        'grant_value',
+        'transportation_allowance',
+
+        // Google Docs
+        'google_docs_id',
+    ];
+
+    protected $casts = [
+        'student_birth_date' => 'date',
+        'student_is_adult' => 'boolean',
+        'student_rg_issue_date' => 'date',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'is_remunerated' => 'boolean',
+        'grant_value' => 'decimal:2',
+        'transportation_allowance' => 'decimal:2',
+        'hours_sunday' => 'integer',
+        'hours_monday' => 'integer',
+        'hours_tuesday' => 'integer',
+        'hours_wednesday' => 'integer',
+        'hours_thursday' => 'integer',
+        'hours_friday' => 'integer',
+        'hours_saturday' => 'integer',
+    ];
+
+    // Relacionamentos
+    public function advisor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'advisor_id');
+    }
+
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function internshipType(): BelongsTo
+    {
+        return $this->belongsTo(InternshipType::class);
+    }
+
+    // Métodos auxiliares
+    public function getTotalWeeklyHours(): int
+    {
+        return collect([
+            $this->hours_sunday,
+            $this->hours_monday,
+            $this->hours_tuesday,
+            $this->hours_wednesday,
+            $this->hours_thursday,
+            $this->hours_friday,
+            $this->hours_saturday,
+        ])->filter()->sum();
+    }
+    
+    public function isCompanyCnpj(): bool
+    {
+        return $this->company_legal_identifier_type === 'CNPJ';
+    }
+
+    public function isCompanyCpf(): bool
+    {
+        return $this->company_legal_identifier_type === 'CPF';
+    }
+
+    public function needsLegalGuardian(): bool
+    {
+        return !$this->student_is_adult;
+    }
+}
