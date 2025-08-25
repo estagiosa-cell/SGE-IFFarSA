@@ -47,9 +47,81 @@ class SyncDataController extends Controller
                 continue;
             }
 
-            // Lógica para salvar no banco de dados.
+            // --- MAPEAMENTO COMPLETO DE DADOS ---
+            // Dados do Aluno / Responsável
+            $emailEstagiario           = $row[0] ?? null;  // Coluna B
+            $declaracaoCiente          = $row[1] ?? null;  // Coluna C
+            $maiorDe18                 = $row[2] ?? null;  // Coluna D
+            $nomeResponsavelLegal      = $row[3] ?? null;  // Coluna E
+            $cpfResponsavelLegal       = $row[4] ?? null;  // Coluna F
+            $grauParentesco            = $row[5] ?? null;  // Coluna G
+            $emailResponsavelLegal     = $row[6] ?? null;  // Coluna H
+            $curso                     = $row[7] ?? null;  // Coluna I
+            $tipoEstagio               = $row[8] ?? null;  // Coluna J
+            $nomeCompletoEstagiario    = $row[9] ?? null;  // Coluna K
+            $matricula                 = $row[10] ?? null; // Coluna L
+            $anoSemestre               = $row[11] ?? null; // Coluna M
+            $dataNascimento            = $row[12] ?? null; // Coluna N
+            $rg                        = $row[13] ?? null; // Coluna O
+            $rgOrgaoExpedidor          = $row[14] ?? null; // Coluna P
+            $rgDataExpedicao           = $row[15] ?? null; // Coluna Q
+            $cpfEstagiario             = $row[16] ?? null; // Coluna R
+            $telefoneEstagiario        = $row[17] ?? null; // Coluna S
+            $enderecoRuaEstagiario     = $row[18] ?? null; // Coluna T
+            $enderecoNumeroEstagiario  = $row[19] ?? null; // Coluna U
+            $enderecoBairroEstagiario  = $row[20] ?? null; // Coluna V
+            $cidadeEstagiario          = $row[21] ?? null; // Coluna W
+            $ufEstagiario              = $row[22] ?? null; // Coluna X
+            $cepEstagiario             = $row[23] ?? null; // Coluna Y
+            $nomeOrientador            = $row[24] ?? null; // Coluna Z
+
+            // Dados da Empresa (Parte Concedente)
+            $tipoDocumentoConcedente   = $row[25] ?? null; // Coluna AA
+            $cpfConcedente             = $row[26] ?? null; // Coluna AB
+            $cnpjConcedente            = $row[27] ?? null; // Coluna AC
+            $razaoSocialConcedente     = $row[28] ?? null; // Coluna AD
+            $telefoneConcedente        = $row[29] ?? null; // Coluna AE
+            $emailConcedente           = $row[30] ?? null; // Coluna AF
+            $enderecoRuaConcedente     = $row[31] ?? null; // Coluna AG
+            $enderecoNumeroConcedente  = $row[32] ?? null; // Coluna AH
+            $enderecoBairroConcedente  = $row[33] ?? null; // Coluna AI
+            $cidadeConcedente          = $row[34] ?? null; // Coluna AJ
+            $ufConcedente              = $row[35] ?? null; // Coluna AK
+            $cepConcedente             = $row[36] ?? null; // Coluna AL
+            $nomeRepresentanteConcedente = $row[37] ?? null; // Coluna AM
+            $cargoRepresentanteConcedente = $row[38] ?? null; // Coluna AN
+
+            // Dados do Estágio e Supervisor
+            $setorEstagio              = $row[39] ?? null; // Coluna AO
+            $nomeSupervisor            = $row[40] ?? null; // Coluna AP
+            $telefoneSupervisor        = $row[41] ?? null; // Coluna AQ
+            $emailSupervisor           = $row[42] ?? null; // Coluna AR
+            $cargoSupervisor           = $row[43] ?? null; // Coluna AS
+            $formacaoSupervisorPossui  = $row[44] ?? null; // Coluna AT
+            $formacaoDescricaoSupervisor = $row[45] ?? null; // Coluna AU
+            $experienciaSupervisor     = $row[46] ?? null; // Coluna AV
+            $atividadesPrevistas       = $row[47] ?? null; // Coluna AW
+
+            // Carga Horária
+            $horasDomingo              = $row[48] ?? null; // Coluna AX
+            $horasSegunda              = $row[49] ?? null; // Coluna AY
+            $horasTerca                = $row[50] ?? null; // Coluna AZ
+            $horasQuarta               = $row[51] ?? null; // Coluna BA
+            $horasQuinta               = $row[52] ?? null; // Coluna BB
+            $horasSexta                = $row[53] ?? null; // Coluna BC
+            $horasSabado               = $row[54] ?? null; // Coluna BD
+
+            // Detalhes Finais
+            $dataInicioEstagio         = $row[55] ?? null; // Coluna BE
+            $estagioRemunerado         = $row[56] ?? null; // Coluna BF
+            $valorBolsa                = $row[57] ?? null; // Coluna BG
+            $valorAuxilioTransporte    = $row[58] ?? null; // Coluna BH
+            $observacoes               = $row[59] ?? null; // Coluna BI
 
 
+
+
+            // salvar no banco de dados
 
             $processedCount++;
 
