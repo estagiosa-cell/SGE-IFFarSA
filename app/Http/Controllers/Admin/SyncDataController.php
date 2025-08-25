@@ -7,6 +7,8 @@ use App\Services\GoogleApiService;
 use Illuminate\Http\Request;
 use App\Models\Internship;
 use Google_Service_Sheets_ValueRange;
+use Illuminate\Support\Facades\Http;
+use \App\Models\CnpjException;
 
 class SyncDataController extends Controller
 {
@@ -118,7 +120,31 @@ class SyncDataController extends Controller
             $valorAuxilioTransporte    = $row[58] ?? null; // Coluna BH
             $observacoes               = $row[59] ?? null; // Coluna BI
 
-
+            if ($tipoDocumentoConcedente === 'CNPJ' && !empty($cnpjConcedente)) {
+                // Busca exceção na tabela
+                $cnpjException = CnpjException::findByRoot($cnpjConcedente);
+                
+                if ($cnpjException) {
+                    // Se encontrar exceção, sobrescreve razão social e cnpj
+                    $razaoSocialConcedente = $cnpjException->razao_social;
+                    $cnpjConcedente = $cnpjException->cnpj_matriz;
+                } else {
+                    // Monta a URL da API com o CNPJ da linha atual
+                    $apiUrl = "https://brasilapi.com.br/api/cnpj/v1/{$cnpjConcedente}";
+                    $apiResponse = Http::get($apiUrl);
+                    if ($apiResponse->successful()) {
+                        $companyData = $apiResponse->json();
+                        $razaoSocialConcedente    = $companyData['razao_social'] ?? $razaoSocialConcedente;
+                        $cepConcedente            = $companyData['cep'] ?? $cepConcedente;
+                        $ufConcedente             = $companyData['uf'] ?? $ufConcedente;
+                        $cidadeConcedente         = $companyData['municipio'] ?? $cidadeConcedente;
+                        $enderecoBairroConcedente = $companyData['bairro'] ?? $enderecoBairroConcedente;
+                        $enderecoRuaConcedente    = $companyData['logradouro'] ?? $enderecoRuaConcedente;
+                        $enderecoNumeroConcedente = $companyData['numero'] ?? $enderecoNumeroConcedente;
+                    }
+                }
+                // Se a API falhar, mantém os dados da planilha
+            }
 
 
             // salvar no banco de dados
