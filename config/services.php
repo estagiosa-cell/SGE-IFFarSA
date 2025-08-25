@@ -40,6 +40,7 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
         'admin_email' => env('GOOGLE_ADMIN_ACCOUNT_EMAIL'),
+        'sheet_id' => env('GOOGLE_SHEET_ID'),
     ],
 
 ];
