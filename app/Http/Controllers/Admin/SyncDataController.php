@@ -47,14 +47,6 @@ class SyncDataController extends Controller
                 continue;
             }
 
-
-            $email = $row[0] ?? null;
-            $nomeCompleto = $row[9] ?? null;
-
-            if (empty($email) || empty($nomeCompleto)) {
-                continue;
-            }
-
             // Lógica para salvar no banco de dados.
 
 
