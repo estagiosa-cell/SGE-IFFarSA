@@ -43,17 +43,17 @@ return new class extends Migration
             // --- Dados da Concedente (Empresa/Pessoa Física) ---
             $table->string('company_legal_identifier_type'); // 'CPF' ou 'CNPJ'
             $table->string('company_legal_identifier');
-            $table->string('company_name');
+            $table->string('company_name')->nullable(); // Nome ou Razão Social
             $table->string('company_phone')->nullable();
             $table->string('company_email')->nullable();
-            $table->string('company_address_street');
+            $table->string('company_address_street')->nullable();
             $table->string('company_address_number')->nullable();
-            $table->string('company_address_neighborhood');
-            $table->string('company_address_city');
-            $table->string('company_address_state', 2);
-            $table->string('company_address_zip');
-            $table->string('company_representative_name');
-            $table->string('company_representative_role');
+            $table->string('company_address_neighborhood')->nullable();
+            $table->string('company_address_city')->nullable();
+            $table->string('company_address_state', 2)->nullable();
+            $table->string('company_address_zip')->nullable();
+            $table->string('company_representative_name')->nullable();
+            $table->string('company_representative_role')->nullable();
             $table->string('internship_sector')->nullable(); // Setor ou área onde será desenvolvido o estágio
 
             // --- Dados do Responsável Legal (se o aluno for menor) ---
