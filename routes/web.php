@@ -54,21 +54,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/internship-types/{id}/edit', [InternshipTypeController::class, 'edit'])->name('admin.internship-types.edit');
         Route::put('/internship-types/{id}', [InternshipTypeController::class, 'update'])->name('admin.internship-types.update');
 
-        // Rotas de Exceções de CNPJ
-        Route::get('/cnpj-exceptions', [CnpjExceptionController::class, 'index'])->name('admin.cnpj-exceptions.index');
-        Route::get('/cnpj-exceptions/create', [CnpjExceptionController::class, 'create'])->name('admin.cnpj-exceptions.create');
-        Route::post('/cnpj-exceptions', [CnpjExceptionController::class, 'store'])->name('admin.cnpj-exceptions.store');
-        Route::get('/cnpj-exceptions/{id}/edit', [CnpjExceptionController::class, 'edit'])->name('admin.cnpj-exceptions.edit');
-        Route::put('/cnpj-exceptions/{id}', [CnpjExceptionController::class, 'update'])->name('admin.cnpj-exceptions.update');
-        Route::delete('/cnpj-exceptions/{id}', [CnpjExceptionController::class, 'destroy'])->name('admin.cnpj-exceptions.destroy');
-
-        // Rotas de Credenciamentos
-        Route::get('/accreditations', [AccreditationController::class, 'index'])->name('admin.accreditations.index');
-        Route::get('/accreditations/create', [AccreditationController::class, 'create'])->name('admin.accreditations.create');
-        Route::post('/accreditations', [AccreditationController::class, 'store'])->name('admin.accreditations.store');
-        Route::get('/accreditations/{id}/edit', [AccreditationController::class, 'edit'])->name('admin.accreditations.edit');
-        Route::put('/accreditations/{id}', [AccreditationController::class, 'update'])->name('admin.accreditations.update');
-
         // Rotas de autenticação com Google
         Route::get('/google/redirect', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
         Route::get('/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
