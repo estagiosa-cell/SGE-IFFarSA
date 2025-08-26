@@ -25,5 +25,6 @@
         <x-sidebar-nav-link route="admin.internship-types.index" icon="tags">
             Gerenciar Tipos de Estágio
         </x-sidebar-nav-link>
+    @endcan
 
 </ul>
