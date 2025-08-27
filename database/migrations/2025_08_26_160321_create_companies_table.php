@@ -19,23 +19,51 @@ return new class extends Migration
             $table->string('name'); // Nome / Razão Social
 
             // Endereço
-            $table->string('address_street')->nullable();
-            $table->string('address_number')->nullable();
-            $table->string('address_neighborhood')->nullable();
-            $table->string('address_city')->nullable();
-            $table->string('address_state')->nullable();
-            $table->string('address_zip')->nullable();
+            $table->string('address_street');
+            $table->string('address_number');
+            $table->string('address_neighborhood');
+            $table->string('address_city');
+            $table->enum('address_state', [
+                'Acre',
+                'Alagoas',
+                'Amapá',
+                'Amazonas',
+                'Bahia',
+                'Ceará',
+                'Distrito Federal',
+                'Espírito Santo',
+                'Goiás',
+                'Maranhão',
+                'Mato Grosso',
+                'Mato Grosso do Sul',
+                'Minas Gerais',
+                'Pará',
+                'Paraíba',
+                'Paraná',
+                'Pernambuco',
+                'Piauí',
+                'Rio de Janeiro',
+                'Rio Grande do Norte',
+                'Rio Grande do Sul',
+                'Rondônia',
+                'Roraima',
+                'Santa Catarina',
+                'São Paulo',
+                'Sergipe',
+                'Tocantins'
+            ]);
+            $table->string('address_zip');
 
             // Representante
-            $table->string('representative_name')->nullable();
-            $table->string('representative_role')->nullable();
+            $table->string('representative_name');
+            $table->string('representative_role');
 
             // Contato
-            $table->string('phone')->nullable();
-            $table->string('email')->nullable();
+            $table->string('phone');
+            $table->string('email');
 
             // Informações Adicionais
-            $table->string('field_of_activity')->nullable(); // Área de Atuação
+            $table->string('field_of_activity'); // Área de Atuação
             $table->string('professional_council')->nullable(); // Conselho Profissional
             $table->string('council_registration_number')->nullable(); // Número do Registro no Conselho
             $table->string('process_number')->nullable(); // Número do Processo (para Credenciamentos)
