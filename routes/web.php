@@ -6,22 +6,21 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\InternshipTypeController;
-use App\Http\Controllers\Admin\CnpjExceptionController;
-use App\Http\Controllers\Admin\AccreditationController;
 use App\Http\Controllers\Admin\InternshipController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\Admin\SyncDataController;
+use App\Http\Controllers\Admin\CompanyController;
 
+Route::middleware(['guest'])->group(function () {
+    Route::get('/', [SessionController::class, 'create'])->name('login');
+    Route::post('/login', [SessionController::class, 'store'])->name('store.login');
 
-Route::get('/', [SessionController::class, 'create'])->name('login');
-Route::post('/login', [SessionController::class, 'store'])->name('store.login');
-
-// Rotas de Recuperação de Senha
-Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
-Route::post('/forgot-password', [PasswordResetController::class, 'store'])->name('password.email');
-Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
-Route::put('/reset-password', [PasswordResetController::class, 'update'])->name('password.update');
-
+    // Rotas de Recuperação de Senha
+    Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'store'])->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
+    Route::put('/reset-password', [PasswordResetController::class, 'update'])->name('password.update');
+});
 
 // Rotas dos usuários autenticados
 Route::middleware(['auth'])->group(function () {
@@ -65,7 +64,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/internships', [InternshipController::class, 'index'])->name('admin.internships.index');
         Route::get('/internships/{internship}', [InternshipController::class, 'edit'])->name('admin.internships.edit');
         Route::put('/internships/{internship}', [InternshipController::class, 'update'])->name('admin.internships.update');
+
+        // rotas de partes concendentes
+        Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies.index');
+        Route::get('/companies/create', [CompanyController::class, 'create'])->name('admin.companies.create');
+        Route::post('/companies', [CompanyController::class, 'store'])->name('admin.companies.store');
+        Route::get('/companies/{company}/edit', [CompanyController::class, 'edit'])->name('admin.companies.edit');
+        Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('admin.companies.update');
+        Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
+
+        Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
     });
 
-    Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 });

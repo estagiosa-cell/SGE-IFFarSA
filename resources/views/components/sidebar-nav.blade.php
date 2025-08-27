@@ -25,6 +25,10 @@
         <x-sidebar-nav-link route="admin.internship-types.index" icon="tags">
             Gerenciar Tipos de Estágio
         </x-sidebar-nav-link>
+
+        <x-sidebar-nav-link route="admin.companies.index" icon="building-gear">
+            Gerenciar Partes concedentes
+        </x-sidebar-nav-link>
     @endcan
 
 </ul>
