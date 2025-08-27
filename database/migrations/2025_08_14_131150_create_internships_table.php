@@ -37,11 +37,10 @@ return new class extends Migration
             $table->string('student_address_number');
             $table->string('student_address_neighborhood');
             $table->string('student_address_city');
-            $table->string('student_address_state', 2);
+            $table->enum('student_address_state', ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']);
             $table->string('student_address_zip');
 
             // --- Dados da Concedente (Empresa/Pessoa Física) ---
-            $table->string('company_legal_identifier_type'); // 'CPF' ou 'CNPJ'
             $table->string('company_legal_identifier');
             $table->string('company_name')->nullable(); // Nome ou Razão Social
             $table->string('company_phone')->nullable();
@@ -50,11 +49,14 @@ return new class extends Migration
             $table->string('company_address_number')->nullable();
             $table->string('company_address_neighborhood')->nullable();
             $table->string('company_address_city')->nullable();
-            $table->string('company_address_state', 2)->nullable();
+            $table->enum('company_address_state', ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']);
             $table->string('company_address_zip')->nullable();
             $table->string('company_representative_name')->nullable();
             $table->string('company_representative_role')->nullable();
-            $table->string('internship_sector')->nullable(); // Setor ou área onde será desenvolvido o estágio
+            $table->string('field_of_activity')->nullable(); // Área de atuação
+            $table->string('professional_council')->nullable(); // Conselho Profissional
+            $table->string('council_registration_number')->nullable(); // Número do Registro no Conselho
+            $table->string('process_number')->nullable(); // Número do Processo (para Credenciamentos)
 
             // --- Dados do Responsável Legal (se o aluno for menor) ---
             $table->string('legal_guardian_name')->nullable();
@@ -77,6 +79,7 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->string('status')->default('Pendente');
             $table->text('notes')->nullable(); // Observações específicas do estágio
+            $table->string('internship_sector')->nullable(); // Setor ou área onde será desenvolvido o estágio
 
             // Carga Horária
             $table->unsignedTinyInteger('hours_sunday')->nullable();
