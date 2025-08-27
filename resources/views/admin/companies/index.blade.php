@@ -83,7 +83,19 @@
                     <div class="card-body py-2 px-3">
                         <div class="row align-items-center g-0">
                             <div class="col-md-5 fw-bold text-dark">{{ $company->name }}</div>
-                            <div class="col-md-4 small text-muted">{{ $company->legal_identifier }}</div>
+                            <div class="col-md-4 small text-muted">
+
+                                @php
+                                    $doc = preg_replace('/\D/', '', $company->legal_identifier);
+                                @endphp
+                                @if (strlen($doc) === 11)
+                                    <strong>CPF: </strong>{{ App\Utils\Formatter::formatCPF($doc) }}
+                                @elseif(strlen($doc) === 14)
+                                    <strong>CNPJ: </strong>{{ App\Utils\Formatter::formatCNPJ($doc) }}
+                                @else
+                                    <strong>CPF/CNPJ: </strong>{{ $company->legal_identifier }}
+                                @endif
+                            </div>
                             <div class="col-md-3 text-end d-flex gap-1 justify-content-end">
                                 <a href="{{ route('admin.companies.edit', $company->id) }}"
                                     class="btn btn-secondary btn-sm px-3 py-1">
