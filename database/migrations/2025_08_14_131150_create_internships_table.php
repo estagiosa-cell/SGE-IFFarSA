@@ -24,7 +24,7 @@ return new class extends Migration
             // --- Dados do Aluno ---
             $table->string('student_name');
             $table->string('student_email');
-            $table->string('student_registration_number')->unique(); // Matrícula deve ser única
+            $table->string('student_registration_number');
             $table->string('student_year_semester');
             $table->date('student_birth_date');
             $table->boolean('student_is_adult');
