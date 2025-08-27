@@ -34,7 +34,6 @@ class Internship extends Model
         'student_address_zip',
 
         // Dados da Concedente
-        'company_legal_identifier_type',
         'company_legal_identifier',
         'company_name',
         'company_phone',
@@ -47,7 +46,10 @@ class Internship extends Model
         'company_address_zip',
         'company_representative_name',
         'company_representative_role',
-        'internship_sector',
+        'field_of_activity',
+        'professional_council',
+        'council_registration_number',
+        'process_number',
 
         // Dados do Responsável Legal
         'legal_guardian_name',
@@ -70,6 +72,8 @@ class Internship extends Model
         'end_date',
         'status',
         'notes',
+        'internship_sector',
+        'required_hours',
 
         // Carga Horária
         'hours_sunday',
@@ -137,7 +141,7 @@ class Internship extends Model
             $this->hours_saturday,
         ])->filter()->sum();
     }
-    
+
     public function isCompanyCnpj(): bool
     {
         return $this->company_legal_identifier_type === 'CNPJ';

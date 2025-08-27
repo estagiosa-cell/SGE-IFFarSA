@@ -19,7 +19,6 @@ return new class extends Migration
             // --- Chaves Estrangeiras Essenciais ---
             $table->foreignId('advisor_id')->constrained('users'); // Orientador
             $table->foreignId('course_id')->constrained('courses');
-            $table->foreignId('internship_type_id')->constrained('internship_types');
 
             // --- Dados do Aluno ---
             $table->string('student_name');
@@ -80,6 +79,7 @@ return new class extends Migration
             $table->string('status')->default('Pendente');
             $table->text('notes')->nullable(); // Observações específicas do estágio
             $table->string('internship_sector')->nullable(); // Setor ou área onde será desenvolvido o estágio
+            $table->unsignedInteger('required_hours');
 
             // Carga Horária
             $table->unsignedTinyInteger('hours_sunday')->nullable();
