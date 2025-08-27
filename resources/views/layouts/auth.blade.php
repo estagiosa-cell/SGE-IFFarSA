@@ -3,7 +3,9 @@
 @section('content')
   <div class="container-fluid">
     <div class="row">
-      <x-sidebar />
+        <div class="col-lg-2 p-0">
+            <x-sidebar />
+        </div>
       <div class="col-lg-10">
         @yield('main-content')
       </div>
