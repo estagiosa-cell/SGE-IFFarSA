@@ -72,7 +72,7 @@ class CompanyController extends Controller
      */
     public function edit(Company $company)
     {
-        //
+        return view('admin.companies.edit', compact('company'));
     }
 
     /**
@@ -80,7 +80,13 @@ class CompanyController extends Controller
      */
     public function update(UpdateCompanyRequest $request, Company $company)
     {
-        //
+        $validatedData = $request->validated();
+
+        $company->update($validatedData);
+
+        return redirect()->back()
+            ->with('message', 'Parte Concedente alterada com sucesso!')
+            ->with('messageType', 'success');
     }
 
     /**
@@ -88,6 +94,10 @@ class CompanyController extends Controller
      */
     public function destroy(Company $company)
     {
-        //
+        $company->delete();
+
+        return redirect()->route('admin.companies.index')
+            ->with('message', 'Parte Concedente excluída com sucesso!')
+            ->with('messageType', 'success');
     }
 }
