@@ -6,7 +6,7 @@
         <div class="col-lg-2 p-0">
             <x-sidebar />
         </div>
-      <div class="col-lg-10">
+      <div class="col-lg-10 pb-3">
         @yield('main-content')
       </div>
     </div>
