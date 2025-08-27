@@ -59,8 +59,8 @@ return new class extends Migration
             $table->string('representative_role');
 
             // Contato
-            $table->string('phone');
-            $table->string('email');
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
 
             // Informações Adicionais
             $table->string('field_of_activity'); // Área de Atuação
