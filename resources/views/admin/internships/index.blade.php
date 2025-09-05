@@ -115,7 +115,7 @@
                                         <p class="card-text mb-1">
                                             <i class="bi bi-tag me-1"></i>
                                             <strong>Tipo:</strong>
-                                            {{ $internship->internshipType->name ?? 'Não definido' }}
+                                            {{ $internship->internship_type_name ?? 'Não definido' }}
                                         </p>
                                     </div>
                                 </div>
