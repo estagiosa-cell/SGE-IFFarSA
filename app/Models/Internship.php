@@ -12,7 +12,6 @@ class Internship extends Model
         // Chaves Estrangeiras
         'advisor_id',
         'course_id',
-        'internship_type_id',
 
         // Dados do Aluno
         'student_name',
@@ -67,6 +66,7 @@ class Internship extends Model
         'supervisor_experience',
 
         // Dados do Estágio
+        'internship_type_name',
         'activities',
         'start_date',
         'end_date',
@@ -121,11 +121,6 @@ class Internship extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
-    }
-
-    public function internshipType(): BelongsTo
-    {
-        return $this->belongsTo(InternshipType::class);
     }
 
     // Métodos auxiliares
