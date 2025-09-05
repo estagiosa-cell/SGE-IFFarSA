@@ -102,7 +102,7 @@
                             <div class="form-floating">
                                 <select class="form-select @error('address_state') is-invalid @enderror" id="address_state" name="address_state" required>
                                     <option value="" disabled selected>Selecione o estado</option>
-                                    @foreach(['Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Distrito Federal', 'Espírito Santo', 'Goiás', 'Maranhão', 'Mato Grosso', 'Mato Grosso do Sul', 'Minas Gerais', 'Pará', 'Paraíba', 'Paraná', 'Pernambuco', 'Piauí', 'Rio de Janeiro', 'Rio Grande do Norte', 'Rio Grande do Sul', 'Rondônia', 'Roraima', 'Santa Catarina', 'São Paulo', 'Sergipe', 'Tocantins'] as $state)
+                                    @foreach(['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'] as $state)
                                         <option value="{{ $state }}" {{ old('address_state') == $state ? 'selected' : '' }}>{{ $state }}</option>
                                     @endforeach
                                 </select>
