@@ -8,10 +8,10 @@ use App\Services\GoogleApiService;
 use Illuminate\Http\Request;
 use App\Models\Internship;
 use App\Models\Course;
-use Google_Service_Sheets_ValueRange;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Enums\InternshipStatus;
+use App\Utils\InternshipEndDate;
 
 class SyncDataController extends Controller
 {
@@ -81,7 +81,7 @@ class SyncDataController extends Controller
             $nomeOrientador             = $row[24] ?? null; // Coluna Z
 
             // Dados da Empresa (Parte Concedente)
-            //$tipoDocumentoConcedente      = $row[25] ?? null; // Coluna AA
+            $tipoDocumentoConcedente      = $row[25] ?? null; // Coluna AA
             $cpfConcedente                = $row[26] ?? null; // Coluna AB
             $cnpjConcedente               = $row[27] ?? null; // Coluna AC
             $razaoSocialConcedente        = $row[28] ?? null; // Coluna AD
@@ -169,8 +169,6 @@ class SyncDataController extends Controller
             // busca os dados da parte concedente
             $identificadorLegal = $cnpjConcedente ?? $cpfConcedente;
             $partesConcedentes = Company::where('legal_identifier', $identificadorLegal)->get();
-
-            $statusEstagio = 'Pendente'; // Status padrão
             $observacoesAdicionais = $observacoes;
 
             // RF-I02.3: Tratamento dos Resultados da Busca
@@ -269,6 +267,49 @@ class SyncDataController extends Controller
                 }
             }
 
+            // Validação e cálculo da carga horária semanal
+            $weeklyHours = [
+                (int) ($horasDomingo ?? 0),      // Domingo
+                (int) ($horasSegunda ?? 0),      // Segunda
+                (int) ($horasTerca ?? 0),        // Terça
+                (int) ($horasQuarta ?? 0),       // Quarta
+                (int) ($horasQuinta ?? 0),       // Quinta
+                (int) ($horasSexta ?? 0),        // Sexta
+                (int) ($horasSabado ?? 0),       // Sábado
+            ];
+
+            $totalWeeklyHours = array_sum($weeklyHours);
+
+            // Validação: máximo 30 horas semanais
+            if ($totalWeeklyHours > 30) {
+                return redirect()->route('admin.dashboard')
+                    ->with('message', "A carga horária semanal do estagiário '$nomeCompletoEstagiario' na linha $rowNumber excede o limite de 30 horas. Total informado: {$totalWeeklyHours} horas.")
+                    ->with('messageType', 'danger');
+            }
+
+            // Validação: deve ter pelo menos 1 hora semanal
+            if ($totalWeeklyHours <= 0) {
+                return redirect()->route('admin.dashboard')
+                    ->with('message', "A carga horária semanal do estagiário '$nomeCompletoEstagiario' na linha $rowNumber deve ser maior que zero.")
+                    ->with('messageType', 'danger');
+            }
+
+            // Cálculo da data de fim do estágio
+            $dataFimEstagio = null;
+            if ($dataInicioEstagio && $requiredHours > 0) {
+                try {
+                    $dataFimEstagio = InternshipEndDate::calculateInternshipEndDate(
+                        $dataInicioEstagio,
+                        $weeklyHours,
+                        $requiredHours
+                    );
+                } catch (\Exception $e) {
+                    return redirect()->route('admin.dashboard')
+                        ->with('message', "Erro ao calcular data de fim do estágio para '$nomeCompletoEstagiario' na linha $rowNumber: " . $e->getMessage())
+                        ->with('messageType', 'danger');
+                }
+            }
+
             // salvar no banco de dados
             Internship::create([
 
@@ -302,7 +343,7 @@ class SyncDataController extends Controller
                 'internship_sector' => $setorEstagio,
                 'activities' => $atividadesPrevistas,
                 'start_date' => $dataInicioEstagio,
-                //'end_date' => $dataFimEstagio,
+                'end_date' => $dataFimEstagio,
                 'status' => InternshipStatus::PENDING,
                 'notes' => $observacoesAdicionais,
                 'required_hours' => $requiredHours,
@@ -359,7 +400,7 @@ class SyncDataController extends Controller
 
             $updateRange = "'Respostas ao formulário 1'!BJ" . $rowNumber;
             $values = [['sincronizado']];
-            $body = new Google_Service_Sheets_ValueRange(['values' => $values]);
+            $body = new \Google_Service_Sheets_ValueRange(['values' => $values]);
             $params = ['valueInputOption' => 'RAW'];
 
             $service->spreadsheets_values->update($spreadsheetId, $updateRange, $body, $params);
