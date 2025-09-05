@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Services\GoogleApiService;
 use Illuminate\Http\Request;
 use App\Models\Internship;
+use App\Models\Course;
 use Google_Service_Sheets_ValueRange;
-use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Enums\InternshipStatus;
 
 class SyncDataController extends Controller
 {
@@ -50,58 +54,58 @@ class SyncDataController extends Controller
 
             // --- MAPEAMENTO COMPLETO DE DADOS ---
             // Dados do Aluno / Responsável
-            $emailEstagiario           = $row[0] ?? null;  // Coluna B
-            $declaracaoCiente          = $row[1] ?? null;  // Coluna C
-            $maiorDe18                 = $row[2] ?? null;  // Coluna D
-            $nomeResponsavelLegal      = $row[3] ?? null;  // Coluna E
-            $cpfResponsavelLegal       = $row[4] ?? null;  // Coluna F
-            $grauParentesco            = $row[5] ?? null;  // Coluna G
-            $emailResponsavelLegal     = $row[6] ?? null;  // Coluna H
-            $curso                     = $row[7] ?? null;  // Coluna I
-            $tipoEstagio               = $row[8] ?? null;  // Coluna J
-            $nomeCompletoEstagiario    = $row[9] ?? null;  // Coluna K
-            $matricula                 = $row[10] ?? null; // Coluna L
-            $anoSemestre               = $row[11] ?? null; // Coluna M
-            $dataNascimento            = $row[12] ?? null; // Coluna N
-            $rg                        = $row[13] ?? null; // Coluna O
-            $rgOrgaoExpedidor          = $row[14] ?? null; // Coluna P
-            $rgDataExpedicao           = $row[15] ?? null; // Coluna Q
-            $cpfEstagiario             = $row[16] ?? null; // Coluna R
-            $telefoneEstagiario        = $row[17] ?? null; // Coluna S
-            $enderecoRuaEstagiario     = $row[18] ?? null; // Coluna T
-            $enderecoNumeroEstagiario  = $row[19] ?? null; // Coluna U
-            $enderecoBairroEstagiario  = $row[20] ?? null; // Coluna V
-            $cidadeEstagiario          = $row[21] ?? null; // Coluna W
-            $ufEstagiario              = $row[22] ?? null; // Coluna X
-            $cepEstagiario             = $row[23] ?? null; // Coluna Y
-            $nomeOrientador            = $row[24] ?? null; // Coluna Z
+            $emailEstagiario            = $row[0] ?? null;  // Coluna B
+            //$declaracaoCiente           = $row[1] ?? null;  // Coluna C
+            $maiorDe18                  = $row[2] ?? null;  // Coluna D
+            $nomeResponsavelLegal       = $row[3] ?? null;  // Coluna E
+            $cpfResponsavelLegal        = $row[4] ?? null;  // Coluna F
+            $parentescoResponsavelLegal = $row[5] ?? null;  // Coluna G
+            $emailResponsavelLegal      = $row[6] ?? null;  // Coluna H
+            $nomeCurso                  = $row[7] ?? null;  // Coluna I
+            $tipoEstagio                = $row[8] ?? null;  // Coluna J
+            $nomeCompletoEstagiario     = $row[9] ?? null;  // Coluna K
+            $matricula                  = $row[10] ?? null; // Coluna L
+            $anoSemestre                = $row[11] ?? null; // Coluna M
+            $dataNascimento             = $row[12] ?? null; // Coluna N
+            $rg                         = $row[13] ?? null; // Coluna O
+            $rgOrgaoExpedidor           = $row[14] ?? null; // Coluna P
+            $rgDataExpedicao            = $row[15] ?? null; // Coluna Q
+            $cpfEstagiario              = $row[16] ?? null; // Coluna R
+            $telefoneEstagiario         = $row[17] ?? null; // Coluna S
+            $enderecoRuaEstagiario      = $row[18] ?? null; // Coluna T
+            $enderecoNumeroEstagiario   = $row[19] ?? null; // Coluna U
+            $enderecoBairroEstagiario   = $row[20] ?? null; // Coluna V
+            $cidadeEstagiario           = $row[21] ?? null; // Coluna W
+            $ufEstagiario               = $row[22] ?? null; // Coluna X
+            $cepEstagiario              = $row[23] ?? null; // Coluna Y
+            $nomeOrientador             = $row[24] ?? null; // Coluna Z
 
             // Dados da Empresa (Parte Concedente)
-            $tipoDocumentoConcedente   = $row[25] ?? null; // Coluna AA
-            $cpfConcedente             = $row[26] ?? null; // Coluna AB
-            $cnpjConcedente            = $row[27] ?? null; // Coluna AC
-            $razaoSocialConcedente     = $row[28] ?? null; // Coluna AD
-            $telefoneConcedente        = $row[29] ?? null; // Coluna AE
-            $emailConcedente           = $row[30] ?? null; // Coluna AF
-            $enderecoRuaConcedente     = $row[31] ?? null; // Coluna AG
-            $enderecoNumeroConcedente  = $row[32] ?? null; // Coluna AH
-            $enderecoBairroConcedente  = $row[33] ?? null; // Coluna AI
-            $cidadeConcedente          = $row[34] ?? null; // Coluna AJ
-            $ufConcedente              = $row[35] ?? null; // Coluna AK
-            $cepConcedente             = $row[36] ?? null; // Coluna AL
-            $nomeRepresentanteConcedente = $row[37] ?? null; // Coluna AM
+            //$tipoDocumentoConcedente      = $row[25] ?? null; // Coluna AA
+            $cpfConcedente                = $row[26] ?? null; // Coluna AB
+            $cnpjConcedente               = $row[27] ?? null; // Coluna AC
+            $razaoSocialConcedente        = $row[28] ?? null; // Coluna AD
+            $telefoneConcedente           = $row[29] ?? null; // Coluna AE
+            $emailConcedente              = $row[30] ?? null; // Coluna AF
+            $enderecoRuaConcedente        = $row[31] ?? null; // Coluna AG
+            $enderecoNumeroConcedente     = $row[32] ?? null; // Coluna AH
+            $enderecoBairroConcedente     = $row[33] ?? null; // Coluna AI
+            $cidadeConcedente             = $row[34] ?? null; // Coluna AJ
+            $ufConcedente                 = $row[35] ?? null; // Coluna AK
+            $cepConcedente                = $row[36] ?? null; // Coluna AL
+            $nomeRepresentanteConcedente  = $row[37] ?? null; // Coluna AM
             $cargoRepresentanteConcedente = $row[38] ?? null; // Coluna AN
 
             // Dados do Estágio e Supervisor
-            $setorEstagio              = $row[39] ?? null; // Coluna AO
-            $nomeSupervisor            = $row[40] ?? null; // Coluna AP
-            $telefoneSupervisor        = $row[41] ?? null; // Coluna AQ
-            $emailSupervisor           = $row[42] ?? null; // Coluna AR
-            $cargoSupervisor           = $row[43] ?? null; // Coluna AS
-            $formacaoSupervisorPossui  = $row[44] ?? null; // Coluna AT
+            $setorEstagio                = $row[39] ?? null; // Coluna AO
+            $nomeSupervisor              = $row[40] ?? null; // Coluna AP
+            $telefoneSupervisor          = $row[41] ?? null; // Coluna AQ
+            $emailSupervisor             = $row[42] ?? null; // Coluna AR
+            $cargoSupervisor             = $row[43] ?? null; // Coluna AS
+            $formacaoSupervisorPossui    = $row[44] ?? null; // Coluna AT
             $formacaoDescricaoSupervisor = $row[45] ?? null; // Coluna AU
-            $experienciaSupervisor     = $row[46] ?? null; // Coluna AV
-            $atividadesPrevistas       = $row[47] ?? null; // Coluna AW
+            $experienciaSupervisor       = $row[46] ?? null; // Coluna AV
+            $atividadesPrevistas         = $row[47] ?? null; // Coluna AW
 
             // Carga Horária
             $horasDomingo              = $row[48] ?? null; // Coluna AX
@@ -119,10 +123,236 @@ class SyncDataController extends Controller
             $valorAuxilioTransporte    = $row[58] ?? null; // Coluna BH
             $observacoes               = $row[59] ?? null; // Coluna BI
 
-            
+            // busca o curso
+            $curso = Course::whereLike('name', $nomeCurso)->first();
 
+            // busca os dados do tipo de estágio relacionado ao curso
+            $internshipType = null;
+            $internshipTypeName = null;
+            $requiredHours = 0; // valor padrão
+
+            if ($curso) {
+                if ($tipoEstagio) {
+                    // Primeiro tenta encontrar o tipo de estágio específico dentro dos tipos do curso
+                    $internshipType = $curso->internshipTypes()->whereLike('name', $tipoEstagio)->first();
+                }
+
+                // Se não encontrou o tipo específico ou não foi informado, pega o primeiro tipo de estágio do curso
+                if (!$internshipType) {
+                    $internshipType = $curso->internshipTypes()->first();
+                }
+
+                // Se encontrou um tipo de estágio, copia os dados dele
+                if ($internshipType) {
+                    $internshipTypeName = $internshipType->name;
+                    $requiredHours = $internshipType->required_hours;
+                } else {
+                    return redirect()->route('admin.dashboard')
+                        ->with('message', "Nenhum tipo de estágio encontrado para o curso '$nomeCurso' do estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
+                        ->with('messageType', 'danger');
+                }
+            } else {
+                return redirect()->route('admin.dashboard')
+                    ->with('message', "Curso '$nomeCurso' não encontrado para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
+                    ->with('messageType', 'danger');
+            }
+
+            // busca pelo orientador
+            $orientador = User::whereLike('name', $nomeOrientador)->first();
+
+            if (!$orientador) {
+                return redirect()->route('admin.dashboard')
+                    ->with('message', "Orientador '$nomeOrientador' não encontrado para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
+                    ->with('messageType', 'danger');
+            }
+
+            // busca os dados da parte concedente
+            $identificadorLegal = $cnpjConcedente ?? $cpfConcedente;
+            $partesConcedentes = Company::where('legal_identifier', $identificadorLegal)->get();
+
+            $statusEstagio = 'Pendente'; // Status padrão
+            $observacoesAdicionais = $observacoes;
+
+            // RF-I02.3: Tratamento dos Resultados da Busca
+            if ($partesConcedentes->count() === 1) {
+                // RF-I02.3.1: Um resultado - usa dados padronizados da base local
+                $parteConcedente = $partesConcedentes->first();
+                $identificadorLegal = $parteConcedente->legal_identifier;
+                $razaoSocialConcedente = $parteConcedente->name;
+                $telefoneConcedente = $parteConcedente->phone;
+                $emailConcedente = $parteConcedente->email;
+                $enderecoRuaConcedente = $parteConcedente->address_street;
+                $enderecoNumeroConcedente = $parteConcedente->address_number;
+                $enderecoBairroConcedente = $parteConcedente->address_neighborhood;
+                $cidadeConcedente = $parteConcedente->address_city;
+                $ufConcedente = $parteConcedente->address_state;
+                $cepConcedente = $parteConcedente->address_zip;
+                $nomeRepresentanteConcedente = $parteConcedente->representative_name;
+                $cargoRepresentanteConcedente = $parteConcedente->representative_role;
+                $areaDeAtuacao = $parteConcedente->field_of_activity;
+                $registroConselhoProfissional = $parteConcedente->professional_council ?? null;
+                $numeroRegistroConselho = $parteConcedente->council_registration_number ?? null;
+                $numeroProcesso = $parteConcedente->process_number ?? null;
+            } elseif ($partesConcedentes->count() > 1) {
+                // RF-I02.3.2: Múltiplos resultados - status Pendente + anotação
+                $razaoSocialConcedente = null;
+                $telefoneConcedente = null;
+                $emailConcedente = null;
+                $enderecoRuaConcedente = null;
+                $enderecoNumeroConcedente = null;
+                $enderecoBairroConcedente = null;
+                $cidadeConcedente = null;
+                $ufConcedente = null;
+                $cepConcedente = null;
+                $nomeRepresentanteConcedente = null;
+                $cargoRepresentanteConcedente = null;
+                $areaDeAtuacao = null;
+                $registroConselhoProfissional = null;
+                $numeroRegistroConselho = null;
+                $numeroProcesso = null;
+                $observacoesAdicionais = ($observacoes ? $observacoes . "\n\n" : '') .
+                    "ATENÇÃO: Múltiplas empresas encontradas com o CNPJ/CPF {$identificadorLegal}. Seleção manual necessária.";
+            } else {
+                // RF-I02.3.3: Nenhum resultado - campos vazios + status Pendente
+                $razaoSocialConcedente = null;
+                $telefoneConcedente = null;
+                $emailConcedente = null;
+                $enderecoRuaConcedente = null;
+                $enderecoNumeroConcedente = null;
+                $enderecoBairroConcedente = null;
+                $cidadeConcedente = null;
+                $ufConcedente = null;
+                $cepConcedente = null;
+                $nomeRepresentanteConcedente = null;
+                $cargoRepresentanteConcedente = null;
+                $areaDeAtuacao = null;
+                $registroConselhoProfissional = null;
+                $numeroRegistroConselho = null;
+                $numeroProcesso = null;
+
+                $observacoesAdicionais = ($observacoes ? $observacoes . "\n\n" : '') .
+                    "ATENÇÃO: Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário.";
+            }
+
+            // formata as datas com validação
+            $dataNascimento = null;
+            $rgDataExpedicao = null;
+            $dataInicioEstagio = null;
+
+            if ($row[12]) {
+                try {
+                    $dataNascimento = Carbon::createFromFormat('d/m/Y', $row[12])->startOfDay();
+                } catch (\Exception $e) {
+                    return redirect()->route('admin.dashboard')
+                        ->with('message', "Data de nascimento inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
+                        ->with('messageType', 'danger');
+                }
+            }
+
+            if ($row[15]) {
+                try {
+                    $rgDataExpedicao = Carbon::createFromFormat('d/m/Y', $row[15])->startOfDay();
+                } catch (\Exception $e) {
+                    return redirect()->route('admin.dashboard')
+                        ->with('message', "Data de expedição do RG inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
+                        ->with('messageType', 'danger');
+                }
+            }
+
+            if ($row[55]) {
+                try {
+                    $dataInicioEstagio = Carbon::createFromFormat('d/m/Y', $row[55])->startOfDay();
+                } catch (\Exception $e) {
+                    return redirect()->route('admin.dashboard')
+                        ->with('message', "Data de início do estágio inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
+                        ->with('messageType', 'danger');
+                }
+            }
 
             // salvar no banco de dados
+            Internship::create([
+
+                // dados estudante
+                'student_name' => $nomeCompletoEstagiario,
+                'student_email' => $emailEstagiario,
+                'student_registration_number' => $matricula,
+                'student_year_semester' => $anoSemestre,
+                'student_birth_date' => $dataNascimento,
+                'student_is_adult' => $maiorDe18,
+                'student_rg' => $rg,
+                'student_rg_issuer' => $rgOrgaoExpedidor,
+                'student_rg_issue_date' => $rgDataExpedicao,
+                'student_cpf' => $cpfEstagiario,
+                'student_phone' => $telefoneEstagiario,
+                'student_address_street' => $enderecoRuaEstagiario,
+                'student_address_number' => $enderecoNumeroEstagiario,
+                'student_address_neighborhood' => $enderecoBairroEstagiario,
+                'student_address_city' => $cidadeEstagiario,
+                'student_address_state' => $ufEstagiario,
+                'student_address_zip' => $cepEstagiario,
+
+                // dados responsavel legal
+                'legal_guardian_name' => $nomeResponsavelLegal,
+                'legal_guardian_cpf' => $cpfResponsavelLegal,
+                'legal_guardian_kinship' => $parentescoResponsavelLegal,
+                'legal_guardian_email' => $emailResponsavelLegal,
+
+                // dados do estágio
+                'internship_type_name' => $internshipTypeName,
+                'internship_sector' => $setorEstagio,
+                'activities' => $atividadesPrevistas,
+                'start_date' => $dataInicioEstagio,
+                //'end_date' => $dataFimEstagio,
+                'status' => InternshipStatus::PENDING,
+                'notes' => $observacoesAdicionais,
+                'required_hours' => $requiredHours,
+
+                // dados supervisor
+                'supervisor_name' => $nomeSupervisor,
+                'supervisor_phone' => $telefoneSupervisor,
+                'supervisor_email' => $emailSupervisor,
+                'supervisor_role' => $cargoSupervisor,
+                'supervisor_qualification' => $formacaoSupervisorPossui,
+                'supervisor_training' => $formacaoDescricaoSupervisor,
+                'supervisor_experience' => $experienciaSupervisor,
+
+                // Carga Horária
+                'hours_sunday' => $horasDomingo,
+                'hours_monday' => $horasSegunda,
+                'hours_tuesday' => $horasTerca,
+                'hours_wednesday' => $horasQuarta,
+                'hours_thursday' => $horasQuinta,
+                'hours_friday' => $horasSexta,
+                'hours_saturday' => $horasSabado,
+
+                // Remuneração
+                'is_remunerated' => $estagioRemunerado,
+                'grant_value' => $valorBolsa,
+                'transportation_allowance' => $valorAuxilioTransporte,
+
+                // dados da parte concedente
+                'company_legal_identifier' => $identificadorLegal,
+                'company_name' => $razaoSocialConcedente,
+                'company_phone' => $telefoneConcedente,
+                'company_email' => $emailConcedente,
+                'company_address_street' => $enderecoRuaConcedente,
+                'company_address_number' => $enderecoNumeroConcedente,
+                'company_address_neighborhood' => $enderecoBairroConcedente,
+                'company_address_city' => $cidadeConcedente,
+                'company_address_state' => $ufConcedente,
+                'company_address_zip' => $cepConcedente,
+                'company_representative_name' => $nomeRepresentanteConcedente,
+                'company_representative_role' => $cargoRepresentanteConcedente,
+                'field_of_activity' => $areaDeAtuacao,
+                'professional_council' => $registroConselhoProfissional,
+                'council_registration_number' => $numeroRegistroConselho,
+                'process_number' => $numeroProcesso,
+
+                // Chaves Estrangeiras
+                'advisor_id' => $orientador->id,
+                'course_id' => $curso->id,
+            ]);
+
 
             $processedCount++;
 
