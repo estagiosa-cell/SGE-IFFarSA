@@ -44,4 +44,12 @@ class Course extends Model
     {
         return $this->belongsTo(User::class, 'coordinator_id');
     }
+
+    /**
+     * Retorna os tipos de estágio do curso.
+     */
+    public function internshipTypes()
+    {
+        return $this->hasMany(InternshipType::class);
+    }
 }
