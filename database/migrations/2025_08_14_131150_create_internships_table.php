@@ -1,5 +1,3 @@
-// Substitua o conteúdo do seu arquivo de migration create_internships_table.php por este:
-
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -48,7 +46,7 @@ return new class extends Migration
             $table->string('company_address_number')->nullable();
             $table->string('company_address_neighborhood')->nullable();
             $table->string('company_address_city')->nullable();
-            $table->enum('company_address_state', ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']);
+            $table->enum('company_address_state', ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'])->nullable();
             $table->string('company_address_zip')->nullable();
             $table->string('company_representative_name')->nullable();
             $table->string('company_representative_role')->nullable();
@@ -67,8 +65,8 @@ return new class extends Migration
             $table->string('supervisor_name');
             $table->string('supervisor_phone');
             $table->string('supervisor_email');
-            $table->string('supervisor_role')->nullable();
-            $table->string('supervisor_qualification')->nullable(); // O supervisor possui: Ensino Superior, Técnico, etc.
+            $table->string('supervisor_role');
+            $table->string('supervisor_qualification'); // O supervisor possui: Ensino Superior, Técnico, etc.
             $table->string('supervisor_training')->nullable(); // Formação do Supervisor
             $table->text('supervisor_experience')->nullable(); // Experiência profissional do supervisor
 
@@ -79,7 +77,8 @@ return new class extends Migration
             $table->string('status')->default('Pendente');
             $table->text('notes')->nullable(); // Observações específicas do estágio
             $table->string('internship_sector')->nullable(); // Setor ou área onde será desenvolvido o estágio
-            $table->unsignedInteger('required_hours');
+            $table->string('internship_type_name')->nullable();
+            $table->unsignedInteger('required_hours')->nullable();
 
             // Carga Horária
             $table->unsignedTinyInteger('hours_sunday')->nullable();
