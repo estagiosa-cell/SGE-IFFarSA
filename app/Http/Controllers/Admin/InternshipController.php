@@ -18,7 +18,7 @@ class InternshipController extends Controller
         $search = $request->get('search');
         $status = $request->get('status');
 
-        $query = Internship::with(['advisor', 'course', 'internshipType']);
+        $query = Internship::with(['advisor', 'course']);
 
         // Filtro por nome do estudante
         if ($request->filled('search')) {
@@ -44,7 +44,7 @@ class InternshipController extends Controller
      */
     public function edit(Internship $internship)
     {
-        $internship->load(['advisor', 'course', 'internshipType']);
+        $internship->load(['advisor', 'course']);
         $statusOptions = InternshipStatus::options();
 
         return view('admin.internships.edit', compact('internship', 'statusOptions'));
