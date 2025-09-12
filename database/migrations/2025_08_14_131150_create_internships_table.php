@@ -94,6 +94,8 @@ return new class extends Migration
             $table->decimal('grant_value', 8, 2)->nullable();
             $table->decimal('transportation_allowance', 8, 2)->nullable();
 
+            // Avaliação
+            $table->decimal('evaluation_grade', 5, 2)->nullable(); // Nota da avaliação do estágio (0.00 a 100.00)
 
             $table->string('google_docs_id')->nullable();
 

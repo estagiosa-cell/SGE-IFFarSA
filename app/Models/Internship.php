@@ -89,6 +89,9 @@ class Internship extends Model
         'grant_value',
         'transportation_allowance',
 
+        // Avaliação
+        'evaluation_grade',
+
         // Google Docs
         'google_docs_id',
     ];
@@ -103,6 +106,7 @@ class Internship extends Model
         'is_remunerated' => 'boolean',
         'grant_value' => 'decimal:2',
         'transportation_allowance' => 'decimal:2',
+        'evaluation_grade' => 'decimal:2',
         'hours_sunday' => 'integer',
         'hours_monday' => 'integer',
         'hours_tuesday' => 'integer',
