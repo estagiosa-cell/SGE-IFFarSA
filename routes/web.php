@@ -64,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/internships', [InternshipController::class, 'index'])->name('admin.internships.index');
         Route::get('/internships/{internship}', [InternshipController::class, 'edit'])->name('admin.internships.edit');
         Route::put('/internships/{internship}', [InternshipController::class, 'update'])->name('admin.internships.update');
+        Route::get('/api/companies-by-cnpj', [InternshipController::class, 'getCompaniesByCnpj'])->name('admin.internships.companies-by-cnpj');
 
         // rotas de partes concendentes
         Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies.index');
