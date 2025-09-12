@@ -1,0 +1,6 @@
+CNPJ/CPF,NOME,RUA,NUMERO,BAIRRO,CIDADE,ESTADO,CEP,REPRESENTANTE LEGAL,CARGO/FUNÇÃO,TELEFONE,EMAIL,ÁREA DE ATUAÇÃO,CONSELHO PROFISSIONAL,REGISTRO,PROCESSO
+12345678000100,Empresa Exemplo Ltda,Rua das Flores,100,Centro,São Paulo,SP,01234567,João da Silva,Diretor Geral,11987654321,joao@exemplo.com,Tecnologia da Informação,CREA-SP,123456,2024.001234/2024-01
+98765432000199,Comércio Fictício S.A.,Av Principal,500,Industrial,Rio de Janeiro,RJ,20123456,Maria Santos,Gerente Comercial,21912345678,maria@comercio.com,Comércio Varejista,,,
+11122233000144,Escola Municipal Exemplo,Rua da Educação,25,Vila Nova,Belo Horizonte,MG,30987654,Pedro Oliveira,Diretor,31987123456,pedro@escola.edu.br,Educação Fundamental,,,
+11122233000144,Creche Municipal Exemplo,Rua das Crianças,15,Vila Nova,Belo Horizonte,MG,30987654,Ana Costa,Diretora,31987654321,ana@creche.edu.br,Educação Infantil,,,
+55566677000188,Consultoria ABC Ltda,Rua dos Negócios,75,Empresarial,Porto Alegre,RS,90210345,Carlos Mendes,Sócio-Administrador,51999887766,carlos@consultoria.com,Consultoria Empresarial,CRA-RS,789012,
