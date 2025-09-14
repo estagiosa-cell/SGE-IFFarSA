@@ -738,7 +738,20 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-3 mb-3">
+                            <div class="form-floating">
+                                <input type="number"
+                                    class="form-control @error('evaluation_grade') is-invalid @enderror"
+                                    id="evaluation_grade" name="evaluation_grade"
+                                    value="{{ old('evaluation_grade', $internship->evaluation_grade) }}"
+                                    placeholder="Nota" min="0" max="100" step="0.1">
+                                <label for="evaluation_grade">Nota da Avaliação (0 - 100)</label>
+                                @error('evaluation_grade')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-9 mb-3">
                             <div class="form-floating">
                                 <textarea class="form-control @error('activities') is-invalid @enderror" id="activities" name="activities"
                                     style="height: 120px" placeholder="Descrição das atividades" required>{{ old('activities', $internship->activities) }}</textarea>
@@ -815,7 +828,8 @@
 
                         if (companyId) {
                             fetch(
-                                    `{{ route('admin.internships.companies-by-cnpj') }}?cnpj=${cnpjInput.value}`)
+                                    `{{ route('admin.internships.companies-by-cnpj') }}?cnpj=${cnpjInput.value}`
+                                    )
                                 .then(response => response.json())
                                 .then(companies => {
                                     const selectedCompany = companies.find(c => c.id == companyId);

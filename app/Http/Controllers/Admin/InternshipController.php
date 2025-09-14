@@ -124,6 +124,7 @@ class InternshipController extends Controller
             'end_date' => 'required|date|after:start_date',
             'required_hours' => 'required|integer|min:1',
             'activities' => 'required|string',
+            'evaluation_grade' => 'nullable|numeric|min:0|max:100',
         ]);
 
         try {
