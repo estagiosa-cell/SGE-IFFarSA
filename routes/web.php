@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\InternshipController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\Admin\SyncDataController;
 use App\Http\Controllers\Admin\CompanyController;
+use App\Http\Controllers\Admin\DashboardController;
 
 Route::middleware(['guest'])->group(function () {
     Route::get('/', [SessionController::class, 'create'])->name('login');
@@ -25,7 +26,7 @@ Route::middleware(['guest'])->group(function () {
 // Rotas dos usuários autenticados
 Route::middleware(['auth'])->group(function () {
     Route::middleware(['can:is-admin'])->group(function () {
-        Route::view('/dashboard', 'admin.dashboard')->name('admin.dashboard'); // rota temporária, apenas para testes
+        Route::get('/dashboard', DashboardController::class)->name('admin.dashboard');
 
         // Rotas de Usuários
         Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
