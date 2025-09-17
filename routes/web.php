@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InternshipController;
+use App\Http\Controllers\Admin\InternshipDocumentController;
 use App\Http\Controllers\Admin\InternshipTypeController;
 use App\Http\Controllers\Admin\SyncDataController;
 use App\Http\Controllers\Admin\UserController;
@@ -67,6 +68,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/internships/{internship}', [InternshipController::class, 'edit'])->name('admin.internships.edit');
         Route::put('/internships/{internship}', [InternshipController::class, 'update'])->name('admin.internships.update');
         Route::get('/api/companies-by-cnpj', [InternshipController::class, 'getCompaniesByCnpj'])->name('admin.internships.companies-by-cnpj');
+
+        // Rota de geração de documentos de estágio
+        Route::post('/estagios/{estagio}/gerar-documento', InternshipDocumentController::class)->name('admin.internships.documents.generate');
 
         // rotas de partes concendentes
         Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies.index');

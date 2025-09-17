@@ -11,6 +11,57 @@
             </a>
         </div>
 
+        {{-- Geração de Documentos --}}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-text me-2"></i>Geração de Documentos
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="generateDocForm" action="{{ route('admin.internships.documents.generate', $internship->id) }}"
+                    method="POST">
+                    @csrf
+                    <div class="row align-items-end">
+                        <div class="col-md-8 mb-3">
+                            <div class="form-floating">
+                                <select class="form-select form-select-lg" id="document_type" name="document_type" required>
+                                    <option value="" disabled selected>Selecione o tipo de documento</option>
+                                    <option value="termo-compromisso">Termo de Compromisso Padrão</option>
+                                </select>
+                                <label for="document_type">
+                                    <i class="bi bi-file-earmark-text me-2"></i>Tipo de Documento *
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <button type="submit" id="generateDocBtn" class="btn btn-primary btn-lg w-100 h-100">
+                                <span class="btn-text">
+                                    <i class="bi bi-file-earmark-plus me-2"></i>
+                                    Gerar Documento
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="bg-light rounded p-3">
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <small>
+                                        <strong>Importante:</strong> A geração de um novo documento pode sobrescrever o
+                                        documento existente.
+                                        Certifique-se de fazer backup se necessário.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <form action="{{ route('admin.internships.update', $internship->id) }}" method="POST" class="needs-validation"
             novalidate>
             @csrf
@@ -84,9 +135,6 @@
                                     <label>Documento do Google</label>
                                 </div>
                             @endif
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <!-- Espaço vazio para balanceamento visual -->
                         </div>
                     </div>
                     <div class="row">
@@ -899,6 +947,42 @@
                         }
                     });
                 }
+            });
+
+            // Controle do formulário de geração de documentos
+            const generateDocForm = document.getElementById('generateDocForm');
+            const generateDocBtn = document.getElementById('generateDocBtn');
+            const documentTypeSelect = document.getElementById('document_type');
+
+            if (generateDocForm && generateDocBtn) {
+                generateDocForm.addEventListener('submit', function(e) {
+                    // Validar se um tipo de documento foi selecionado
+                    if (!documentTypeSelect.value) {
+                        e.preventDefault();
+                        alert('Por favor, selecione o tipo de documento a ser gerado.');
+                        documentTypeSelect.focus();
+                        return;
+                    }
+
+                    // Confirmar geração
+                    const documentTypeName = documentTypeSelect.options[documentTypeSelect.selectedIndex].text;
+                    if (!confirm(
+                            `Deseja gerar o documento "${documentTypeName}"? Isso pode sobrescrever um documento existente.`
+                        )) {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    // Mostrar loading
+                    const btnText = generateDocBtn.querySelector('.btn-text');
+                    const btnLoading = generateDocBtn.querySelector('.btn-loading');
+
+                    btnText.classList.add('d-none');
+                    btnLoading.classList.remove('d-none');
+                    generateDocBtn.disabled = true;
+                    documentTypeSelect.disabled = true;
+                });
+            }
             });
         </script>
     </div>

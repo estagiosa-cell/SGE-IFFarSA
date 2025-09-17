@@ -41,6 +41,8 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
         'admin_email' => env('GOOGLE_ADMIN_ACCOUNT_EMAIL'),
         'sheet_id' => env('GOOGLE_SHEET_ID'),
+        'template_termo_compromisso_id' => env('TEMPLATE_TERMO_COMPROMISSO_ID'),
+        'drive_folder_id' => env('GOOGLE_DRIVE_FOLDER_ID'),
     ],
 
 ];
