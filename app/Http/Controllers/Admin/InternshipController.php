@@ -67,7 +67,13 @@ class InternshipController extends Controller
                 ->get(['id', 'name']);
         }
 
-        return view('admin.internships.edit', compact('internship', 'statusOptions', 'companiesWithSameCnpj'));
+        // Busca orientadores disponíveis (usuários com role orientador ou coordenador)
+        $advisors = \App\Models\User::whereIn('role', ['orientador', 'coordenador'])
+            ->whereNull('deactivated_at')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('admin.internships.edit', compact('internship', 'statusOptions', 'companiesWithSameCnpj', 'advisors'));
     }
 
     /**
@@ -77,6 +83,7 @@ class InternshipController extends Controller
     {
         $validatedData = $request->validate([
             // Informações do Sistema
+            'advisor_id' => 'required|exists:users,id',
             'status' => 'required|in:'.implode(',', array_keys(InternshipStatus::options())),
             'notes' => 'nullable|string',
 

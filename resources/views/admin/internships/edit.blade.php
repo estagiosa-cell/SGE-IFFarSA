@@ -25,6 +25,24 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
+                                <select class="form-select @error('advisor_id') is-invalid @enderror" id="advisor_id"
+                                    name="advisor_id" required>
+                                    <option value="" disabled>Selecione o orientador</option>
+                                    @foreach ($advisors as $advisor)
+                                        <option value="{{ $advisor->id }}"
+                                            {{ old('advisor_id', $internship->advisor_id) == $advisor->id ? 'selected' : '' }}>
+                                            {{ $advisor->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="advisor_id">Orientador *</label>
+                                @error('advisor_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
                                 <select class="form-select @error('status') is-invalid @enderror" id="status"
                                     name="status" required>
                                     @foreach ($statusOptions as $value => $label)
@@ -40,6 +58,10 @@
                                 @enderror
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
+                    </div>
+                    <div class="row">
                         <div class="col-md-6 mb-3">
                             @if ($internship->google_docs_id)
                                 <div class="form-floating">
@@ -62,6 +84,9 @@
                                     <label>Documento do Google</label>
                                 </div>
                             @endif
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <!-- Espaço vazio para balanceamento visual -->
                         </div>
                     </div>
                     <div class="row">
@@ -86,8 +111,8 @@
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('student_name') is-invalid @enderror"
                                     id="student_name" name="student_name"
-                                    value="{{ old('student_name', $internship->student_name) }}" placeholder="Nome completo"
-                                    required>
+                                    value="{{ old('student_name', $internship->student_name) }}"
+                                    placeholder="Nome completo" required>
                                 <label for="student_name">Nome Completo *</label>
                                 @error('student_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -136,7 +161,8 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="form-floating">
-                                <input type="date" class="form-control @error('student_birth_date') is-invalid @enderror"
+                                <input type="date"
+                                    class="form-control @error('student_birth_date') is-invalid @enderror"
                                     id="student_birth_date" name="student_birth_date"
                                     value="{{ old('student_birth_date', $internship->student_birth_date?->format('Y-m-d')) }}"
                                     required>
@@ -829,7 +855,7 @@
                         if (companyId) {
                             fetch(
                                     `{{ route('admin.internships.companies-by-cnpj') }}?cnpj=${cnpjInput.value}`
-                                    )
+                                )
                                 .then(response => response.json())
                                 .then(companies => {
                                     const selectedCompany = companies.find(c => c.id == companyId);
