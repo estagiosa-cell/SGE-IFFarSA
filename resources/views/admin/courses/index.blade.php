@@ -119,32 +119,6 @@
             @endforeach
 
             {{ $courses->links() }} <!-- Paginação -->
+        @endif
     </div>
-    @endif
-    </div>
-
-    @push('scripts')
-        <script>
-            // Auto-submit do formulário quando os selects mudarem
-            document.getElementById('level').addEventListener('change', function() {
-                if (this.value !== '') {
-                    this.form.submit();
-                }
-            });
-
-            document.getElementById('type').addEventListener('change', function() {
-                if (this.value !== '') {
-                    this.form.submit();
-                }
-            });
-
-            // Submit com Enter na busca
-            document.getElementById('search').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this.form.submit();
-                }
-            });
-        </script>
-    @endpush
 @endsection
