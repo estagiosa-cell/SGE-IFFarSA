@@ -5,7 +5,7 @@ namespace App\Enums;
 enum InternshipStatus: string
 {
     case PENDING = 'Pendente';
-    case APPROVED = 'Aprovado';
+    case AWAITING_SIGNATURE = 'Aguardando Assinatura';
     case IN_PROGRESS = 'Em Andamento';
     case COMPLETED = 'Concluído';
     case CANCELLED = 'Cancelado';
@@ -14,7 +14,7 @@ enum InternshipStatus: string
     {
         return match ($this) {
             self::PENDING => 'Pendente',
-            self::APPROVED => 'Aprovado',
+            self::AWAITING_SIGNATURE => 'Aguardando Assinatura',
             self::IN_PROGRESS => 'Em Andamento',
             self::COMPLETED => 'Concluído',
             self::CANCELLED => 'Cancelado',
@@ -25,7 +25,7 @@ enum InternshipStatus: string
     {
         return match ($this) {
             self::PENDING => 'warning',
-            self::APPROVED => 'info',
+            self::AWAITING_SIGNATURE => 'info',
             self::IN_PROGRESS => 'primary',
             self::COMPLETED => 'success',
             self::CANCELLED => 'danger',
@@ -35,7 +35,7 @@ enum InternshipStatus: string
     public static function options(): array
     {
         return collect(self::cases())
-            ->mapWithKeys(fn($status) => [$status->value => $status->label()])
+            ->mapWithKeys(fn ($status) => [$status->value => $status->label()])
             ->toArray();
     }
 }
