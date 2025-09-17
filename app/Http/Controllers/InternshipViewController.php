@@ -52,8 +52,34 @@ class InternshipViewController extends Controller
     /**
      * Display the resource.
      */
-    public function show()
+    public function show(Internship $internship)
     {
-        //
+        $user = Auth::user();
+
+        // Verificar se o usuário tem permissão para visualizar este estágio
+        $canView = false;
+
+        if ($user->can('is-orientador')) {
+            // Orientador pode ver estágios onde ele é o orientador
+            $canView = $internship->advisor_id === $user->id;
+        }
+
+        if ($user->can('is-coordenador')) {
+            // Coordenador pode ver estágios dos cursos que coordena
+            $coordinatedCourseIds = $user->coordinatedCourses()->pluck('id');
+            $canView = $canView || $coordinatedCourseIds->contains($internship->course_id);
+
+            // Coordenador também pode ver estágios onde ele é orientador
+            $canView = $canView || $internship->advisor_id === $user->id;
+        }
+
+        if (!$canView) {
+            abort(403, 'Você não tem permissão para visualizar este estágio.');
+        }
+
+        // Carregar relacionamentos
+        $internship->load(['advisor', 'course']);
+
+        return view('internship-view.show', compact('internship'));
     }
 }
