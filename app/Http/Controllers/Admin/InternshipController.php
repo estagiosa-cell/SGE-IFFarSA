@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\InternshipStatus;
-use App\Models\Internship;
-use App\Models\Company;
-use Illuminate\Http\Request;
-
 use App\Http\Controllers\Controller;
+use App\Models\Company;
+use App\Models\Internship;
+use Illuminate\Http\Request;
 
 class InternshipController extends Controller
 {
@@ -23,7 +22,7 @@ class InternshipController extends Controller
 
         // Filtro por nome do estudante
         if ($request->filled('search')) {
-            $query->where('student_name', 'like', '%' . $search . '%');
+            $query->where('student_name', 'like', '%'.$search.'%');
         }
 
         // Filtro por status
@@ -31,7 +30,20 @@ class InternshipController extends Controller
             $query->where('status', $status);
         }
 
-        $internships = $query->orderBy('student_name')
+        // Raw SQL para ordenação por prioridade de status
+        $statusOrderSql = "
+            CASE status
+                WHEN 'Pendente' THEN 1
+                WHEN 'Aguardando Assinatura' THEN 2
+                WHEN 'Em Andamento' THEN 3
+                WHEN 'Concluído' THEN 4
+                WHEN 'Cancelado' THEN 5
+                ELSE 99
+            END
+        ";
+
+        $internships = $query->orderByRaw($statusOrderSql)
+            ->latest('updated_at')
             ->paginate(15)
             ->withQueryString();
 
@@ -65,7 +77,7 @@ class InternshipController extends Controller
     {
         $validatedData = $request->validate([
             // Informações do Sistema
-            'status' => 'required|in:' . implode(',', array_keys(InternshipStatus::options())),
+            'status' => 'required|in:'.implode(',', array_keys(InternshipStatus::options())),
             'notes' => 'nullable|string',
 
             // Dados do Aluno
@@ -96,12 +108,12 @@ class InternshipController extends Controller
 
             // Dados da Empresa/Parte Concedente
             'company_legal_identifier' => 'required|string|max:20',
-            'company_name' => 'required|string|max:255',
+            'company_name' => 'nullable|string|max:255',
             'company_phone' => 'nullable|string|max:20',
             'company_email' => 'nullable|email|max:255',
-            'company_representative_name' => 'required|string|max:255',
-            'company_representative_role' => 'required|string|max:100',
-            'field_of_activity' => 'required|string|max:255',
+            'company_representative_name' => 'nullable|string|max:255',
+            'company_representative_role' => 'nullable|string|max:100',
+            'field_of_activity' => 'nullable|string|max:255',
 
             // Endereço da Empresa
             'company_address_street' => 'nullable|string|max:255',
@@ -138,7 +150,7 @@ class InternshipController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('message', 'Erro ao atualizar estágio: ' . $e->getMessage())
+                ->with('message', 'Erro ao atualizar estágio: '.$e->getMessage())
                 ->with('messageType', 'error');
         }
     }
@@ -150,7 +162,7 @@ class InternshipController extends Controller
     {
         $cnpj = $request->get('cnpj');
 
-        if (!$cnpj) {
+        if (! $cnpj) {
             return response()->json([]);
         }
 
@@ -168,7 +180,7 @@ class InternshipController extends Controller
                 'address_neighborhood',
                 'address_city',
                 'address_state',
-                'address_zip'
+                'address_zip',
             ]);
 
         return response()->json($companies);

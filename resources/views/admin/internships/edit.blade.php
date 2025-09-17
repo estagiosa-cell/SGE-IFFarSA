@@ -433,7 +433,7 @@
                                 <input type="text" class="form-control @error('company_name') is-invalid @enderror"
                                     id="company_name" name="company_name"
                                     value="{{ old('company_name', $internship->company_name) }}"
-                                    placeholder="Nome da empresa" required>
+                                    placeholder="Nome da empresa">
                                 <label for="company_name">Nome da Empresa *</label>
                                 @error('company_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -473,7 +473,7 @@
                                     class="form-control @error('company_representative_name') is-invalid @enderror"
                                     id="company_representative_name" name="company_representative_name"
                                     value="{{ old('company_representative_name', $internship->company_representative_name) }}"
-                                    placeholder="Nome do representante" required>
+                                    placeholder="Nome do representante">
                                 <label for="company_representative_name">Nome do Representante *</label>
                                 @error('company_representative_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -486,7 +486,7 @@
                                     class="form-control @error('company_representative_role') is-invalid @enderror"
                                     id="company_representative_role" name="company_representative_role"
                                     value="{{ old('company_representative_role', $internship->company_representative_role) }}"
-                                    placeholder="Cargo do representante" required>
+                                    placeholder="Cargo do representante">
                                 <label for="company_representative_role">Cargo do Representante *</label>
                                 @error('company_representative_role')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -501,7 +501,7 @@
                                     class="form-control @error('field_of_activity') is-invalid @enderror"
                                     id="field_of_activity" name="field_of_activity"
                                     value="{{ old('field_of_activity', $internship->field_of_activity) }}"
-                                    placeholder="Área de atuação" required>
+                                    placeholder="Área de atuação">
                                 <label for="field_of_activity">Área de Atuação *</label>
                                 @error('field_of_activity')
                                     <div class="invalid-feedback">{{ $message }}</div>
