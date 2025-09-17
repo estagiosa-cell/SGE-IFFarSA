@@ -12,10 +12,10 @@
 </nav>
 
 <!-- Sidebar para telas grandes -->
-<div class="d-none d-lg-flex bg-white flex-column min-vh-100 p-3 border-end position-fixed">
-    <h5 class="m-0">SGE-IFFarSA</h5>
+<div class="d-none d-lg-flex bg-white flex-column vh-100 p-2 border-end position-sticky top-0">
+    <h5 class="m-2">SGE-IFFarSA</h5>
     <hr>
-    <div class="flex-grow-1 overflow-y-auto overflow-x-hidden" style="max-height: calc(100vh - 200px);">
+    <div class="flex-grow-1 overflow-y-auto overflow-x-hidden">
         <x-sidebar-nav />
     </div>
     <div class="mt-auto">
