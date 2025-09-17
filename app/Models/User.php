@@ -80,4 +80,20 @@ class User extends Authenticatable
             ->orderBy('name')
             ->get();
     }
+
+    /**
+     * Relacionamento: estágios onde este usuário é orientador
+     */
+    public function advisedInternships()
+    {
+        return $this->hasMany(Internship::class, 'advisor_id');
+    }
+
+    /**
+     * Relacionamento: cursos onde este usuário é coordenador
+     */
+    public function coordinatedCourses()
+    {
+        return $this->hasMany(Course::class, 'coordinator_id');
+    }
 }
