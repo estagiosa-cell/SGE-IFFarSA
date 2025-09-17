@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\User;
 use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -41,6 +41,10 @@ class AuthServiceProvider extends ServiceProvider
          */
         Gate::define('is-orientador', function (User $user) {
             return $user->role === UserRole::ORIENTADOR;
+        });
+
+        Gate::define('view-internships', function (User $user) {
+            return $user->can('is-coordenador') || $user->can('is-orientador');
         });
     }
 }

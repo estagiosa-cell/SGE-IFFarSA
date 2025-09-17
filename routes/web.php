@@ -1,30 +1,31 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\SessionController;
-use App\Http\Controllers\Auth\PasswordResetController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\CourseController;
-use App\Http\Controllers\Admin\InternshipTypeController;
-use App\Http\Controllers\Admin\InternshipController;
-use App\Http\Controllers\GoogleAuthController;
-use App\Http\Controllers\Admin\SyncDataController;
 use App\Http\Controllers\Admin\CompanyController;
+use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InternshipController;
+use App\Http\Controllers\Admin\InternshipTypeController;
+use App\Http\Controllers\Admin\SyncDataController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\SessionController;
+use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\InternshipViewController;
+use Illuminate\Support\Facades\Route;
 
-Route::middleware(['guest'])->group(function () {
-    Route::get('/', [SessionController::class, 'create'])->name('login');
-    Route::post('/login', [SessionController::class, 'store'])->name('store.login');
+Route::get('/', [SessionController::class, 'create'])->name('login');
+Route::post('/login', [SessionController::class, 'store'])->name('store.login');
 
-    // Rotas de Recuperação de Senha
-    Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
-    Route::post('/forgot-password', [PasswordResetController::class, 'store'])->name('password.email');
-    Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
-    Route::put('/reset-password', [PasswordResetController::class, 'update'])->name('password.update');
-});
+// Rotas de Recuperação de Senha
+Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
+Route::post('/forgot-password', [PasswordResetController::class, 'store'])->name('password.email');
+Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
+Route::put('/reset-password', [PasswordResetController::class, 'update'])->name('password.update');
 
 // Rotas dos usuários autenticados
 Route::middleware(['auth'])->group(function () {
+    Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
+
     Route::middleware(['can:is-admin'])->group(function () {
         Route::get('/dashboard', DashboardController::class)->name('admin.dashboard');
 
@@ -75,7 +76,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/companies/{company}/edit', [CompanyController::class, 'edit'])->name('admin.companies.edit');
         Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('admin.companies.update');
         Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
+    });
 
-        Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
+    // Rotas para Coordenadores e Orientadores
+    Route::middleware(['can:view-internships'])->group(function () {
+        Route::get('/estagios', [InternshipViewController::class, 'index'])->name('internship-view.index');
+        Route::get('/estagios/{internship}', [InternshipViewController::class, 'show'])->name('internship-view.show');
     });
 });

@@ -31,4 +31,10 @@
         </x-sidebar-nav-link>
     @endcan
 
+    @can('view-internships')
+        <x-sidebar-nav-link route="internship-view.index" icon="briefcase">
+            Estágios
+        </x-sidebar-nav-link>
+    @endcan
+
 </ul>

@@ -29,8 +29,7 @@ class LoginRedirectService
         // Adicione novos perfis aqui conforme necessário
         $routes = [
             'is-admin' => 'google.redirect',
-            'is-coordenador' => 'estagios',
-            'is-orientador' => 'estagios',
+            'view-internships' => 'internship-view.index',
         ];
 
         // Itera pelas permissões até encontrar uma válida
@@ -39,14 +38,6 @@ class LoginRedirectService
                 return $route;
             }
         }
-
-        // Fallback: usuário sem perfil válido
-        logger()->warning('Usuário sem perfil válido tentou fazer login', [
-            'user_id' => $user->getAuthIdentifier(),
-            'email' => $user->getAuthIdentifierName(),
-            'timestamp' => now()
-        ]);
-
         abort(403, 'Acesso negado: Sua conta não possui um perfil válido para acessar o sistema. Entre em contato com o administrador.');
     }
 }
