@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\InternshipStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Internship;
 use Illuminate\Http\Request;
@@ -31,8 +32,11 @@ class InternshipDocumentController extends Controller
                 default => throw new \InvalidArgumentException("Tipo de documento '{$tipo}' não suportado.")
             };
 
-            // Salva o ID do documento no banco
-            $internship->update(['google_docs_id' => $documentId]);
+            // Salva o ID do documento no banco e atualiza o status
+            $internship->update([
+                'google_docs_id' => $documentId,
+                'status' => InternshipStatus::AWAITING_SIGNATURE->value,
+            ]);
 
             return redirect()->back()
                 ->with('message', 'Documento gerado com sucesso!')
@@ -141,13 +145,13 @@ class InternshipDocumentController extends Controller
 
             // Dados do estágio - Convertidos explicitamente para string
             '{{HORAS CURSO}}' => (string) ($internship->required_hours ?? 0),
-            '{{HORAS_CURSO_EXTENSO}}' => $this->horasExtenso((int) ($internship->required_hours ?? 0)),
+            '{{HORAS_CURSO_EXTENSO}}' => $this->numeroParaTexto((int) ($internship->required_hours ?? 0)),
             '{{INICIO}}' => $internship->start_date ? $internship->start_date->format('d/m/Y') : '',
             '{{DATA_TERMINO}}' => $internship->end_date ? $internship->end_date->format('d/m/Y') : '',
             '{{MAIOR_CARGA}}' => (string) $dailyHours,
-            '{{MAIOR_CARGA_EXTENSO}}' => $this->horasExtenso($dailyHours),
+            '{{MAIOR_CARGA_EXTENSO}}' => $this->numeroParaTexto($dailyHours),
             '{{HORAS_SEMANAIS}}' => (string) $weeklyHours,
-            '{{HORAS_SEMANAIS_EXTENSO}}' => $this->horasExtenso($weeklyHours),
+            '{{HORAS_SEMANAIS_EXTENSO}}' => $this->numeroParaTexto($weeklyHours),
             '{{ESPECIAL}}' => '', // Não sei para que serve
 
             // Dados do orientador e supervisor
@@ -156,7 +160,7 @@ class InternshipDocumentController extends Controller
             '{{TEL_SUPERVISOR}}' => $internship->supervisor_phone,
             '{{EMAIL_SUPERVISOR}}' => $internship->supervisor_email,
 
-            '{{CAMPO_RESPONSAVEL_LEGAL}}' => ! $internship->student_is_adult === "Não" ? "ASSINATURA DIGITAL\n_____________________\n{$internship->legal_guardian_name}\nResponsável Legal do Estagiário" : '',
+            '{{CAMPO_RESPONSAVEL_LEGAL}}' => ! $internship->student_is_adult === 'Não' ? "ASSINATURA DIGITAL\n_____________________\n{$internship->legal_guardian_name}\nResponsável Legal do Estagiário" : '',
             '{{ATIVIDADES}}' => $internship->activities ?? '',
         ];
 
@@ -186,21 +190,6 @@ class InternshipDocumentController extends Controller
         }
 
         return $documentId;
-    }
-
-    private function horasExtenso(int $horas): string
-    {
-        if ($horas === 0) {
-            return 'zero horas';
-        }
-
-        if ($horas === 1) {
-            return 'uma hora';
-        }
-
-        $texto = $this->numeroParaTexto($horas);
-
-        return $texto.' horas';
     }
 
     private function numeroParaTexto(int $numero): string
@@ -240,48 +229,48 @@ class InternshipDocumentController extends Controller
             $unidade = $numero % 10;
 
             if ($unidade === 0) {
-                return $dezenas[$dezena].' e '.$unidades[$unidade];
+                return $dezenas[$dezena];
             }
 
-            if ($numero === 100) {
-                return 'cem';
+            return $dezenas[$dezena].' e '.$unidades[$unidade];
+        }
+
+        if ($numero === 100) {
+            return 'cem';
+        }
+
+        if ($numero < 1000) {
+            $centena = intval($numero / 100);
+            $resto = $numero % 100;
+
+            if ($resto === 0) {
+                return $centenas[$centena];
             }
 
-            if ($numero < 1000) {
-                $centena = intval($numero / 100);
-                $resto = $numero % 100;
+            return $centenas[$centena].' e '.$this->numeroParaTexto($resto);
+        }
 
-                if ($resto === 0) {
-                    return $centenas[$centena];
-                }
+        if ($numero < 1000000) {
+            $milhares = intval($numero / 1000);
+            $resto = $numero % 1000;
 
-                return $centenas[$centena].' e '.$this->numeroParaTexto($resto);
+            $resultado = '';
+
+            if ($milhares === 1) {
+                $resultado = 'mil';
+            } else {
+                $resultado = $this->numeroParaTexto($milhares).' mil';
             }
 
-            if ($numero < 1000000) {
-                $milhares = intval($numero / 1000);
-                $resto = $numero % 1000;
-
-                $resultado = '';
-
-                if ($milhares === 1) {
-                    $resultado = 'mil';
+            if ($resto > 0) {
+                if ($resto < 100) {
+                    $resultado .= ' e '.$this->numeroParaTexto($resto);
                 } else {
-                    $resultado = $this->numeroParaTexto($milhares).' mil';
+                    $resultado .= ' '.$this->numeroParaTexto($resto);
                 }
-
-                if ($resto > 0) {
-                    if ($resto < 100) {
-                        $resultado .= ' e '.$this->numeroParaTexto($resto);
-                    } else {
-                        $resultado .= ' '.$this->numeroParaTexto($resto);
-                    }
-                }
-
-                return $resultado;
             }
 
-            // Para números muito grandes, retorna o número mesmo
+            return $resultado;
         }
 
         // Para números muito grandes, retorna o número mesmo

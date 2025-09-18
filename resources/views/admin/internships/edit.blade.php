@@ -98,7 +98,7 @@
                                     name="status" required>
                                     @foreach ($statusOptions as $value => $label)
                                         <option value="{{ $value }}"
-                                            {{ old('status', $internship->status) == $value ? 'selected' : '' }}>
+                                            {{ old('status', $internship->status?->value) == $value ? 'selected' : '' }}>
                                             {{ $label }}
                                         </option>
                                     @endforeach

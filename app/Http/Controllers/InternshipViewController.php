@@ -40,7 +40,8 @@ class InternshipViewController extends Controller
                 ->orWhere('advisor_id', $user->id)
                 ->with(['course', 'advisor'])
                 ->orderByRaw($statusOrderSql)
-                ->orderBy('updated_at', 'desc')
+                ->latest('end_date')
+                ->latest('updated_at')
                 ->paginate(15);
         } else {
             abort(403, 'Acesso não autorizado.');

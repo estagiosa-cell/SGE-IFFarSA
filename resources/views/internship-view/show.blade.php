@@ -33,7 +33,7 @@
                             <div class="d-flex align-items-center justify-content-md-end">
                                 <i class="bi bi-star-fill text-warning me-2"></i>
                                 <span class="h5 mb-0">{{ number_format($internship->evaluation_grade, 1) }}</span>
-                                <small class="text-muted ms-1">/10</small>
+                                <small class="text-muted ms-1"></small>
                             </div>
                         </div>
                     @endif
