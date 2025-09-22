@@ -800,9 +800,10 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <div class="form-check form-switch">
+                                <input type="hidden" name="is_remunerated" value="0">
                                 <input class="form-check-input" type="checkbox" id="is_remunerated"
                                     name="is_remunerated" value="1"
-                                    {{ old('is_remunerated', $internship->is_remunerated) ? 'checked' : '' }}
+                                    {{ old('is_remunerated', $internship->is_remunerated) == '1' || old('is_remunerated', $internship->is_remunerated) === true ? 'checked' : '' }}
                                     onchange="toggleRemunerationFields()">
                                 <label class="form-check-label" for="is_remunerated">
                                     <strong>Estágio Remunerado</strong>
@@ -814,8 +815,10 @@
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="number" class="form-control @error('grant_value') is-invalid @enderror"
-                                    id="grant_value" name="grant_value" value="{{ old('grant_value', $internship->grant_value ?? '') }}" placeholder="0,00"
-                                    min="0" step="0.01">
+                                    id="grant_value" name="grant_value"
+                                    value="{{ old('grant_value', $internship->grant_value ?? '') }}" placeholder="0,00"
+                                    min="0" step="0.01"
+                                    {{ !(old('is_remunerated', $internship->is_remunerated) == '1' || old('is_remunerated', $internship->is_remunerated) === true) ? 'readonly' : '' }}>
                                 <label for="grant_value">Valor da Bolsa Auxílio (R$)</label>
                                 @error('grant_value')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -826,8 +829,10 @@
                             <div class="form-floating">
                                 <input type="number"
                                     class="form-control @error('transportation_allowance') is-invalid @enderror"
-                                    id="transportation_allowance" name="transportation_allowance" value="{{ old('transportation_allowance', $internship->transportation_allowance ?? '') }}"
-                                    placeholder="0,00" min="0" step="0.01">
+                                    id="transportation_allowance" name="transportation_allowance"
+                                    value="{{ old('transportation_allowance', $internship->transportation_allowance ?? '') }}"
+                                    placeholder="0,00" min="0" step="0.01"
+                                    {{ !(old('is_remunerated', $internship->is_remunerated) == '1' || old('is_remunerated', $internship->is_remunerated) === true) ? 'readonly' : '' }}>
                                 <label for="transportation_allowance">Auxílio Transporte (R$)</label>
                                 @error('transportation_allowance')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -956,11 +961,21 @@
 
             function toggleRemunerationFields() {
                 const checkbox = document.getElementById('is_remunerated');
-                const fields = document.getElementById('remuneration-fields');
+                const grant_value_field = document.getElementById('grant_value');
+                const transportation_allowance_field = document.getElementById('transportation_allowance');
 
-                if (checkbox.checked) {} else {
-                    document.getElementById('grant_value').value = '';
-                    document.getElementById('transportation_allowance').value = '';
+                if (checkbox.checked) {
+                    grant_value_field.readOnly = false;
+                    grant_value_field.required = true;
+                    transportation_allowance_field.readOnly = false;
+                    transportation_allowance_field.required = true;
+                } else {
+                    grant_value_field.value = '';
+                    grant_value_field.readOnly = true;
+                    grant_value_field.required = false;
+                    transportation_allowance_field.value = '';
+                    transportation_allowance_field.readOnly = true;
+                    transportation_allowance_field.required = false;
                 }
             }
         </script>
