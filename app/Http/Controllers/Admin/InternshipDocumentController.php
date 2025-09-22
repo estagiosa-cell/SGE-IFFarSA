@@ -152,7 +152,7 @@ class InternshipDocumentController extends Controller
             '{{MAIOR_CARGA_EXTENSO}}' => $this->numeroParaTexto($dailyHours),
             '{{HORAS_SEMANAIS}}' => (string) $weeklyHours,
             '{{HORAS_SEMANAIS_EXTENSO}}' => $this->numeroParaTexto($weeklyHours),
-            '{{ESPECIAL}}' => '', // Não sei para que serve
+            '{{ESPECIAL}}' => $this->formatarCampoEspecial($internship),
 
             // Dados do orientador e supervisor
             '{{ORIENTADOR}}' => $internship->advisor->name,
@@ -300,5 +300,59 @@ class InternshipDocumentController extends Controller
 
         // Se o estudante é adulto, não precisa de responsável
         return '';
+    }
+
+    /**
+     * Formata o campo especial para remuneração no documento
+     */
+    private function formatarCampoEspecial($internship): string
+    {
+        if ($internship->is_remunerated) {
+            // Estágio remunerado
+            $valorBolsa = $internship->grant_value ?? 0;
+            $auxilioTransporte = $internship->transportation_allowance ?? 0;
+
+            $valorBolsaExtenso = $this->numeroParaTextoMonetario($valorBolsa);
+            $auxilioTransporteExtenso = $this->numeroParaTextoMonetario($auxilioTransporte);
+
+            return '§1º Nesse Estágio obrigatório, o valor da bolsa e do auxílio-transporte diário serão, respectivamente, de R$ '.
+                   number_format($valorBolsa, 2, ',', '.').' ('.$valorBolsaExtenso.') e R$ '.
+                   number_format($auxilioTransporte, 2, ',', '.').' ('.$auxilioTransporteExtenso.').';
+        } else {
+            // Estágio não remunerado
+            return '§1º Neste Estágio Obrigatório o estudante não receberá bolsa de estágio ou auxílio transporte.';
+        }
+    }
+
+    /**
+     * Converte número monetário para texto por extenso
+     */
+    private function numeroParaTextoMonetario(float $valor): string
+    {
+        if ($valor == 0) {
+            return 'zero reais';
+        }
+
+        $inteiro = (int) $valor;
+        $centavos = (int) round(($valor - $inteiro) * 100);
+
+        $textoInteiro = $this->numeroParaTexto($inteiro);
+
+        if ($inteiro == 1) {
+            $resultado = $textoInteiro.' real';
+        } else {
+            $resultado = $textoInteiro.' reais';
+        }
+
+        if ($centavos > 0) {
+            $textoCentavos = $this->numeroParaTexto($centavos);
+            if ($centavos == 1) {
+                $resultado .= ' e '.$textoCentavos.' centavo';
+            } else {
+                $resultado .= ' e '.$textoCentavos.' centavos';
+            }
+        }
+
+        return $resultado;
     }
 }
