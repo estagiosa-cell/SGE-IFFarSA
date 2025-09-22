@@ -20,42 +20,37 @@
             </div>
             <div class="card-body">
                 <form id="generateDocForm" action="{{ route('admin.internships.documents.generate', $internship->id) }}"
-                    method="POST">
+                    method="POST" class="needs-validation" novalidate>
                     @csrf
-                    <div class="row align-items-end">
-                        <div class="col-md-8 mb-3">
+
+                    <div class="row g-3">
+                        <div class="col-md-8">
                             <div class="form-floating">
-                                <select class="form-select form-select-lg" id="document_type" name="document_type" required>
+                                <select class="form-select" id="document_type" name="document_type" required>
                                     <option value="" disabled selected>Selecione o tipo de documento</option>
                                     <option value="termo-compromisso">Termo de Compromisso Padrão</option>
                                 </select>
                                 <label for="document_type">
                                     <i class="bi bi-file-earmark-text me-2"></i>Tipo de Documento *
                                 </label>
+                                <div class="invalid-feedback">Por favor, selecione o tipo de documento</div>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <button type="submit" id="generateDocBtn" class="btn btn-primary btn-lg w-100 h-100">
-                                <span class="btn-text">
-                                    <i class="bi bi-file-earmark-plus me-2"></i>
-                                    Gerar Documento
-                                </span>
+                        <div class="col-md-4">
+                            <button type="submit" id="generateDocBtn" class="btn btn-primary w-100" style="height: 58px;">
+                                <i class="bi bi-file-earmark-plus me-2"></i>
+                                Gerar Documento
                             </button>
                         </div>
                     </div>
 
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <div class="bg-light rounded p-3">
-                                <div class="d-flex align-items-center text-muted">
-                                    <i class="bi bi-info-circle me-2"></i>
-                                    <small>
-                                        <strong>Importante:</strong> A geração de um novo documento pode sobrescrever o
-                                        documento existente.
-                                        Certifique-se de fazer backup se necessário.
-                                    </small>
-                                </div>
-                            </div>
+                    <div class="alert alert-info mt-3 mb-0" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <small>
+                                <strong>Informação:</strong> O link será atualizado no sistema, mas o documento permanece
+                                salvo no Google Drive.
+                            </small>
                         </div>
                     </div>
                 </form>
@@ -478,8 +473,8 @@
                             <div class="d-flex gap-2">
                                 <div class="flex-grow-1" id="company_select_container">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control" value="Clique no botão ao lado para buscar"
-                                            readonly>
+                                        <input type="text" class="form-control"
+                                            value="Clique no botão ao lado para buscar" readonly>
                                         <label>Empresas cadastradas</label>
                                     </div>
                                 </div>
@@ -712,7 +707,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
+                        </div>Remuneração
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('supervisor_role') is-invalid @enderror"
@@ -799,6 +794,48 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Remuneração --}}
+                    <h6 class="mb-3 mt-4 border-bottom pb-2">Remuneração</h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_remunerated"
+                                    name="is_remunerated" value="1"
+                                    {{ old('is_remunerated', $internship->is_remunerated) ? 'checked' : '' }}
+                                    onchange="toggleRemunerationFields()">
+                                <label class="form-check-label" for="is_remunerated">
+                                    <strong>Estágio Remunerado</strong>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="remuneration-fields" class="d-flex">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="number" class="form-control @error('grant_value') is-invalid @enderror"
+                                    id="grant_value" name="grant_value" value="{{ old('grant_value', $internship->grant_value ?? '') }}" placeholder="0,00"
+                                    min="0" step="0.01">
+                                <label for="grant_value">Valor da Bolsa Auxílio (R$)</label>
+                                @error('grant_value')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="number"
+                                    class="form-control @error('transportation_allowance') is-invalid @enderror"
+                                    id="transportation_allowance" name="transportation_allowance" value="{{ old('transportation_allowance', $internship->transportation_allowance ?? '') }}"
+                                    placeholder="0,00" min="0" step="0.01">
+                                <label for="transportation_allowance">Auxílio Transporte (R$)</label>
+                                @error('transportation_allowance')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <div class="form-floating">
@@ -914,6 +951,16 @@
                     document.getElementById('company_address_city').value = selectedCompany.address_city || '';
                     document.getElementById('company_address_state').value = selectedCompany.address_state || '';
                     document.getElementById('company_address_zip').value = selectedCompany.address_zip || '';
+                }
+            }
+
+            function toggleRemunerationFields() {
+                const checkbox = document.getElementById('is_remunerated');
+                const fields = document.getElementById('remuneration-fields');
+
+                if (checkbox.checked) {} else {
+                    document.getElementById('grant_value').value = '';
+                    document.getElementById('transportation_allowance').value = '';
                 }
             }
         </script>

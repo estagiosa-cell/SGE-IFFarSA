@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\InternshipStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
-use App\Services\GoogleApiService;
-use Illuminate\Http\Request;
-use App\Models\Internship;
 use App\Models\Course;
-use Carbon\Carbon;
+use App\Models\Internship;
 use App\Models\User;
-use App\Enums\InternshipStatus;
+use App\Services\GoogleApiService;
 use App\Utils\InternshipEndDate;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class SyncDataController extends Controller
 {
@@ -22,7 +22,7 @@ class SyncDataController extends Controller
     {
         $spreadsheetId = config('services.google.sheet_id');
 
-        if (!$spreadsheetId) {
+        if (! $spreadsheetId) {
             return redirect()->route('admin.dashboard')
                 ->with('message', 'O ID da planilha do Google não está configurado.')
                 ->with('messageType', 'danger');
@@ -138,7 +138,7 @@ class SyncDataController extends Controller
                 }
 
                 // Se não encontrou o tipo específico ou não foi informado, pega o primeiro tipo de estágio do curso
-                if (!$internshipType) {
+                if (! $internshipType) {
                     $internshipType = $curso->internshipTypes()->first();
                 }
 
@@ -160,7 +160,7 @@ class SyncDataController extends Controller
             // busca pelo orientador
             $orientador = User::whereLike('name', $nomeOrientador)->first();
 
-            if (!$orientador) {
+            if (! $orientador) {
                 return redirect()->route('admin.dashboard')
                     ->with('message', "Orientador '$nomeOrientador' não encontrado para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
                     ->with('messageType', 'danger');
@@ -208,7 +208,7 @@ class SyncDataController extends Controller
                 $registroConselhoProfissional = null;
                 $numeroRegistroConselho = null;
                 $numeroProcesso = null;
-                $observacoesAdicionais = ($observacoes ? $observacoes . "\n\n" : '') .
+                $observacoesAdicionais = ($observacoes ? $observacoes."\n\n" : '').
                     "ATENÇÃO: Múltiplas empresas encontradas com o CNPJ/CPF {$identificadorLegal}. Seleção manual necessária.";
             } else {
                 // RF-I02.3.3: Nenhum resultado - campos vazios + status Pendente
@@ -228,7 +228,7 @@ class SyncDataController extends Controller
                 $numeroRegistroConselho = null;
                 $numeroProcesso = null;
 
-                $observacoesAdicionais = ($observacoes ? $observacoes . "\n\n" : '') .
+                $observacoesAdicionais = ($observacoes ? $observacoes."\n\n" : '').
                     "ATENÇÃO: Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário.";
             }
 
@@ -305,11 +305,14 @@ class SyncDataController extends Controller
                     );
                 } catch (\Exception $e) {
                     return redirect()->route('admin.dashboard')
-                        ->with('message', "Erro ao calcular data de fim do estágio para '$nomeCompletoEstagiario' na linha $rowNumber: " . $e->getMessage())
+                        ->with('message', "Erro ao calcular data de fim do estágio para '$nomeCompletoEstagiario' na linha $rowNumber: ".$e->getMessage())
                         ->with('messageType', 'danger');
                 }
             }
 
+            $valorBolsa = ($valorBolsa === '' || $valorBolsa === null) ? null : $valorBolsa;
+            $valorAuxilioTransporte = ($valorAuxilioTransporte === '' || $valorAuxilioTransporte === null) ? null : $valorAuxilioTransporte;
+            $estagioRemunerado = strtolower($estagioRemunerado) === 'sim' ? true : false;
             // salvar no banco de dados
             Internship::create([
 
@@ -394,11 +397,9 @@ class SyncDataController extends Controller
                 'course_id' => $curso->id,
             ]);
 
-
             $processedCount++;
 
-
-            $updateRange = "'Respostas ao formulário 1'!BJ" . $rowNumber;
+            $updateRange = "'Respostas ao formulário 1'!BJ".$rowNumber;
             $values = [['sincronizado']];
             $body = new \Google_Service_Sheets_ValueRange(['values' => $values]);
             $params = ['valueInputOption' => 'RAW'];
@@ -408,8 +409,7 @@ class SyncDataController extends Controller
 
         $message = ($processedCount == 0)
             ? 'Nenhum registro novo para sincronizar.'
-            : $processedCount . ' novos registros foram sincronizados com sucesso!';
-
+            : $processedCount.' novos registros foram sincronizados com sucesso!';
         $messageType = ($processedCount == 0) ? 'info' : 'success';
 
         return redirect()->route('admin.dashboard')

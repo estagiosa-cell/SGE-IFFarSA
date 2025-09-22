@@ -138,6 +138,11 @@ class InternshipController extends Controller
             'required_hours' => 'required|integer|min:1',
             'activities' => 'required|string',
             'evaluation_grade' => 'nullable|numeric|min:0|max:100',
+
+            // Remuneração
+            'is_remunerated' => 'nullable|boolean',
+            'grant_value' => 'nullable|numeric|min:0',
+            'transportation_allowance' => 'nullable|numeric|min:0',
         ]);
 
         try {
