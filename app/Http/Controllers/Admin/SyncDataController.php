@@ -313,6 +313,7 @@ class SyncDataController extends Controller
             $valorBolsa = ($valorBolsa === '' || $valorBolsa === null) ? null : $valorBolsa;
             $valorAuxilioTransporte = ($valorAuxilioTransporte === '' || $valorAuxilioTransporte === null) ? null : $valorAuxilioTransporte;
             $estagioRemunerado = strtolower($estagioRemunerado) === 'sim' ? true : false;
+            $maiorDe18 = strtolower($maiorDe18) === 'sim' ? true : false;
             // salvar no banco de dados
             Internship::create([
 
