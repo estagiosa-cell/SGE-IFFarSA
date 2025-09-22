@@ -45,7 +45,7 @@ class InternshipDocumentController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('message', 'Erro ao gerar documento: '.$e->getMessage())
-                ->with('messageType', 'error');
+                ->with('messageType', 'danger');
         }
     }
 
@@ -112,18 +112,18 @@ class InternshipDocumentController extends Controller
             '{{CURSO}}' => $internship->course->name,
             '{{ANO/SEMESTRE}}' => $internship->student_year_semester,
             '{{EMAIL_ALUNO}}' => $internship->student_email,
-            '{{MATRICULA}}' => $internship->student_registration_number, // Corrigido
+            '{{MATRICULA}}' => $internship->student_registration_number,
             '{{TEL_ALUNO}}' => $internship->student_phone,
             '{{NASC_ALUNO}}' => $internship->student_birth_date ? $internship->student_birth_date->format('d/m/Y') : '',
             '{{CPF_ALUNO}}' => $internship->student_cpf,
             '{{RG_ALUNO}}' => $internship->student_rg,
             '{{ORGAO_EMISSOR}}' => $internship->student_rg_issuer,
-            '{{DATA_EMISSAO}}' => $internship->student_rg_issue_date ? $internship->student_rg_issue_date->format('d/m/Y') : '', // Corrigido
-            '{{RUA_ALUNO}}' => $internship->student_address_street, // Corrigido
-            '{{NUMCASA_ALUNO}}' => (string) $internship->student_address_number, // Corrigido
+            '{{DATA_EMISSAO}}' => $internship->student_rg_issue_date ? $internship->student_rg_issue_date->format('d/m/Y') : '',
+            '{{RUA_ALUNO}}' => $internship->student_address_street,
+            '{{NUMCASA_ALUNO}}' => (string) $internship->student_address_number,
             '{{BAIRRO_ALUNO}}' => $internship->student_address_neighborhood,
             '{{CIDADE_ALUNO}}' => $internship->student_address_city,
-            '{{ESTADO_ALUNO}}' => $internship->student_address_state, // Corrigido
+            '{{ESTADO_ALUNO}}' => $internship->student_address_state,
             '{{CEP_ALUNO}}' => $internship->student_address_zip,
 
             // Dados da empresa/concedente
@@ -131,14 +131,14 @@ class InternshipDocumentController extends Controller
             '{{CNPJ_OU_CPF}}' => $internship->company_legal_identifier,
             '{{EMAIL_EMPRESA}}' => $internship->company_email,
             '{{TEL_EMPRESA}}' => $internship->company_phone,
-            '{{AREA_ATUA}}' => $internship->field_of_activity, // Corrigido
-            '{{AREA}}' => $internship->internship_sector, // Corrigido
+            '{{AREA_ATUA}}' => $internship->field_of_activity,
+            '{{AREA}}' => $internship->internship_sector,
             '{{RUA_EMPRESA}}' => $internship->company_address_street,
             '{{NUMLOCAL_EMPRESA}}' => (string) $internship->company_address_number,
             '{{BAIRRO_EMPRESA}}' => $internship->company_address_neighborhood,
             '{{CIDADE_EMPRESA}}' => $internship->company_address_city,
             '{{ESTADO_EMPRESA}}' => $internship->company_address_state,
-            '{{CEP_EMPRESA}}' => $internship->company_address_zip, // Corrigido
+            '{{CEP_EMPRESA}}' => $internship->company_address_zip,
 
             '{{REPRESENTANTE}}' => $internship->company_representative_name,
             '{{CARGO_REP}}' => $internship->company_representative_role,
@@ -160,7 +160,7 @@ class InternshipDocumentController extends Controller
             '{{TEL_SUPERVISOR}}' => $internship->supervisor_phone,
             '{{EMAIL_SUPERVISOR}}' => $internship->supervisor_email,
 
-            '{{CAMPO_RESPONSAVEL_LEGAL}}' => ! $internship->student_is_adult === 'Não' ? "ASSINATURA DIGITAL\n_____________________\n{$internship->legal_guardian_name}\nResponsável Legal do Estagiário" : '',
+            '{{CAMPO_RESPONSAVEL_LEGAL}}' => $this->formatarCampoResponsavelLegal($internship),
             '{{ATIVIDADES}}' => $internship->activities ?? '',
         ];
 
@@ -275,5 +275,30 @@ class InternshipDocumentController extends Controller
 
         // Para números muito grandes, retorna o número mesmo
         return (string) $numero;
+    }
+
+    /**
+     * Formata o campo de responsável legal para o documento
+     */
+    private function formatarCampoResponsavelLegal($internship): string
+    {
+        // Se o estudante NÃO é adulto (ou seja, é menor de idade)
+        if (! $internship->student_is_adult) {
+            if (! empty($internship->legal_guardian_name) &&
+                ! empty($internship->legal_guardian_cpf) &&
+                ! empty($internship->legal_guardian_kinship)) {
+
+                return "____________________________________________\n".
+                       "Responsável Legal (para estagiário menor de 18 anos):\n".
+                       "Nome: {$internship->legal_guardian_name}\n".
+                       "CPF: {$internship->legal_guardian_cpf}\n".
+                       "Grau de parentesco: {$internship->legal_guardian_kinship}";
+            } else {
+                throw new \Exception('Não é possível gerar o documento: faltam dados do responsável legal para o estagiário menor de idade. Verifique se o nome, CPF e grau de parentesco estão preenchidos.');
+            }
+        }
+
+        // Se o estudante é adulto, não precisa de responsável
+        return '';
     }
 }
