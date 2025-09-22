@@ -383,13 +383,28 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input type="hidden" name="student_is_adult" value="0">
+                                <input class="form-check-input" type="checkbox" id="student_is_adult"
+                                    name="student_is_adult" value="1"
+                                    {{ old('student_is_adult', $internship->student_is_adult) == '1' || old('student_is_adult', $internship->student_is_adult) === true ? 'checked' : '' }}
+                                    onchange="toggleLegalGuardianFields()">
+                                <label class="form-check-label" for="student_is_adult">
+                                    <strong>Aluno Maior de Idade</strong>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="legal-guardian-fields">
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
                                 <input type="text"
                                     class="form-control @error('legal_guardian_name') is-invalid @enderror"
                                     id="legal_guardian_name" name="legal_guardian_name"
                                     value="{{ old('legal_guardian_name', $internship->legal_guardian_name) }}"
-                                    placeholder="Nome do responsável">
+                                    placeholder="Nome do responsável"
+                                    {{ old('student_is_adult', $internship->student_is_adult) == '1' || old('student_is_adult', $internship->student_is_adult) === true ? 'readonly' : '' }}>
                                 <label for="legal_guardian_name">Nome do Responsável Legal</label>
                                 @error('legal_guardian_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -402,7 +417,8 @@
                                     class="form-control @error('legal_guardian_cpf') is-invalid @enderror"
                                     id="legal_guardian_cpf" name="legal_guardian_cpf"
                                     value="{{ old('legal_guardian_cpf', $internship->legal_guardian_cpf) }}"
-                                    placeholder="CPF">
+                                    placeholder="CPF"
+                                    {{ old('student_is_adult', $internship->student_is_adult) == '1' || old('student_is_adult', $internship->student_is_adult) === true ? 'readonly' : '' }}>
                                 <label for="legal_guardian_cpf">CPF</label>
                                 @error('legal_guardian_cpf')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -414,7 +430,8 @@
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('legal_guardian_kinship') is-invalid @enderror"
-                                    id="legal_guardian_kinship" name="legal_guardian_kinship">
+                                    id="legal_guardian_kinship" name="legal_guardian_kinship"
+                                    style="{{ old('student_is_adult', $internship->student_is_adult) == '1' || old('student_is_adult', $internship->student_is_adult) === true ? 'display: none;' : '' }}">
                                     <option value="">Selecione o parentesco</option>
                                     <option value="Pai"
                                         {{ old('legal_guardian_kinship', $internship->legal_guardian_kinship) == 'Pai' ? 'selected' : '' }}>
@@ -426,6 +443,9 @@
                                         {{ old('legal_guardian_kinship', $internship->legal_guardian_kinship) == 'Outro' ? 'selected' : '' }}>
                                         Outro</option>
                                 </select>
+                                <input type="text" class="form-control" id="legal_guardian_kinship_readonly" readonly
+                                    value="" placeholder="Não aplicável (maior de idade)"
+                                    style="{{ old('student_is_adult', $internship->student_is_adult) == '1' || old('student_is_adult', $internship->student_is_adult) === true ? '' : 'display: none;' }}">
                                 <label for="legal_guardian_kinship">Parentesco</label>
                                 @error('legal_guardian_kinship')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -438,7 +458,8 @@
                                     class="form-control @error('legal_guardian_email') is-invalid @enderror"
                                     id="legal_guardian_email" name="legal_guardian_email"
                                     value="{{ old('legal_guardian_email', $internship->legal_guardian_email) }}"
-                                    placeholder="E-mail">
+                                    placeholder="E-mail"
+                                    {{ old('student_is_adult', $internship->student_is_adult) == '1' || old('student_is_adult', $internship->student_is_adult) === true ? 'readonly' : '' }}>
                                 <label for="legal_guardian_email">E-mail</label>
                                 @error('legal_guardian_email')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -978,6 +999,57 @@
                     transportation_allowance_field.required = false;
                 }
             }
+
+            function toggleLegalGuardianFields() {
+                const checkbox = document.getElementById('student_is_adult');
+                const legal_guardian_name = document.getElementById('legal_guardian_name');
+                const legal_guardian_cpf = document.getElementById('legal_guardian_cpf');
+                const legal_guardian_kinship = document.getElementById('legal_guardian_kinship');
+                const legal_guardian_kinship_readonly = document.getElementById('legal_guardian_kinship_readonly');
+                const legal_guardian_email = document.getElementById('legal_guardian_email');
+
+                if (checkbox.checked) {
+                    // Aluno é maior de idade - limpa campos e mostra inputs readonly
+                    legal_guardian_name.value = '';
+                    legal_guardian_name.readOnly = true;
+                    legal_guardian_name.required = false;
+
+                    legal_guardian_cpf.value = '';
+                    legal_guardian_cpf.readOnly = true;
+                    legal_guardian_cpf.required = false;
+
+                    // Esconde o select e mostra o input readonly
+                    legal_guardian_kinship.style.display = 'none';
+                    legal_guardian_kinship.value = '';
+                    legal_guardian_kinship.required = false;
+                    legal_guardian_kinship_readonly.style.display = 'block';
+
+                    legal_guardian_email.value = '';
+                    legal_guardian_email.readOnly = true;
+                    legal_guardian_email.required = false;
+                } else {
+                    // Aluno é menor de idade - habilita campos normais
+                    legal_guardian_name.readOnly = false;
+                    legal_guardian_name.required = true;
+
+                    legal_guardian_cpf.readOnly = false;
+                    legal_guardian_cpf.required = true;
+
+                    // Mostra o select e esconde o input readonly
+                    legal_guardian_kinship.style.display = 'block';
+                    legal_guardian_kinship.required = true;
+                    legal_guardian_kinship_readonly.style.display = 'none';
+
+                    legal_guardian_email.readOnly = false;
+                    legal_guardian_email.required = false;
+                }
+            }
+
+            // Inicializar os campos quando a página carregar
+            document.addEventListener('DOMContentLoaded', function() {
+                toggleRemunerationFields();
+                toggleLegalGuardianFields();
+            });
         </script>
     </div>
 @endsection

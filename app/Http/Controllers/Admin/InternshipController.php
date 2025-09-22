@@ -87,6 +87,7 @@ class InternshipController extends Controller
             'student_registration_number' => 'required|string|max:50',
             'student_year_semester' => 'required|string|max:20',
             'student_birth_date' => 'required|date',
+            'student_is_adult' => 'nullable|boolean',
             'student_rg' => 'required|string|max:20',
             'student_rg_issuer' => 'required|string|max:50',
             'student_rg_issue_date' => 'required|date',
@@ -102,9 +103,9 @@ class InternshipController extends Controller
             'student_address_zip' => 'required|string|max:10',
 
             // Dados do Responsável Legal
-            'legal_guardian_name' => 'nullable|string|max:255',
-            'legal_guardian_cpf' => 'nullable|string|max:14',
-            'legal_guardian_kinship' => 'nullable|string|max:50',
+            'legal_guardian_name' => 'nullable|required_if:student_is_adult,0|string|max:255',
+            'legal_guardian_cpf' => 'nullable|required_if:student_is_adult,0|string|max:14',
+            'legal_guardian_kinship' => 'nullable|required_if:student_is_adult,0|string|max:50',
             'legal_guardian_email' => 'nullable|email|max:255',
 
             // Dados da Empresa/Parte Concedente
