@@ -476,7 +476,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="d-flex gap-2">
-                                <div class="flex-grow-1">
+                                <div class="flex-grow-1" id="company_select_container">
                                     @if (count($companiesWithSameCnpj) > 1)
                                         <div class="form-floating">
                                             <select class="form-select" id="company_select" name="company_id">
@@ -495,7 +495,7 @@
                                         </div>
                                     @endif
                                 </div>
-                                <button type="button" class="btn btn-outline-primary" id="updateCompaniesBtn">
+                                <button type="button" class="btn btn-outline-primary" onclick="buscarDadosConcedente()">
                                     <i class="bi bi-arrow-clockwise"></i>
                                 </button>
                             </div>
@@ -854,136 +854,80 @@
             </div>
         </form>
 
-        {{-- JavaScript para funcionalidade AJAX - Dentro da div principal --}}
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const updateBtn = document.getElementById('updateCompaniesBtn');
-                const cnpjInput = document.getElementById('company_legal_identifier');
-                const companySelect = document.getElementById('company_select');
+            let companiesData = [];
 
-                // Função para atualizar empresas
-                function updateCompanies() {
-                    const cnpj = cnpjInput.value.trim();
+            function buscarDadosConcedente() {
+                let identificador = document.getElementById('company_legal_identifier').value;
 
-                    if (!cnpj) {
-                        alert('Por favor, informe o CNPJ/CPF primeiro.');
-                        return;
-                    }
-
-                    fetch(`{{ route('admin.internships.companies-by-cnpj') }}?cnpj=${cnpj}`)
-                        .then(response => response.json())
-                        .then(companies => {
-                            if (companySelect) {
-                                companySelect.innerHTML = '<option value="">Selecione uma empresa</option>';
-
-                                companies.forEach(company => {
-                                    const option = document.createElement('option');
-                                    option.value = company.id;
-                                    option.textContent = company.name;
-                                    companySelect.appendChild(option);
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erro ao buscar empresas:', error);
-                            alert('Erro ao buscar empresas. Tente novamente.');
-                        });
+                if (!identificador) {
+                    alert('Por favor, informe o CNPJ/CPF');
+                    return;
                 }
 
-                // Evento do botão de atualizar
-                if (updateBtn) {
-                    updateBtn.addEventListener('click', updateCompanies);
-                }
-
-                // Evento de mudança no select de empresas
-                if (companySelect) {
-                    companySelect.addEventListener('change', function() {
-                        const companyId = this.value;
-
-                        if (companyId) {
-                            fetch(
-                                    `{{ route('admin.internships.companies-by-cnpj') }}?cnpj=${cnpjInput.value}`
-                                )
-                                .then(response => response.json())
-                                .then(companies => {
-                                    const selectedCompany = companies.find(c => c.id == companyId);
-
-                                    if (selectedCompany) {
-                                        // Preenche os campos com os dados da empresa selecionada
-                                        document.getElementById('company_name').value = selectedCompany
-                                            .name || '';
-                                        document.getElementById('company_representative_name').value =
-                                            selectedCompany.representative_name || '';
-                                        document.getElementById('company_representative_role').value =
-                                            selectedCompany.representative_role || '';
-                                        document.getElementById('company_phone').value = selectedCompany
-                                            .phone || '';
-                                        document.getElementById('company_email').value = selectedCompany
-                                            .email || '';
-                                        document.getElementById('field_of_activity').value = selectedCompany
-                                            .field_of_activity || '';
-
-                                        // Preenche os campos de endereço da empresa
-                                        document.getElementById('company_address_street').value =
-                                            selectedCompany
-                                            .address_street || '';
-                                        document.getElementById('company_address_number').value =
-                                            selectedCompany
-                                            .address_number || '';
-                                        document.getElementById('company_address_neighborhood').value =
-                                            selectedCompany
-                                            .address_neighborhood || '';
-                                        document.getElementById('company_address_city').value =
-                                            selectedCompany
-                                            .address_city || '';
-                                        document.getElementById('company_address_state').value =
-                                            selectedCompany
-                                            .address_state || '';
-                                        document.getElementById('company_address_zip').value =
-                                            selectedCompany
-                                            .address_zip || '';
-                                    }
-                                });
-                        }
+                fetch('/api/companies?identificador=' + identificador)
+                    .then(response => response.json())
+                    .then(function(data) {
+                        companiesData = data;
+                        atualizarSelectEmpresas(data);
+                    })
+                    .catch(function(error) {
+                        alert('Erro ao buscar empresas. Verifique o CNPJ/CPF informado.');
                     });
-                }
-            });
-
-            // Controle do formulário de geração de documentos
-            const generateDocForm = document.getElementById('generateDocForm');
-            const generateDocBtn = document.getElementById('generateDocBtn');
-            const documentTypeSelect = document.getElementById('document_type');
-
-            if (generateDocForm && generateDocBtn) {
-                generateDocForm.addEventListener('submit', function(e) {
-                    // Validar se um tipo de documento foi selecionado
-                    if (!documentTypeSelect.value) {
-                        e.preventDefault();
-                        alert('Por favor, selecione o tipo de documento a ser gerado.');
-                        documentTypeSelect.focus();
-                        return;
-                    }
-
-                    // Confirmar geração
-                    const documentTypeName = documentTypeSelect.options[documentTypeSelect.selectedIndex].text;
-                    if (!confirm(
-                            `Deseja gerar o documento "${documentTypeName}"? Isso pode sobrescrever um documento existente.`
-                        )) {
-                        e.preventDefault();
-                        return;
-                    }
-
-                    // Mostrar loading
-                    const btnText = generateDocBtn.querySelector('.btn-text');
-                    const btnLoading = generateDocBtn.querySelector('.btn-loading');
-
-                    btnText.classList.add('d-none');
-                    btnLoading.classList.remove('d-none');
-                    generateDocBtn.disabled = true;
-                    documentTypeSelect.disabled = true;
-                });
             }
-            });
+
+            function atualizarSelectEmpresas(companies) {
+                const selectContainer = document.getElementById('company_select_container');
+
+                if (companies && companies.length > 0) {
+                    const selectHTML = `
+                        <div class="form-floating">
+                            <select class="form-select" id="company_select" name="company_id" onchange="preencherDadosEmpresa()">
+                                <option value="">Selecione uma empresa</option>
+                                ${companies.map(company =>
+                                    `<option value="${company.id}">${company.name}</option>`
+                                ).join('')}
+                            </select>
+                            <label for="company_select">Empresas encontradas (${companies.length})</label>
+                        </div>
+                    `;
+                    selectContainer.innerHTML = selectHTML;
+                } else {
+                    const noCompanyHTML = `
+                        <div class="form-floating">
+                            <input type="text" class="form-control" value="Nenhuma empresa encontrada" readonly>
+                            <label>Empresas cadastradas</label>
+                        </div>
+                    `;
+                    selectContainer.innerHTML = noCompanyHTML;
+                }
+            }
+
+            function preencherDadosEmpresa() {
+                const selectElement = document.getElementById('company_select');
+                const selectedCompanyId = selectElement.value;
+
+                if (!selectedCompanyId) {
+                    return;
+                }
+
+                const selectedCompany = companiesData.find(company => company.id == selectedCompanyId);
+
+                if (selectedCompany) {
+                    document.getElementById('company_name').value = selectedCompany.name || '';
+                    document.getElementById('company_phone').value = selectedCompany.phone || '';
+                    document.getElementById('company_email').value = selectedCompany.email || '';
+                    document.getElementById('company_representative_name').value = selectedCompany.representative_name || '';
+                    document.getElementById('company_representative_role').value = selectedCompany.representative_role || '';
+                    document.getElementById('field_of_activity').value = selectedCompany.field_of_activity || '';
+                    document.getElementById('company_address_street').value = selectedCompany.address_street || '';
+                    document.getElementById('company_address_number').value = selectedCompany.address_number || '';
+                    document.getElementById('company_address_neighborhood').value = selectedCompany.address_neighborhood || '';
+                    document.getElementById('company_address_city').value = selectedCompany.address_city || '';
+                    document.getElementById('company_address_state').value = selectedCompany.address_state || '';
+                    document.getElementById('company_address_zip').value = selectedCompany.address_zip || '';
+                }
+            }
         </script>
     </div>
 @endsection

@@ -67,7 +67,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/internships', [InternshipController::class, 'index'])->name('admin.internships.index');
         Route::get('/internships/{internship}', [InternshipController::class, 'edit'])->name('admin.internships.edit');
         Route::put('/internships/{internship}', [InternshipController::class, 'update'])->name('admin.internships.update');
-        Route::get('/api/companies-by-cnpj', [InternshipController::class, 'getCompaniesByCnpj'])->name('admin.internships.companies-by-cnpj');
+        Route::get('/api/companies', [InternshipController::class, 'getCompanies'])->name('admin.internships.companies-by-cnpj');
 
         // Rota de geração de documentos de estágio
         Route::post('/estagios/{estagio}/gerar-documento', InternshipDocumentController::class)->name('admin.internships.documents.generate');

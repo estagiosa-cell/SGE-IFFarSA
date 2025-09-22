@@ -166,15 +166,15 @@ class InternshipController extends Controller
     /**
      * Get companies by CNPJ
      */
-    public function getCompaniesByCnpj(Request $request)
+    public function getCompanies(Request $request)
     {
-        $cnpj = $request->get('cnpj');
+        $identificador = $request->get('identificador');
 
-        if (! $cnpj) {
+        if (! $identificador) {
             return response()->json([]);
         }
 
-        $companies = Company::where('legal_identifier', $cnpj)
+        $companies = Company::where('legal_identifier', $identificador)
             ->get([
                 'id',
                 'name',
