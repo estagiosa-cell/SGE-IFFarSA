@@ -61,20 +61,13 @@ class InternshipController extends Controller
         $internship->load(['advisor', 'course']);
         $statusOptions = InternshipStatus::options();
 
-        // Busca empresas com o mesmo CNPJ da empresa atual do estágio
-        $companiesWithSameCnpj = [];
-        if ($internship->company_legal_identifier) {
-            $companiesWithSameCnpj = Company::where('legal_identifier', $internship->company_legal_identifier)
-                ->get(['id', 'name']);
-        }
-
         // Busca orientadores disponíveis (usuários com role orientador ou coordenador)
         $advisors = \App\Models\User::whereIn('role', ['orientador', 'coordenador'])
             ->whereNull('deactivated_at')
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('admin.internships.edit', compact('internship', 'statusOptions', 'companiesWithSameCnpj', 'advisors'));
+        return view('admin.internships.edit', compact('internship', 'statusOptions', 'advisors'));
     }
 
     /**

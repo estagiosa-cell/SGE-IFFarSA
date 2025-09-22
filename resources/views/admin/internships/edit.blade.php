@@ -477,23 +477,11 @@
                         <div class="col-md-6 mb-3">
                             <div class="d-flex gap-2">
                                 <div class="flex-grow-1" id="company_select_container">
-                                    @if (count($companiesWithSameCnpj) > 1)
-                                        <div class="form-floating">
-                                            <select class="form-select" id="company_select" name="company_id">
-                                                <option value="">Selecione uma empresa</option>
-                                                @foreach ($companiesWithSameCnpj as $company)
-                                                    <option value="{{ $company->id }}">{{ $company->name }}</option>
-                                                @endforeach
-                                            </select>
-                                            <label for="company_select">Empresas com mesmo CNPJ</label>
-                                        </div>
-                                    @else
-                                        <div class="form-floating">
-                                            <input type="text" class="form-control" value="Nenhuma empresa encontrada"
-                                                readonly>
-                                            <label>Empresas cadastradas</label>
-                                        </div>
-                                    @endif
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" value="Clique no botão ao lado para buscar"
+                                            readonly>
+                                        <label>Empresas cadastradas</label>
+                                    </div>
                                 </div>
                                 <button type="button" class="btn btn-outline-primary" onclick="buscarDadosConcedente()">
                                     <i class="bi bi-arrow-clockwise"></i>
