@@ -20,7 +20,7 @@ class SyncDataController extends Controller
      */
     public function __invoke(Request $request, GoogleApiService $googleService)
     {
-        $spreadsheetId = config('services.google.sheet_id');
+        $spreadsheetId = config('services.google.sheets.data_collection_id');
 
         if (! $spreadsheetId) {
             return redirect()->route('admin.dashboard')
