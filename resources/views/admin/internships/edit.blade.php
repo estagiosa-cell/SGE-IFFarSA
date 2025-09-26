@@ -29,6 +29,10 @@
                                 <select class="form-select" id="document_type" name="document_type" required>
                                     <option value="" disabled selected>Selecione o tipo de documento</option>
                                     <option value="termo-compromisso">Termo de Compromisso Padrão</option>
+                                    <option value="termo-emater-rs">Termo de Compromisso EMATER/RS</option>
+                                    <option value="termo-seduc">Termo de Compromisso SEDUC</option>
+                                    <option value="rescisao">Termo de Rescisão de Estágio</option>
+                                    <option value="credenciamento">Termo de Credenciamento</option>
                                 </select>
                                 <label for="document_type">
                                     <i class="bi bi-file-earmark-text me-2"></i>Tipo de Documento *

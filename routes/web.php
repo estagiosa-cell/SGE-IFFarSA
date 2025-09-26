@@ -70,7 +70,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/api/companies', [InternshipController::class, 'getCompanies'])->name('admin.internships.companies-by-cnpj');
 
         // Rota de geração de documentos de estágio
-        Route::post('/estagios/{estagio}/gerar-documento', InternshipDocumentController::class)->name('admin.internships.documents.generate');
+        Route::post('/estagios/{internshipId}/gerar-documento', InternshipDocumentController::class)->name('admin.internships.documents.generate');
 
         // rotas de partes concendentes
         Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies.index');

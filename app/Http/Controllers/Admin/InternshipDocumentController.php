@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\InternshipStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Internship;
+use App\Services\GoogleApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,24 +14,112 @@ class InternshipDocumentController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request, $estagio)
+    public function __invoke(Request $request, $internshipId)
     {
-        // Carregar o modelo Internship com suas relações
-        $internship = Internship::with(['advisor', 'course'])->findOrFail($estagio);
-        $tipo = $request->input('document_type');
-
         // Verificar permissões
-        if (! Auth::user()->can('is-admin') && ! Auth::user()->can('is-coordenador')) {
+        if (! Auth::user()->can('is-admin')) {
             return redirect()->back()
                 ->with('message', 'Você não tem permissão para gerar documentos.')
                 ->with('messageType', 'error');
         }
 
+        $internship = Internship::with(['advisor', 'course'])->findOrFail($internshipId);
+        $documentType = $request->input('document_type');
+
         try {
-            $documentId = match ($tipo) {
-                'termo-compromisso' => $this->gerarTermoDeCompromissoPadrao($internship),
-                default => throw new \InvalidArgumentException("Tipo de documento '{$tipo}' não suportado.")
+            $currentDateTime = now()->format('d/m/Y H:i');
+
+            $documentConfig = match ($documentType) {
+                'termo-compromisso' => [
+                    'template_id' => config('services.google.docs.templates.termo_compromisso_padrao'),
+                    'title' => "Termo de Compromisso de Estágio - {$internship->student_name} - {$currentDateTime}",
+                ],
+                'termo-emater-rs' => [
+                    'template_id' => config('services.google.docs.templates.termo_emater_rs'),
+                    'title' => "Termo de Compromisso EMATER/RS - {$internship->student_name} - {$currentDateTime}",
+                ],
+                'termo-seduc' => [
+                    'template_id' => config('services.google.docs.templates.termo_seduc'),
+                    'title' => "Termo de Compromisso SEDUC - {$internship->student_name} - {$currentDateTime}",
+                ],
+                'rescisao' => [
+                    'template_id' => config('services.google.docs.templates.rescisao'),
+                    'title' => "Termo de Rescisão de Estágio - {$internship->student_name} - {$currentDateTime}",
+                ],
+                'credenciamento' => [
+                    'template_id' => config('services.google.docs.templates.credenciamento'),
+                    'title' => "Termo de Compromisso de Estágio | Credenciamento - {$internship->student_name} - {$currentDateTime}",
+                ],
+                default => throw new \InvalidArgumentException("Tipo de documento '{$documentType}' não suportado.")
             };
+
+            if ($documentType === 'credenciamento' && empty($internship->process_number)) {
+                throw new \Exception('Não é possível gerar o documento de credenciamento: o número do processo não foi informado.');
+            }
+
+            if (! $documentConfig['template_id']) {
+                throw new \Exception('ID do template do Termo de Compromisso não configurado no .env');
+            }
+
+            // Inicializar serviços Google
+            $googleService = new GoogleApiService;
+            $client = $googleService->getClient();
+
+            $driveService = new \Google_Service_Drive($client);
+            $docsService = new \Google_Service_Docs($client);
+
+            // Verificar se o template existe antes de tentar copiar
+            try {
+                $driveService->files->get($documentConfig['template_id']);
+            } catch (\Google_Service_Exception $e) {
+                if ($e->getCode() === 404) {
+                    throw new \Exception("Template não encontrado no Google Drive. Verifique se o ID '{$documentConfig['template_id']}' está correto e se o documento existe e está compartilhado com a conta google utilizada.");
+                }
+                throw new \Exception('Erro ao acessar template no Google Drive: '.$e->getMessage());
+            }
+
+            // Criar cópia do template
+            $copy = new \Google_Service_Drive_DriveFile;
+            $copy->setName($documentConfig['title']);
+
+            if (config('services.google.drive_folder_id')) {
+                $copy->setParents([config('services.google.drive_folder_id')]);
+            }
+
+            try {
+                $copiedFile = $driveService->files->copy($documentConfig['template_id'], $copy);
+                $documentId = $copiedFile->getId();
+            } catch (\Google_Service_Exception $e) {
+                throw new \Exception('Erro ao criar cópia do template: '.$e->getMessage());
+            }
+
+            // busca todos os dados para substituição
+            $replacements = $this->getReplacements($internship);
+
+            // Aplica as substituições no documento
+            $requests = [];
+            foreach ($replacements as $placeholder => $value) {
+                // Ensure all values are strings
+                $stringValue = is_null($value) ? '' : (string) $value;
+
+                $requests[] = [
+                    'replaceAllText' => [
+                        'containsText' => [
+                            'text' => $placeholder,
+                            'matchCase' => false,
+                        ],
+                        'replaceText' => $stringValue,
+                    ],
+                ];
+            }
+
+            if (! empty($requests)) {
+                $batchUpdateRequest = new \Google_Service_Docs_BatchUpdateDocumentRequest([
+                    'requests' => $requests,
+                ]);
+
+                $docsService->documents->batchUpdate($documentId, $batchUpdateRequest);
+            }
 
             // Salva o ID do documento no banco e atualiza o status
             $internship->update([
@@ -49,48 +138,8 @@ class InternshipDocumentController extends Controller
         }
     }
 
-    private function gerarTermoDeCompromissoPadrao($internship)
+    private function getReplacements($internship): array
     {
-        $templateId = config('services.google.template_termo_compromisso_id');
-        $folderId = config('services.google.drive_folder_id');
-
-        if (! $templateId) {
-            throw new \Exception('ID do template do Termo de Compromisso não configurado no .env');
-        }
-
-        // Inicializar serviços Google
-        $googleService = app(\App\Services\GoogleApiService::class);
-        $client = $googleService->getClient();
-
-        $driveService = new \Google_Service_Drive($client);
-        $docsService = new \Google_Service_Docs($client);
-
-        // Verificar se o template existe antes de tentar copiar
-        try {
-            $driveService->files->get($templateId);
-        } catch (\Google_Service_Exception $e) {
-            if ($e->getCode() === 404) {
-                throw new \Exception("Template não encontrado no Google Drive. Verifique se o ID '{$templateId}' está correto e se o documento existe e está compartilhado com a conta de serviço.");
-            }
-            throw new \Exception('Erro ao acessar template no Google Drive: '.$e->getMessage());
-        }
-
-        // Criar cópia do template
-        $newDocName = $internship->student_name.'_'.$internship->course->name.'_Termo_Compromisso_'.date('d_m_Y_H:i:s');
-        $copy = new \Google_Service_Drive_DriveFile;
-        $copy->setName($newDocName);
-
-        if ($folderId) {
-            $copy->setParents([$folderId]);
-        }
-
-        try {
-            $copiedFile = $driveService->files->copy($templateId, $copy);
-            $documentId = $copiedFile->getId();
-        } catch (\Google_Service_Exception $e) {
-            throw new \Exception('Erro ao criar cópia do template: '.$e->getMessage());
-        }
-
         // Calcular carga horária diária (maior valor dos dias da semana)
         $dailyHours = max(
             (int) $internship->hours_sunday ?? 0,
@@ -105,8 +154,7 @@ class InternshipDocumentController extends Controller
         // Calcular carga horária semanal (soma de todos os dias)
         $weeklyHours = $internship->getTotalWeeklyHours();
 
-        // Preparar dados para substituição
-        $replacements = [
+        return [
             // Dados do aluno
             '{{NOME_ALUNO}}' => $internship->student_name,
             '{{CURSO}}' => $internship->course->name,
@@ -139,11 +187,10 @@ class InternshipDocumentController extends Controller
             '{{CIDADE_EMPRESA}}' => $internship->company_address_city,
             '{{ESTADO_EMPRESA}}' => $internship->company_address_state,
             '{{CEP_EMPRESA}}' => $internship->company_address_zip,
-
             '{{REPRESENTANTE}}' => $internship->company_representative_name,
             '{{CARGO_REP}}' => $internship->company_representative_role,
 
-            // Dados do estágio - Convertidos explicitamente para string
+            // Dados do estágio
             '{{HORAS CURSO}}' => (string) ($internship->required_hours ?? 0),
             '{{HORAS_CURSO_EXTENSO}}' => $this->numeroParaTexto((int) ($internship->required_hours ?? 0)),
             '{{INICIO}}' => $internship->start_date ? $internship->start_date->format('d/m/Y') : '',
@@ -162,36 +209,13 @@ class InternshipDocumentController extends Controller
 
             '{{CAMPO_RESPONSAVEL_LEGAL}}' => $this->formatarCampoResponsavelLegal($internship),
             '{{ATIVIDADES}}' => $internship->activities ?? '',
+            '{{CREDENCIAMENTO}}' => $internship->process_number ?? '',
         ];
-
-        // Executar substituições no documento
-        $requests = [];
-        foreach ($replacements as $placeholder => $value) {
-            // Garantir que todos os valores sejam strings
-            $stringValue = is_null($value) ? '' : (string) $value;
-
-            $requests[] = [
-                'replaceAllText' => [
-                    'containsText' => [
-                        'text' => $placeholder,
-                        'matchCase' => false,
-                    ],
-                    'replaceText' => $stringValue,
-                ],
-            ];
-        }
-
-        if (! empty($requests)) {
-            $batchUpdateRequest = new \Google_Service_Docs_BatchUpdateDocumentRequest([
-                'requests' => $requests,
-            ]);
-
-            $docsService->documents->batchUpdate($documentId, $batchUpdateRequest);
-        }
-
-        return $documentId;
     }
 
+    /**
+     * Converte número inteiro para texto por extenso (suporta até 999.999)
+     */
     private function numeroParaTexto(int $numero): string
     {
         if ($numero === 0) {
