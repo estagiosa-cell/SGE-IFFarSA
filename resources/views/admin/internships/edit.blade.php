@@ -683,6 +683,54 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Informações Adicionais da Empresa --}}
+                    <h6 class="mb-3 mt-4 border-bottom pb-2">Informações Adicionais</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text"
+                                    class="form-control @error('professional_council') is-invalid @enderror"
+                                    id="professional_council" name="professional_council"
+                                    value="{{ old('professional_council', $internship->professional_council) }}"
+                                    placeholder="Ex: CREA-RS">
+                                <label for="professional_council">Conselho Profissional</label>
+                                @error('professional_council')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text"
+                                    class="form-control @error('council_registration_number') is-invalid @enderror"
+                                    id="council_registration_number" name="council_registration_number"
+                                    value="{{ old('council_registration_number', $internship->council_registration_number) }}"
+                                    placeholder="Ex: 123456">
+                                <label for="council_registration_number">Nº de Registro no Conselho</label>
+                                @error('council_registration_number')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control @error('process_number') is-invalid @enderror"
+                                    id="process_number" name="process_number"
+                                    value="{{ old('process_number', $internship->process_number) }}"
+                                    placeholder="Ex: 23451.000123/2024-01">
+                                <label for="process_number">Nº do Processo / Credenciamento</label>
+                                @error('process_number')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-text mt-1">
+                                <small>Obrigatório para gerar documentos de credenciamento.</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -981,6 +1029,9 @@
                     document.getElementById('company_address_city').value = selectedCompany.address_city || '';
                     document.getElementById('company_address_state').value = selectedCompany.address_state || '';
                     document.getElementById('company_address_zip').value = selectedCompany.address_zip || '';
+                    document.getElementById('professional_council').value = selectedCompany.professional_council || '';
+                    document.getElementById('council_registration_number').value = selectedCompany.council_registration_number || '';
+                    document.getElementById('process_number').value = selectedCompany.process_number || '';
                 }
             }
 

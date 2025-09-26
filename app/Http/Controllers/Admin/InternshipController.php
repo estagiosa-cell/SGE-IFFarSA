@@ -125,6 +125,11 @@ class InternshipController extends Controller
             'company_address_state' => 'nullable|string|size:2',
             'company_address_zip' => 'nullable|string|max:10',
 
+            // Informações Adicionais da Empresa
+            'professional_council' => 'nullable|string|max:100',
+            'council_registration_number' => 'nullable|string|max:50',
+            'process_number' => 'nullable|string|max:100',
+
             // Dados do Supervisor
             'supervisor_name' => 'required|string|max:255',
             'supervisor_phone' => 'nullable|string|max:20',
@@ -188,6 +193,9 @@ class InternshipController extends Controller
                 'address_city',
                 'address_state',
                 'address_zip',
+                'professional_council',
+                'council_registration_number',
+                'process_number',
             ]);
 
         return response()->json($companies);
