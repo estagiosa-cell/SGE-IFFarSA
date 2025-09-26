@@ -35,14 +35,33 @@ return [
         ],
     ],
 
+    // Em config/services.php
+
     'google' => [
-        'client_id' => env('GOOGLE_CLIENT_ID'),
+        // Credenciais de Autenticação
+        'client_id'     => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => env('GOOGLE_REDIRECT_URI'),
-        'admin_email' => env('GOOGLE_ADMIN_ACCOUNT_EMAIL'),
-        'sheet_id' => env('GOOGLE_SHEET_ID'),
-        'template_termo_compromisso_id' => env('TEMPLATE_TERMO_COMPROMISSO_ID'),
+        'redirect'      => env('GOOGLE_REDIRECT_URI'),
+        'admin_email'   => env('GOOGLE_ADMIN_ACCOUNT_EMAIL'),
+
+        // ID da pasta principal no Drive para salvar os documentos
         'drive_folder_id' => env('GOOGLE_DRIVE_FOLDER_ID'),
+
+        // Configurações do Google Sheets
+        'sheets' => [
+            'data_collection_id' => env('GOOGLE_SHEET_ID_DATA_COLLECTION'),
+        ],
+
+        // Configurações do Google Docs
+        'docs' => [
+            'templates' => [
+                'termo_compromisso_padrao' => env('GOOGLE_DOCS_TEMPLATE_ID_TERMO_COMPROMISSO_PADRAO'),
+                'termo_emater_rs'          => env('GOOGLE_DOCS_TEMPLATE_ID_TERMO_EMATER_RS'),
+                'termo_seduc'              => env('GOOGLE_DOCS_TEMPLATE_ID_TERMO_SEDUC'),
+                'rescisao'                 => env('GOOGLE_DOCS_TEMPLATE_ID_RESCISAO'),
+                'credenciamento'           => env('GOOGLE_DOCS_TEMPLATE_ID_CREDENCIAMENTO'),
+            ],
+        ],
     ],
 
 ];
