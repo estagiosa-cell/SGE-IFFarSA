@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\Course;
 use App\Models\Internship;
 use App\Models\User;
+use App\Services\FuzzySearchService;
 use App\Services\GoogleApiService;
 use App\Utils\InternshipEndDate;
 use Carbon\Carbon;
@@ -18,7 +19,7 @@ class SyncDataController extends Controller
     /**
      * Sincroniza os dados com a planilha do Google
      */
-    public function __invoke(Request $request, GoogleApiService $googleService)
+    public function __invoke(Request $request, GoogleApiService $googleService, FuzzySearchService $fuzzySearch)
     {
         $spreadsheetId = config('services.google.sheets.data_collection_id');
 
@@ -157,19 +158,31 @@ class SyncDataController extends Controller
                     ->with('messageType', 'danger');
             }
 
-            // busca pelo orientador
-            $orientador = User::whereLike('name', $nomeOrientador)->first();
+            // busca orientador (tolera erro de digitação)
+            $result = $fuzzySearch->fuzzyFind(User::class, 'name', $nomeOrientador);
+            $orientador = null;
+            $advisorWarning = '';
 
-            if (! $orientador) {
+            if (! $result) {
                 return redirect()->route('admin.dashboard')
                     ->with('message', "Orientador '$nomeOrientador' não encontrado para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
                     ->with('messageType', 'danger');
             }
 
+            $orientador = $result['entity'];
+
+            if (! $result['exact_match']) {
+                $advisorWarning = $result['warning'];
+            }
+            
+            // se achou o orientador por similaridade, registra isso
+            if ($advisorWarning) {
+                $observacoes = ($observacoes ? $observacoes."\n\n" : '').$advisorWarning;
+
+            }
             // busca os dados da parte concedente
             $identificadorLegal = $cnpjConcedente ?? $cpfConcedente;
             $partesConcedentes = Company::where('legal_identifier', $identificadorLegal)->get();
-            $observacoesAdicionais = $observacoes;
 
             // RF-I02.3: Tratamento dos Resultados da Busca
             if ($partesConcedentes->count() === 1) {
@@ -208,7 +221,7 @@ class SyncDataController extends Controller
                 $registroConselhoProfissional = null;
                 $numeroRegistroConselho = null;
                 $numeroProcesso = null;
-                $observacoesAdicionais = ($observacoes ? $observacoes."\n\n" : '').
+                $observacoes = ($observacoes ? $observacoes."\n\n" : '').
                     "ATENÇÃO: Múltiplas empresas encontradas com o CNPJ/CPF {$identificadorLegal}. Seleção manual necessária.";
             } else {
                 // RF-I02.3.3: Nenhum resultado - campos vazios + status Pendente
@@ -228,7 +241,7 @@ class SyncDataController extends Controller
                 $numeroRegistroConselho = null;
                 $numeroProcesso = null;
 
-                $observacoesAdicionais = ($observacoes ? $observacoes."\n\n" : '').
+                $observacoes = ($observacoes ? $observacoes."\n\n" : '').
                     "ATENÇÃO: Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário.";
             }
 
@@ -349,7 +362,7 @@ class SyncDataController extends Controller
                 'start_date' => $dataInicioEstagio,
                 'end_date' => $dataFimEstagio,
                 'status' => InternshipStatus::PENDING,
-                'notes' => $observacoesAdicionais,
+                'notes' => $observacoes,
                 'required_hours' => $requiredHours,
 
                 // dados supervisor
