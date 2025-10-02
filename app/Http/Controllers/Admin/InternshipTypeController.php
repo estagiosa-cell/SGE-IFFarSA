@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\InternshipTypeRequest;
 use App\Models\InternshipType;
 use App\Models\Course;
+use App\Utils\SearchHelper;
 
 class InternshipTypeController extends Controller
 {
@@ -19,7 +20,7 @@ class InternshipTypeController extends Controller
 
         // Filtro por nome
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            SearchHelper::searchInField($query, $request->search, 'name');
         }
 
         // Filtro por curso

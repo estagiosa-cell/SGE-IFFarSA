@@ -6,6 +6,7 @@ use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
+use App\Utils\SearchHelper;
 use Illuminate\Http\Request;
 
 class CompanyController extends Controller
@@ -24,8 +25,7 @@ class CompanyController extends Controller
 
         // Aplica o filtro de nome, se ele existir
         if ($searchName) {
-            // Usa 'like' com '%' para buscar por partes do nome
-            $query->where('name', 'like', '%' . $searchName . '%');
+            SearchHelper::searchInField($query, $searchName, 'name');
         }
 
         // Aplica o filtro de CPF/CNPJ, se ele existir

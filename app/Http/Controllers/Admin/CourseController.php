@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CourseRequest;
 use App\Models\Course;
 use App\Models\User;
+use App\Utils\SearchHelper;
 use Illuminate\Http\Request;
 
 class CourseController extends Controller
@@ -21,7 +22,7 @@ class CourseController extends Controller
 
         // Filtro por nome
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            SearchHelper::searchInField($query, $request->search, 'name');
         }
 
         // Filtro por nível

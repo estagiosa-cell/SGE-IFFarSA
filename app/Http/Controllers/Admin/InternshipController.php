@@ -6,6 +6,7 @@ use App\Enums\InternshipStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Internship;
+use App\Utils\SearchHelper;
 use Illuminate\Http\Request;
 
 class InternshipController extends Controller
@@ -22,7 +23,7 @@ class InternshipController extends Controller
 
         // Filtro por nome do estudante
         if ($request->filled('search')) {
-            $query->where('student_name', 'like', '%'.$search.'%');
+            SearchHelper::searchInField($query, $search, 'student_name');
         }
 
         // Filtro por status
