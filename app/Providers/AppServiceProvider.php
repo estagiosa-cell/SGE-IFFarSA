@@ -2,10 +2,11 @@
 
 namespace App\Providers;
 
+use App\Services\FuzzySearchService;
+use App\Services\GoogleApiService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
-use App\Services\GoogleApiService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +16,11 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(GoogleApiService::class, function ($app) {
-            return new GoogleApiService();
+            return new GoogleApiService;
+        });
+
+        $this->app->singleton(FuzzySearchService::class, function ($app) {
+            return new FuzzySearchService;
         });
     }
 
