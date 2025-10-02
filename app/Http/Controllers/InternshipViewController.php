@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\InternshipStatus;
 use App\Models\Internship;
+use App\Models\User;
+use App\Utils\SearchHelper;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class InternshipViewController extends Controller
@@ -10,9 +14,11 @@ class InternshipViewController extends Controller
     /**
      * Show the form for creating the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+        $advisors = collect();
+        $statusOptions = InternshipStatus::options();
 
         // Raw SQL para ordenação por prioridade de status
         $statusOrderSql = "
@@ -27,27 +33,78 @@ class InternshipViewController extends Controller
         ";
 
         if ($user->can('is-orientador')) {
-            $internships = $user->advisedInternships()
-                ->with(['course', 'advisor'])
+            $query = $user->advisedInternships();
+
+            // Aplicar filtros
+            $this->applyFilters($query, $request);
+
+            $internships = $query->with(['course', 'advisor'])
                 ->orderByRaw($statusOrderSql)
                 ->orderBy('updated_at', 'desc')
-                ->paginate(15);
+                ->paginate(15)
+                ->withQueryString();
         } elseif ($user->can('is-coordenador')) {
             // Para coordenadores, buscar estágios dos cursos que coordena
             $courseIds = $user->coordinatedCourses()->pluck('id');
 
-            $internships = Internship::whereIn('course_id', $courseIds)
-                ->orWhere('advisor_id', $user->id)
-                ->with(['course', 'advisor'])
+            $query = Internship::where(function ($q) use ($courseIds, $user) {
+                $q->whereIn('course_id', $courseIds)
+                    ->orWhere('advisor_id', $user->id);
+            });
+
+            // Aplicar filtros
+            $this->applyFilters($query, $request);
+
+            $internships = $query->with(['course', 'advisor'])
                 ->orderByRaw($statusOrderSql)
                 ->latest('end_date')
                 ->latest('updated_at')
-                ->paginate(15);
+                ->paginate(15)
+                ->withQueryString();
+
+            // Buscar orientadores que orientam estágios dos cursos coordenados
+            $advisorIds = Internship::whereIn('course_id', $courseIds)
+                ->distinct()
+                ->pluck('advisor_id');
+
+            $advisors = User::whereIn('id', $advisorIds)
+                ->whereIn('role', ['orientador', 'coordenador'])
+                ->whereNull('deactivated_at')
+                ->orderBy('name')
+                ->get();
         } else {
             abort(403, 'Acesso não autorizado.');
         }
 
-        return view('internship-view.index', compact('internships'));
+        return view('internship-view.index', compact('internships', 'advisors', 'statusOptions'));
+    }
+
+    /**
+     * Aplica os filtros na query de estágios
+     */
+    private function applyFilters($query, Request $request)
+    {
+        // Filtro por nome do estudante
+        if ($request->filled('search')) {
+            SearchHelper::searchInField($query, $request->search, 'student_name');
+        }
+
+        // Filtro por status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filtro por orientador (apenas para coordenadores)
+        if ($request->filled('advisor') && Auth::user()->can('is-coordenador')) {
+            $query->where('advisor_id', $request->advisor);
+        }
+
+        // Filtro por matrícula
+        if ($request->filled('registration')) {
+            $query->where('student_registration_number', 'like', '%'.$request->registration.'%');
+        }
+
+        return $query;
     }
 
     /**
@@ -74,7 +131,7 @@ class InternshipViewController extends Controller
             $canView = $canView || $internship->advisor_id === $user->id;
         }
 
-        if (!$canView) {
+        if (! $canView) {
             abort(403, 'Você não tem permissão para visualizar este estágio.');
         }
 
