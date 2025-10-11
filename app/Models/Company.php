@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Company extends Model
 {
@@ -34,9 +33,10 @@ class Company extends Model
 
     /**
      * Get the internships for the company.
+     * Relacionamento baseado em company_legal_identifier (não há FK)
      */
-    public function internships(): HasMany
+    public function internships()
     {
-        return $this->hasMany(Internship::class);
+        return Internship::where('company_legal_identifier', $this->legal_identifier);
     }
 }
