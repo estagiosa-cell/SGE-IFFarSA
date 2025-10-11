@@ -35,7 +35,7 @@
                         </div>
 
                         <!-- Carga Horária -->
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-2 mb-3">
                             <div class="form-floating">
                                 <input type="number" min="1" max="9999"
                                     class="form-control @error('required_hours') is-invalid @enderror" id="required_hours"
@@ -51,8 +51,23 @@
                             </div>
                         </div>
 
+                        <!-- Peso -->
+                        <div class="col-md-2 mb-3">
+                            <div class="form-floating">
+                                <input type="number" min="1" max="10"
+                                    class="form-control @error('weight') is-invalid @enderror" id="weight" name="weight"
+                                    value="{{ old('weight', $internshipType->weight) }}" placeholder="Ex: 1" required>
+                                <label for="weight"><i class="bi bi-percent me-2"></i>Peso *</label>
+                                @error('weight')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @else
+                                    <div class="invalid-feedback">Informe o peso.</div>
+                                @enderror
+                            </div>
+                        </div>
+
                         <!-- Curso -->
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-2 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('course_id') is-invalid @enderror" id="course_id"
                                     name="course_id" required>

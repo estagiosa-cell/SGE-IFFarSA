@@ -79,6 +79,7 @@ return new class extends Migration
             $table->string('internship_sector')->nullable(); // Setor ou área onde será desenvolvido o estágio
             $table->string('internship_type_name')->nullable();
             $table->unsignedInteger('required_hours')->nullable();
+            $table->unsignedTinyInteger('internship_type_weight')->default(1); // Peso do tipo de estágio (1 a 10)
 
             // Carga Horária
             $table->unsignedTinyInteger('hours_sunday')->nullable();

@@ -89,9 +89,12 @@
                 <div class="card mb-3 shadow-sm border-0">
                     <div class="card-body py-3 px-4">
                         <div class="row align-items-center g-0">
-                            <div class="col-md-4 fw-bold text-dark">{{ $type->name }}</div>
-                            <div class="col-md-3 small text-muted">
+                            <div class="col-md-3 fw-bold text-dark">{{ $type->name }}</div>
+                            <div class="col-md-2 small text-muted">
                                 <strong>Carga horária:</strong> {{ $type->required_hours }}h
+                            </div>
+                            <div class="col-md-2 small text-muted">
+                                <strong>Peso:</strong> {{ $type->weight }}
                             </div>
                             <div class="col-md-3 small text-muted">
                                 <strong>Curso:</strong> {{ $type->course->name ?? 'Não informado' }}

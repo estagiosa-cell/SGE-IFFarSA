@@ -131,6 +131,7 @@ class SyncDataController extends Controller
             $internshipType = null;
             $internshipTypeName = null;
             $requiredHours = 0; // valor padrão
+            $internshipTypeWeight = 1; // valor padrão
 
             if ($curso) {
                 if ($tipoEstagio) {
@@ -147,6 +148,7 @@ class SyncDataController extends Controller
                 if ($internshipType) {
                     $internshipTypeName = $internshipType->name;
                     $requiredHours = $internshipType->required_hours;
+                    $internshipTypeWeight = $internshipType->weight;
                 } else {
                     return redirect()->route('admin.dashboard')
                         ->with('message', "Nenhum tipo de estágio encontrado para o curso '$nomeCurso' do estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
@@ -174,7 +176,7 @@ class SyncDataController extends Controller
             if (! $result['exact_match']) {
                 $advisorWarning = $result['warning'];
             }
-            
+
             // se achou o orientador por similaridade, registra isso
             if ($advisorWarning) {
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').$advisorWarning;
@@ -364,6 +366,7 @@ class SyncDataController extends Controller
                 'status' => InternshipStatus::PENDING,
                 'notes' => $observacoes,
                 'required_hours' => $requiredHours,
+                'internship_type_weight' => $internshipTypeWeight,
 
                 // dados supervisor
                 'supervisor_name' => $nomeSupervisor,

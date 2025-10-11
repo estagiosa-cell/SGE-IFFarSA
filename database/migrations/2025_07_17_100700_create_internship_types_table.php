@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('required_hours');
+            $table->unsignedTinyInteger('weight')->default(1);
             $table->foreignId('course_id')->constrained('courses');
             $table->timestamps();
         });

@@ -35,6 +35,7 @@ class InternshipTypeRequest extends FormRequest
                 'max:255',
             ],
             'required_hours' => ['required', 'integer', 'min:1'],
+            'weight' => ['required', 'integer', 'min:1', 'max:10'],
             'course_id' => ['required', 'exists:courses,id'],
         ];
     }
