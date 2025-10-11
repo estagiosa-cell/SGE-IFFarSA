@@ -14,11 +14,13 @@
                 <form method="GET" action="{{ route('admin.internships.index') }}">
                     <div class="row g-2 align-items-end">
                         <div class="col-md-6">
+                            <label for="search" class="form-label mb-0 small">Buscar</label>
                             <input type="text" class="form-control form-control-sm" id="search" name="search"
-                                value="{{ request('search') }}" placeholder="Buscar por nome do estudante">
+                                value="{{ request('search') }}" placeholder="Nome do estudante">
                         </div>
 
                         <div class="col-md-3">
+                            <label for="status" class="form-label mb-0 small">Status</label>
                             <select class="form-select form-select-sm" id="status" name="status">
                                 <option value="">Todos os Status</option>
                                 @foreach ($statusOptions as $value => $label)
@@ -35,7 +37,7 @@
                                     <i class="bi bi-funnel"></i> Filtrar
                                 </button>
                                 <a href="{{ route('admin.internships.index') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-clockwise"></i> Limpar Filtros
+                                    <i class="bi bi-arrow-clockwise"></i> Limpar
                                 </a>
                             </div>
                         </div>
@@ -45,7 +47,7 @@
         </div>
 
         @if ($internships->isEmpty())
-            <div class="card">
+            <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-center py-5">
                         <div class="mb-4">
@@ -76,53 +78,52 @@
         @else
             @foreach ($internships as $internship)
                 <div class="card mb-3 shadow-sm border-0">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="flex-grow-1">
-                                <h5 class="card-title fw-bold text-dark mb-2">{{ $internship->student_name }}</h5>
-                                <div class="d-flex gap-2 mb-3">
+                    <div class="card-body py-3 px-4">
+                        <div class="row align-items-center g-0">
+                            <div class="col-md-9">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <h6 class="fw-bold text-dark mb-0">{{ $internship->student_name }}</h6>
                                     <span
                                         class="badge bg-{{ $internship->status->color() }}">{{ $internship->status->label() }}</span>
                                     <span class="badge bg-light text-dark">{{ $internship->course->name }}</span>
                                 </div>
-
-                                <div class="row">
+                                <div class="row small text-muted">
                                     <div class="col-md-6">
-                                        <p class="card-text mb-1">
+                                        <div class="mb-1">
                                             <i class="bi bi-envelope me-1"></i>
                                             <strong>E-mail:</strong> {{ $internship->student_email }}
-                                        </p>
-                                        <p class="card-text mb-1">
+                                        </div>
+                                        <div class="mb-1">
                                             <i class="bi bi-hash me-1"></i>
                                             <strong>Matrícula:</strong> {{ $internship->student_registration_number }}
-                                        </p>
-                                        <p class="card-text mb-1">
+                                        </div>
+                                        <div class="mb-1">
                                             <i class="bi bi-calendar me-1"></i>
                                             <strong>Período:</strong>
-                                            {{ $internship->start_date?->format('d/m/Y') ?? 'Não definido' }} -
-                                            {{ $internship->end_date?->format('d/m/Y') ?? 'Não definido' }}
-                                        </p>
+                                            {{ $internship->start_date?->format('d/m/Y') ?? 'N/D' }} -
+                                            {{ $internship->end_date?->format('d/m/Y') ?? 'N/D' }}
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <p class="card-text mb-1">
+                                        <div class="mb-1">
                                             <i class="bi bi-building me-1"></i>
                                             <strong>Empresa:</strong> {{ $internship->company_name }}
-                                        </p>
-                                        <p class="card-text mb-1">
+                                        </div>
+                                        <div class="mb-1">
                                             <i class="bi bi-person-check me-1"></i>
-                                            <strong>Orientador:</strong> {{ $internship->advisor->name ?? 'Não definido' }}
-                                        </p>
-                                        <p class="card-text mb-1">
+                                            <strong>Orientador:</strong> {{ $internship->advisor->name ?? 'N/D' }}
+                                        </div>
+                                        <div class="mb-1">
                                             <i class="bi bi-tag me-1"></i>
                                             <strong>Tipo:</strong>
-                                            {{ $internship->internship_type_name ?? 'Não definido' }}
-                                        </p>
+                                            {{ $internship->internship_type_name ?? 'N/D' }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="ms-3">
+                            <div class="col-md-3 text-end">
                                 <a href="{{ route('admin.internships.edit', $internship->id) }}"
-                                    class="btn btn-secondary px-3 py-2">
+                                    class="btn btn-secondary btn-sm px-3 py-1">
                                     <i class="bi bi-pencil me-1"></i>Editar
                                 </a>
                             </div>

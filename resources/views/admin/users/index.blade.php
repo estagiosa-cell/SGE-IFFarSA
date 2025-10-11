@@ -58,7 +58,7 @@
                                     <i class="bi bi-funnel"></i> Filtrar
                                 </button>
                                 <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-clockwise"></i> Limpar Filtros
+                                    <i class="bi bi-arrow-clockwise"></i> Limpar
                                 </a>
                             </div>
                         </div>
@@ -68,7 +68,7 @@
         </div>
 
         @if ($users->isEmpty())
-            <div class="card">
+            <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-center py-5">
                         <div class="mb-4">
@@ -114,8 +114,8 @@
             </div>
         @else
             @foreach ($users as $user)
-                <div class="card mb-2 shadow-sm border-0">
-                    <div class="card-body py-2 px-3">
+                <div class="card mb-3 shadow-sm border-0">
+                    <div class="card-body py-3 px-4">
                         <div class="row align-items-center g-0">
                             <div class="col-md-3 fw-bold text-dark">{{ $user->name }}</div>
                             <div class="col-md-3 small">{{ $user->email }}</div>

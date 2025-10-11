@@ -6,7 +6,7 @@
     <div class="container-fluid mt-4 mx-1">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h4 mb-0">Editar Estágio - {{ $internship->student_name }}</h2>
-            <a href="{{ route('admin.internships.index') }}" class="btn btn-primary">
+            <a href="{{ route('admin.internships.index') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left-circle me-2"></i>Voltar
             </a>
         </div>
@@ -1030,7 +1030,8 @@
                     document.getElementById('company_address_state').value = selectedCompany.address_state || '';
                     document.getElementById('company_address_zip').value = selectedCompany.address_zip || '';
                     document.getElementById('professional_council').value = selectedCompany.professional_council || '';
-                    document.getElementById('council_registration_number').value = selectedCompany.council_registration_number || '';
+                    document.getElementById('council_registration_number').value = selectedCompany
+                        .council_registration_number || '';
                     document.getElementById('process_number').value = selectedCompany.process_number || '';
                 }
             }

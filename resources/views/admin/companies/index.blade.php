@@ -79,8 +79,8 @@
             </div>
         @else
             @foreach ($companies as $company)
-                <div class="card mb-2 shadow-sm border-0">
-                    <div class="card-body py-2 px-3">
+                <div class="card mb-3 shadow-sm border-0">
+                    <div class="card-body py-3 px-4">
                         <div class="row align-items-center g-0">
                             <div class="col-md-5 fw-bold text-dark">{{ $company->name }}</div>
                             <div class="col-md-4 small text-muted">

@@ -15,21 +15,21 @@
                     <div class="row g-2 align-items-end">
                         <!-- Busca por nome do estudante -->
                         <div class="col-md-3">
-                            <label for="search" class="form-label small text-muted mb-1">Nome do Estudante</label>
+                            <label for="search" class="form-label mb-0 small">Nome do Estudante</label>
                             <input type="text" class="form-control form-control-sm" id="search" name="search"
-                                value="{{ request('search') }}" placeholder="Buscar por nome...">
+                                value="{{ request('search') }}" placeholder="Buscar por nome">
                         </div>
 
                         <!-- Busca por matrícula -->
                         <div class="col-md-{{ auth()->user()->can('is-coordenador') ? '2' : '5' }}">
-                            <label for="registration" class="form-label small text-muted mb-1">Matrícula</label>
+                            <label for="registration" class="form-label mb-0 small">Matrícula</label>
                             <input type="text" class="form-control form-control-sm" id="registration" name="registration"
-                                value="{{ request('registration') }}" placeholder="Matrícula do estudante...">
+                                value="{{ request('registration') }}" placeholder="Matrícula">
                         </div>
 
                         <!-- Filtro por status -->
                         <div class="col-md-2">
-                            <label for="status" class="form-label small text-muted mb-1">Status</label>
+                            <label for="status" class="form-label mb-0 small">Status</label>
                             <select class="form-select form-select-sm" id="status" name="status">
                                 <option value="">Todos</option>
                                 @foreach ($statusOptions as $statusKey => $statusLabel)
@@ -44,7 +44,7 @@
                         <!-- Filtro por orientador (apenas para coordenadores) -->
                         @if (auth()->user()->can('is-coordenador'))
                             <div class="col-md-3">
-                                <label for="advisor" class="form-label small text-muted mb-1">Orientador</label>
+                                <label for="advisor" class="form-label mb-0 small">Orientador</label>
                                 <select class="form-select form-select-sm" id="advisor" name="advisor">
                                     <option value="">Todos</option>
                                     @foreach ($advisors as $advisor)
@@ -65,7 +65,7 @@
                                 </button>
                                 @if (request()->hasAny(['search', 'status', 'advisor', 'registration']))
                                     <a href="{{ route('internship-view.index') }}" class="btn btn-outline-secondary btn-sm"
-                                        title="Limpar Filtros">
+                                        title="Limpar">
                                         <i class="bi bi-arrow-clockwise"></i>
                                     </a>
                                 @endif
@@ -104,61 +104,53 @@
             </div>
         @else
             @foreach ($internships as $internship)
-                <div class="card mb-3 border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-lg-9">
-                                <!-- Identificação do Estudante -->
-                                <div class="d-flex align-items-center mb-2">
-                                    <h5 class="card-title mb-0 me-3 fw-bold">{{ $internship->student_name }}</h5>
-                                    <div class="d-flex gap-2 flex-wrap">
-                                        <span class="badge bg-{{ $internship->status->color() }} rounded-pill">
-                                            {{ $internship->status->label() }}
+                <div class="card mb-3 shadow-sm border-0">
+                    <div class="card-body py-3 px-4">
+                        <div class="row align-items-center g-0">
+                            <div class="col-md-9">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <h6 class="fw-bold text-dark mb-0">{{ $internship->student_name }}</h6>
+                                    <span class="badge bg-{{ $internship->status->color() }}">
+                                        {{ $internship->status->label() }}
+                                    </span>
+                                    <span class="badge bg-light text-dark">
+                                        {{ $internship->course->name }}
+                                    </span>
+                                    @if (auth()->user()->can('is-coordenador'))
+                                        <span class="badge bg-info text-white">
+                                            <i class="bi bi-person-badge me-1"></i>{{ $internship->advisor->name }}
                                         </span>
-                                        <span class="badge bg-light text-dark border rounded-pill">
-                                            {{ $internship->course->name }}
-                                        </span>
-                                        @if (auth()->user()->can('is-coordenador'))
-                                            <span
-                                                class="badge bg-info bg-opacity-10 text-info border border-info rounded-pill">
-                                                <i class="bi bi-person-badge me-1"></i>{{ $internship->advisor->name }}
-                                            </span>
-                                        @endif
-                                    </div>
+                                    @endif
                                 </div>
 
-                                <div class="row g-2 mt-2">
-                                    <!-- Coluna 1: Dados do Estudante -->
+                                <div class="row small text-muted">
                                     <div class="col-md-6">
-                                        <p class="card-text mb-2 small text-muted">
+                                        <div class="mb-1">
                                             <i class="bi bi-envelope me-1"></i>
                                             {{ $internship->student_email }}
-                                        </p>
-                                        <p class="card-text mb-0 small text-muted">
+                                        </div>
+                                        <div class="mb-1">
                                             <i class="bi bi-calendar-range me-1"></i>
-                                            {{ $internship->start_date?->format('d/m/Y') ?? 'Não definido' }} -
-                                            {{ $internship->end_date?->format('d/m/Y') ?? 'Não definido' }}
-                                        </p>
+                                            {{ $internship->start_date?->format('d/m/Y') ?? 'N/D' }} -
+                                            {{ $internship->end_date?->format('d/m/Y') ?? 'N/D' }}
+                                        </div>
                                     </div>
-
-                                    <!-- Coluna 2: Dados da Empresa e Supervisor -->
                                     <div class="col-md-6">
-                                        <p class="card-text mb-2 small text-muted">
+                                        <div class="mb-1">
                                             <i class="bi bi-building me-1"></i>
                                             {{ $internship->company_name }}
-                                        </p>
-                                        <p class="card-text mb-0 small text-muted">
+                                        </div>
+                                        <div class="mb-1">
                                             <i class="bi bi-person-check me-1"></i>
-                                            {{ $internship->supervisor_name ?? 'Não definido' }}
-                                        </p>
+                                            {{ $internship->supervisor_name ?? 'N/D' }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Botão de Ação -->
-                            <div class="col-lg-3 text-lg-end mt-3 mt-lg-0">
+                            <div class="col-md-3 text-end">
                                 <a href="{{ route('internship-view.show', $internship->id) }}"
-                                    class="btn btn-sm btn-outline-primary">
+                                    class="btn btn-primary btn-sm px-3 py-1">
                                     <i class="bi bi-eye me-1"></i>Visualizar
                                 </a>
                             </div>
@@ -167,10 +159,7 @@
                 </div>
             @endforeach
 
-            <!-- Links de Paginação -->
-            <div class="mt-4">
-                {{ $internships->links() }}
-            </div>
+            {{ $internships->links() }}
         @endif
 
     </div>

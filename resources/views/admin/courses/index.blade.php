@@ -17,11 +17,13 @@
                 <form method="GET" action="{{ route('admin.courses.index') }}">
                     <div class="row g-2 align-items-end">
                         <div class="col-md-5">
+                            <label for="search" class="form-label mb-0 small">Buscar</label>
                             <input type="text" class="form-control form-control-sm" id="search" name="search"
-                                value="{{ request('search') }}" placeholder="Buscar por nome do curso">
+                                value="{{ request('search') }}" placeholder="Nome do curso">
                         </div>
 
                         <div class="col-md-2">
+                            <label for="level" class="form-label mb-0 small">Nível</label>
                             <select class="form-select form-select-sm" id="level" name="level">
                                 <option value="">Todos os Níveis</option>
                                 @foreach ($levels as $level)
@@ -34,6 +36,7 @@
                         </div>
 
                         <div class="col-md-2">
+                            <label for="type" class="form-label mb-0 small">Tipo</label>
                             <select class="form-select form-select-sm" id="type" name="type">
                                 <option value="">Todos os Tipos</option>
                                 @foreach ($types as $type)
@@ -51,7 +54,7 @@
                                     <i class="bi bi-funnel"></i> Filtrar
                                 </button>
                                 <a href="{{ route('admin.courses.index') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-clockwise"></i> Limpar Filtros
+                                    <i class="bi bi-arrow-clockwise"></i> Limpar
                                 </a>
                             </div>
                         </div>
@@ -61,7 +64,7 @@
         </div>
 
         @if ($courses->isEmpty())
-            <div class="card">
+            <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-center py-5">
                         <div class="mb-4">
@@ -96,29 +99,32 @@
         @else
             @foreach ($courses as $course)
                 <div class="card mb-3 shadow-sm border-0">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="card-title fw-bold text-dark mb-2">{{ $course->name }}</h5>
-                                <div class="d-flex gap-2 mb-2">
+                    <div class="card-body py-3 px-4">
+                        <div class="row align-items-center g-0">
+                            <div class="col-md-5">
+                                <h6 class="fw-bold text-dark mb-1">{{ $course->name }}</h6>
+                                <div class="d-flex gap-2">
                                     <span class="badge bg-primary">{{ $course->level->label() }}</span>
                                     <span class="badge bg-secondary">{{ $course->type->label() }}</span>
                                 </div>
-                                <p class="card-text mb-0">
-                                    <i class="bi bi-person-check me-1"></i>
-                                    <strong>Coordenador:</strong>
-                                    <span>{{ $course->coordinator->name ?? 'Não há coordenador cadastrado' }}</span>
-                                </p>
                             </div>
-                            <a href="{{ route('admin.courses.edit', $course->id) }}" class="btn btn-secondary px-3 py-2">
-                                <i class="bi bi-pencil me-1"></i>Editar
-                            </a>
+                            <div class="col-md-5 small text-muted">
+                                <i class="bi bi-person-check me-1"></i>
+                                <strong>Coordenador:</strong>
+                                {{ $course->coordinator->name ?? 'Não cadastrado' }}
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <a href="{{ route('admin.courses.edit', $course->id) }}"
+                                    class="btn btn-secondary btn-sm px-3 py-1">
+                                    <i class="bi bi-pencil me-1"></i>Editar
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             @endforeach
 
-            {{ $courses->links() }} <!-- Paginação -->
+            {{ $courses->links() }}
         @endif
     </div>
 @endsection
