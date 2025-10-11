@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\CourseLevel;
-use App\Enums\CourseType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CourseRequest;
 use App\Models\Course;
@@ -25,23 +23,9 @@ class CourseController extends Controller
             SearchHelper::searchInField($query, $request->search, 'name');
         }
 
-        // Filtro por nível
-        if ($request->filled('level')) {
-            $query->where('level', $request->level);
-        }
-
-        // Filtro por tipo
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-
         $courses = $query->orderBy('name')->paginate(5)->withQueryString();
 
-        // Dados para os filtros
-        $levels = CourseLevel::cases();
-        $types = CourseType::cases();
-
-        return view('admin.courses.index', compact('courses', 'levels', 'types'));
+        return view('admin.courses.index', compact('courses'));
     }
 
     /**
@@ -49,11 +33,9 @@ class CourseController extends Controller
      */
     public function create()
     {
-        $levels = CourseLevel::cases();
-        $types = CourseType::cases();
         $coordinators = User::coordinators();
 
-        return view('admin.courses.create', compact('levels', 'types', 'coordinators'));
+        return view('admin.courses.create', compact('coordinators'));
     }
 
     /**
@@ -75,11 +57,9 @@ class CourseController extends Controller
     public function edit(string $id)
     {
         $course = Course::findOrFail($id);
-        $levels = CourseLevel::cases();
-        $types = CourseType::cases();
         $coordinators = User::coordinators();
 
-        return view('admin.courses.edit', compact('course', 'levels', 'types', 'coordinators'));
+        return view('admin.courses.edit', compact('course', 'coordinators'));
     }
 
     /**

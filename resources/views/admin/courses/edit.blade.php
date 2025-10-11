@@ -20,7 +20,7 @@
 
                     <div class="row">
                         <!-- Nome do Curso -->
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-8 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
                                     id="name" name="name" value="{{ old('name', $course->name) }}"
@@ -34,54 +34,8 @@
                             </div>
                         </div>
 
-                        <!-- Nível do Curso -->
-                        <div class="col-md-3 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select @error('level') is-invalid @enderror" id="level"
-                                    name="level" required>
-                                    <option value="">Selecione o nível</option>
-                                    @foreach ($levels as $level)
-                                        <option value="{{ $level->value }}"
-                                            {{ old('level', $course->level->value) == $level->value ? 'selected' : '' }}>
-                                            {{ $level->label() }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <label for="level"><i class="bi bi-layers me-2"></i>Nível *</label>
-                                @error('level')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @else
-                                    <div class="invalid-feedback">Selecione o nível do curso.</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- Tipo do Curso -->
-                        <div class="col-md-3 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select @error('type') is-invalid @enderror" id="type"
-                                    name="type" required>
-                                    <option value="">Selecione o tipo</option>
-                                    @foreach ($types as $type)
-                                        <option value="{{ $type->value }}"
-                                            {{ old('type', $course->type->value) == $type->value ? 'selected' : '' }}>
-                                            {{ $type->label() }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <label for="type"><i class="bi bi-tag me-2"></i>Tipo *</label>
-                                @error('type')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @else
-                                    <div class="invalid-feedback">Selecione o tipo do curso.</div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
                         <!-- Coordenador -->
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('coordinator_id') is-invalid @enderror"
                                     id="coordinator_id" name="coordinator_id">
@@ -128,12 +82,6 @@
                     <x-form-info-alert>
                         <li>O nome do curso deve ser único no sistema</li>
                         <li>Alterações podem afetar tipos de estágio relacionados</li>
-                        <li><strong>Compatibilidade por nível:</strong></li>
-                        <li style="margin-left: 20px;"><strong>Ensino Médio:</strong> Técnico, FIC</li>
-                        <li style="margin-left: 20px;"><strong>Ensino Superior:</strong> Bacharelado, Licenciatura,
-                            Tecnologia, Sequencial</li>
-                        <li style="margin-left: 20px;"><strong>Pós-graduação:</strong> Especialização, Mestrado, Doutorado
-                        </li>
                     </x-form-info-alert>
 
                     <!-- Botões -->

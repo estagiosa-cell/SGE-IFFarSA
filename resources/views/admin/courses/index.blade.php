@@ -16,36 +16,10 @@
             <div class="card-body py-3">
                 <form method="GET" action="{{ route('admin.courses.index') }}">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-5">
+                        <div class="col-md-9">
                             <label for="search" class="form-label mb-0 small">Buscar</label>
                             <input type="text" class="form-control form-control-sm" id="search" name="search"
                                 value="{{ request('search') }}" placeholder="Nome do curso">
-                        </div>
-
-                        <div class="col-md-2">
-                            <label for="level" class="form-label mb-0 small">Nível</label>
-                            <select class="form-select form-select-sm" id="level" name="level">
-                                <option value="">Todos os Níveis</option>
-                                @foreach ($levels as $level)
-                                    <option value="{{ $level->value }}"
-                                        {{ request('level') == $level->value ? 'selected' : '' }}>
-                                        {{ $level->label() }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="col-md-2">
-                            <label for="type" class="form-label mb-0 small">Tipo</label>
-                            <select class="form-select form-select-sm" id="type" name="type">
-                                <option value="">Todos os Tipos</option>
-                                @foreach ($types as $type)
-                                    <option value="{{ $type->value }}"
-                                        {{ request('type') == $type->value ? 'selected' : '' }}>
-                                        {{ $type->label() }}
-                                    </option>
-                                @endforeach
-                            </select>
                         </div>
 
                         <div class="col-md-3">
@@ -68,13 +42,13 @@
                 <div class="card-body">
                     <div class="text-center py-5">
                         <div class="mb-4">
-                            @if (request()->hasAny(['search', 'level', 'type']))
+                            @if (request()->filled('search'))
                                 <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
                             @else
                                 <i class="bi bi-book text-muted" style="font-size: 4rem;"></i>
                             @endif
                         </div>
-                        @if (request()->hasAny(['search', 'level', 'type']))
+                        @if (request()->filled('search'))
                             <h4 class="text-muted mb-3">Nenhum curso encontrado</h4>
                             <p class="text-muted mb-4">
                                 Não foram encontrados cursos com os filtros aplicados.<br>
@@ -101,14 +75,8 @@
                 <div class="card mb-3 shadow-sm border-0">
                     <div class="card-body py-3 px-4">
                         <div class="row align-items-center g-0">
-                            <div class="col-md-5">
-                                <h6 class="fw-bold text-dark mb-1">{{ $course->name }}</h6>
-                                <div class="d-flex gap-2">
-                                    <span class="badge bg-primary">{{ $course->level->label() }}</span>
-                                    <span class="badge bg-secondary">{{ $course->type->label() }}</span>
-                                </div>
-                            </div>
-                            <div class="col-md-5 small text-muted">
+                            <div class="col-md-7 fw-bold text-dark">{{ $course->name }}</div>
+                            <div class="col-md-3 small text-muted">
                                 <i class="bi bi-person-check me-1"></i>
                                 <strong>Coordenador:</strong>
                                 {{ $course->coordinator->name ?? 'Não cadastrado' }}
