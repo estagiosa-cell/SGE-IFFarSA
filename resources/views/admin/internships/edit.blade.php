@@ -780,7 +780,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>Remuneração
+                        </div>
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('supervisor_role') is-invalid @enderror"
@@ -804,7 +804,7 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-5 mb-3">
                             <div class="form-floating">
                                 <input type="text"
                                     class="form-control @error('internship_type_name') is-invalid @enderror"
@@ -817,7 +817,15 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-2 mb-3">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="internship_type_weight"
+                                    value="{{ $internship->internship_type_weight ?? 1 }}">
+                                <label for="internship_type_weight">Peso</label>
+                            </div>
+                            <small class="text-muted">Escala: 1-10</small>
+                        </div>
+                        <div class="col-md-5 mb-3">
                             <div class="form-floating">
                                 <input type="text"
                                     class="form-control @error('internship_sector') is-invalid @enderror"
@@ -915,19 +923,6 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <div class="form-floating">
-                                <input type="number"
-                                    class="form-control @error('evaluation_grade') is-invalid @enderror"
-                                    id="evaluation_grade" name="evaluation_grade"
-                                    value="{{ old('evaluation_grade', $internship->evaluation_grade) }}"
-                                    placeholder="Nota" min="0" max="100" step="0.1">
-                                <label for="evaluation_grade">Nota da Avaliação (0 - 100)</label>
-                                @error('evaluation_grade')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
                         <div class="col-md-9 mb-3">
                             <div class="form-floating">
                                 <textarea class="form-control @error('activities') is-invalid @enderror" id="activities" name="activities"

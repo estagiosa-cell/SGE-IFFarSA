@@ -74,6 +74,7 @@ class Internship extends Model
         'notes',
         'internship_sector',
         'required_hours',
+        'internship_type_weight',
 
         // Carga Horária
         'hours_sunday',
@@ -154,5 +155,41 @@ class Internship extends Model
     public function needsLegalGuardian(): bool
     {
         return !$this->student_is_adult;
+    }
+
+    // Métodos de avaliação
+    public function hasEvaluation(): bool
+    {
+        return !is_null($this->evaluation_submitted_at);
+    }
+
+    public function calculateEvaluationTotalScore(): float
+    {
+        if (!$this->hasEvaluation()) {
+            return 0.0;
+        }
+
+        return (float)(
+            ($this->evaluation_q1_performance ?? 0) +
+            ($this->evaluation_q2_comprehension ?? 0) +
+            ($this->evaluation_q3_technical_knowledge ?? 0) +
+            ($this->evaluation_q4_organization ?? 0) +
+            ($this->evaluation_q5_initiative ?? 0) +
+            ($this->evaluation_q6_attendance ?? 0) +
+            ($this->evaluation_q7_discipline ?? 0) +
+            ($this->evaluation_q8_sociability ?? 0) +
+            ($this->evaluation_q9_cooperation ?? 0) +
+            ($this->evaluation_q10_responsibility ?? 0)
+        );
+    }
+
+    public function getEvaluationPercentage(): float
+    {
+        if (!$this->hasEvaluation()) {
+            return 0.0;
+        }
+
+        // Converte a nota de 0-20 para 0-100
+        return ($this->evaluation_total_score / 20) * 100;
     }
 }
