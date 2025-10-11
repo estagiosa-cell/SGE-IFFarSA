@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('role');
+            $table->timestamp('deactivated_at')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
 
