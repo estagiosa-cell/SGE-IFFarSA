@@ -23,7 +23,7 @@ class CourseController extends Controller
             SearchHelper::searchInField($query, $request->search, 'name');
         }
 
-        $courses = $query->orderBy('name')->paginate(5)->withQueryString();
+        $courses = $query->orderBy('name')->get();
 
         return view('admin.courses.index', compact('courses'));
     }

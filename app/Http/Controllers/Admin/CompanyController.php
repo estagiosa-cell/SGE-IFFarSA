@@ -34,8 +34,8 @@ class CompanyController extends Controller
             $query->where('legal_identifier', 'like', '%' . $searchLegalIdentifier . '%');
         }
 
-        // Executa a consulta, ordena os resultados pelo nome e pagina os resultados
-        $companies = $query->orderBy('name')->paginate(15)->withQueryString();
+        // Executa a consulta, ordena os resultados pelo nome
+        $companies = $query->orderBy('name')->get();
 
         // Retorna a view, passando a lista de empresas e os valores dos filtros
         return view('admin.companies.index', [

@@ -91,8 +91,6 @@
                     </div>
                 </div>
             @endforeach
-
-            {{ $courses->links() }}
         @endif
     </div>
 @endsection

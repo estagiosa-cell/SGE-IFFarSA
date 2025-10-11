@@ -28,7 +28,7 @@ class InternshipTypeController extends Controller
             $query->where('course_id', $request->course_id);
         }
 
-        $internshipTypes = $query->orderBy('name')->paginate(5)->withQueryString();
+        $internshipTypes = $query->orderBy('name')->get();
 
         // Dados para os filtros
         $courses = Course::orderBy('name')->get();

@@ -131,8 +131,6 @@
                     </div>
                 </div>
             @endforeach
-
-            {{ $internships->links() }}
         @endif
     </div>
 @endsection

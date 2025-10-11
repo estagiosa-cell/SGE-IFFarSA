@@ -45,7 +45,7 @@ class DashboardController extends Controller
         // Estágios recentes
         $recentInternships = Internship::with(['advisor', 'course'])
             ->latest()
-            ->take(5)
+            ->take(10)
             ->get();
 
         return view('admin.dashboard', compact(

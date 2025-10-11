@@ -42,7 +42,7 @@ class UserController extends Controller
             }
         }
 
-        $users = $query->latest()->paginate(12)->withQueryString();
+        $users = $query->latest()->get();
         $roles = UserRole::cases();
         return view('admin.users.index', compact('users', 'roles', 'showDeleted'));
     }

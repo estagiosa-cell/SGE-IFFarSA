@@ -109,7 +109,6 @@
                     </div>
                 </div>
             @endforeach
-            {{ $internshipTypes->links() }}
         @endif
     </div>
 

@@ -41,8 +41,7 @@ class InternshipViewController extends Controller
             $internships = $query->with(['course', 'advisor'])
                 ->orderByRaw($statusOrderSql)
                 ->orderBy('updated_at', 'desc')
-                ->paginate(15)
-                ->withQueryString();
+                ->get();
         } elseif ($user->can('is-coordenador')) {
             // Para coordenadores, buscar estágios dos cursos que coordena
             $courseIds = $user->coordinatedCourses()->pluck('id');
@@ -59,8 +58,7 @@ class InternshipViewController extends Controller
                 ->orderByRaw($statusOrderSql)
                 ->latest('end_date')
                 ->latest('updated_at')
-                ->paginate(15)
-                ->withQueryString();
+                ->get();
 
             // Buscar orientadores que orientam estágios dos cursos coordenados
             $advisorIds = Internship::whereIn('course_id', $courseIds)
