@@ -21,6 +21,11 @@ class InternshipController extends Controller
 
         $query = Internship::with(['advisor', 'course']);
 
+        $showDeleted = $request->input('show_deleted') === '1';
+        if ($showDeleted) {
+            $query = $query->onlyTrashed();
+        }
+
         // Filtro por nome do estudante
         if ($request->filled('search')) {
             SearchHelper::searchInField($query, $search, 'student_name');
@@ -50,7 +55,7 @@ class InternshipController extends Controller
 
         $statusOptions = InternshipStatus::options();
 
-        return view('admin.internships.index', compact('internships', 'search', 'status', 'statusOptions'));
+        return view('admin.internships.index', compact('internships', 'search', 'status', 'statusOptions', 'showDeleted'));
     }
 
     /**
@@ -199,5 +204,30 @@ class InternshipController extends Controller
             ]);
 
         return response()->json($companies);
+    }
+
+    /**
+     * Remove o estágio especificado (soft delete).
+     */
+    public function destroy(Internship $internship)
+    {
+        $internship->delete();
+
+        return redirect()->route('admin.internships.index')
+            ->with('message', 'Estágio excluído com sucesso!')
+            ->with('messageType', 'success');
+    }
+
+    /**
+     * Restaura um estágio deletado (soft deleted).
+     */
+    public function restore($id)
+    {
+        $internship = Internship::onlyTrashed()->findOrFail($id);
+        $internship->restore();
+
+        return redirect()->route('admin.internships.index', ['show_deleted' => 1])
+            ->with('message', 'Estágio restaurado com sucesso!')
+            ->with('messageType', 'success');
     }
 }

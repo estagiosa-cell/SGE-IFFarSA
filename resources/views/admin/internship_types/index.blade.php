@@ -6,9 +6,16 @@
     <div class="container-fluid mt-4 mx-1">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h4 mb-0">Gerenciar Tipos de Estágio</h2>
-            <a href="{{ route('admin.internship-types.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>Novo Tipo de Estágio
-            </a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('admin.internship-types.index', array_merge(request()->except('show_deleted'), ['show_deleted' => $showDeleted ? 0 : 1])) }}"
+                    class="btn btn-outline-{{ $showDeleted ? 'secondary' : 'danger' }}">
+                    <i class="bi bi-trash{{ $showDeleted ? '' : '-fill' }} me-2"></i>
+                    {{ $showDeleted ? 'Ver Ativos' : 'Ver Deletados' }}
+                </a>
+                <a href="{{ route('admin.internship-types.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Novo Tipo de Estágio
+                </a>
+            </div>
         </div>
 
         <!-- Filtros de Pesquisa -->
@@ -56,13 +63,25 @@
                 <div class="card-body">
                     <div class="text-center py-5">
                         <div class="mb-4">
-                            @if (request()->hasAny(['search', 'course_id']))
+                            @if ($showDeleted)
+                                <i class="bi bi-trash text-muted" style="font-size: 4rem;"></i>
+                            @elseif (request()->hasAny(['search', 'course_id']))
                                 <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
                             @else
                                 <i class="bi bi-tags text-muted" style="font-size: 4rem;"></i>
                             @endif
                         </div>
-                        @if (request()->hasAny(['search', 'course_id']))
+                        @if ($showDeleted)
+                            <h4 class="text-muted mb-3">Nenhum tipo de estágio deletado</h4>
+                            <p class="text-muted mb-4">
+                                Não há tipos de estágio deletados no momento.<br>
+                                Você pode alternar para ver os ativos.
+                            </p>
+                            <a href="{{ route('admin.internship-types.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
+                                class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left me-2"></i>Ver Tipos de Estágio Ativos
+                            </a>
+                        @elseif (request()->hasAny(['search', 'course_id']))
                             <h4 class="text-muted mb-3">Nenhum tipo de estágio encontrado</h4>
                             <p class="text-muted mb-4">
                                 Não foram encontrados tipos de estágio com os filtros aplicados.<br>
@@ -100,10 +119,21 @@
                                 <strong>Curso:</strong> {{ $type->course->name ?? 'Não informado' }}
                             </div>
                             <div class="col-md-2 text-end">
-                                <a href="{{ route('admin.internship-types.edit', $type->id) }}"
-                                    class="btn btn-secondary btn-sm px-3 py-1">
-                                    <i class="bi bi-pencil me-1"></i>Editar
-                                </a>
+                                @if ($showDeleted)
+                                    <form action="{{ route('admin.internship-types.restore', $type->id) }}" method="POST"
+                                        class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-success btn-sm px-3 py-1">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i>Restaurar
+                                        </button>
+                                    </form>
+                                @else
+                                    <a href="{{ route('admin.internship-types.edit', $type->id) }}"
+                                        class="btn btn-secondary btn-sm px-3 py-1">
+                                        <i class="bi bi-pencil me-1"></i>Editar
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>

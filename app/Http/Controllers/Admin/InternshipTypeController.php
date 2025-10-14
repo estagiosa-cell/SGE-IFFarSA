@@ -18,6 +18,11 @@ class InternshipTypeController extends Controller
     {
         $query = InternshipType::with('course');
 
+        $showDeleted = $request->input('show_deleted') === '1';
+        if ($showDeleted) {
+            $query = $query->onlyTrashed();
+        }
+
         // Filtro por nome
         if ($request->filled('search')) {
             SearchHelper::searchInField($query, $request->search, 'name');
@@ -33,7 +38,7 @@ class InternshipTypeController extends Controller
         // Dados para os filtros
         $courses = Course::orderBy('name')->get();
 
-        return view('admin.internship_types.index', compact('internshipTypes', 'courses'));
+        return view('admin.internship_types.index', compact('internshipTypes', 'courses', 'showDeleted'));
     }
 
     /**
@@ -77,6 +82,32 @@ class InternshipTypeController extends Controller
 
         return redirect()->route('admin.internship-types.edit', $id)
             ->with('message', 'Tipo de estágio atualizado com sucesso!')
+            ->with('messageType', 'success');
+    }
+
+    /**
+     * Remove o tipo de estágio especificado (soft delete).
+     */
+    public function destroy(string $id)
+    {
+        $internshipType = InternshipType::findOrFail($id);
+        $internshipType->delete();
+
+        return redirect()->route('admin.internship-types.index')
+            ->with('message', 'Tipo de estágio excluído com sucesso!')
+            ->with('messageType', 'success');
+    }
+
+    /**
+     * Restaura um tipo de estágio deletado (soft deleted).
+     */
+    public function restore($id)
+    {
+        $internshipType = InternshipType::onlyTrashed()->findOrFail($id);
+        $internshipType->restore();
+
+        return redirect()->route('admin.internship-types.index', ['show_deleted' => 1])
+            ->with('message', 'Tipo de estágio restaurado com sucesso!')
             ->with('messageType', 'success');
     }
 }

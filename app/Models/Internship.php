@@ -5,9 +5,12 @@ namespace App\Models;
 use App\Enums\InternshipStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Internship extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         // Chaves Estrangeiras
         'advisor_id',

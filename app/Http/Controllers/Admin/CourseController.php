@@ -18,6 +18,11 @@ class CourseController extends Controller
     {
         $query = Course::with('coordinator');
 
+        $showDeleted = $request->input('show_deleted') === '1';
+        if ($showDeleted) {
+            $query = $query->onlyTrashed();
+        }
+
         // Filtro por nome
         if ($request->filled('search')) {
             SearchHelper::searchInField($query, $request->search, 'name');
@@ -25,7 +30,7 @@ class CourseController extends Controller
 
         $courses = $query->orderBy('name')->get();
 
-        return view('admin.courses.index', compact('courses'));
+        return view('admin.courses.index', compact('courses', 'showDeleted'));
     }
 
     /**
@@ -73,6 +78,32 @@ class CourseController extends Controller
         return redirect()
             ->route('admin.courses.edit', $id)
             ->with('message', 'Curso atualizado com sucesso!')
+            ->with('messageType', 'success');
+    }
+
+    /**
+     * Remove o curso especificado (soft delete).
+     */
+    public function destroy(string $id)
+    {
+        $course = Course::findOrFail($id);
+        $course->delete();
+
+        return redirect()->route('admin.courses.index')
+            ->with('message', 'Curso excluído com sucesso!')
+            ->with('messageType', 'success');
+    }
+
+    /**
+     * Restaura um curso deletado (soft deleted).
+     */
+    public function restore($id)
+    {
+        $course = Course::onlyTrashed()->findOrFail($id);
+        $course->restore();
+
+        return redirect()->route('admin.courses.index', ['show_deleted' => 1])
+            ->with('message', 'Curso restaurado com sucesso!')
             ->with('messageType', 'success');
     }
 }

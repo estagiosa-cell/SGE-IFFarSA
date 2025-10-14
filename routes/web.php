@@ -48,6 +48,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/courses', [CourseController::class, 'store'])->name('admin.courses.store');
         Route::get('/courses/{id}/edit', [CourseController::class, 'edit'])->name('admin.courses.edit');
         Route::put('/courses/{id}', [CourseController::class, 'update'])->name('admin.courses.update');
+        Route::delete('/courses/{id}', [CourseController::class, 'destroy'])->name('admin.courses.destroy');
+        Route::patch('/courses/{id}/restore', [CourseController::class, 'restore'])->name('admin.courses.restore');
 
         // Rotas de Tipos de Estágio
         Route::get('/internship-types', [InternshipTypeController::class, 'index'])->name('admin.internship-types.index');
@@ -55,6 +57,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/internship-types', [InternshipTypeController::class, 'store'])->name('admin.internship-types.store');
         Route::get('/internship-types/{id}/edit', [InternshipTypeController::class, 'edit'])->name('admin.internship-types.edit');
         Route::put('/internship-types/{id}', [InternshipTypeController::class, 'update'])->name('admin.internship-types.update');
+        Route::delete('/internship-types/{id}', [InternshipTypeController::class, 'destroy'])->name('admin.internship-types.destroy');
+        Route::patch('/internship-types/{id}/restore', [InternshipTypeController::class, 'restore'])->name('admin.internship-types.restore');
 
         // Rotas de autenticação com Google
         Route::get('/google/redirect', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
@@ -67,6 +71,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/internships', [InternshipController::class, 'index'])->name('admin.internships.index');
         Route::get('/internships/{internship}', [InternshipController::class, 'edit'])->name('admin.internships.edit');
         Route::put('/internships/{internship}', [InternshipController::class, 'update'])->name('admin.internships.update');
+        Route::delete('/internships/{internship}', [InternshipController::class, 'destroy'])->name('admin.internships.destroy');
+        Route::patch('/internships/{id}/restore', [InternshipController::class, 'restore'])->name('admin.internships.restore');
         Route::get('/api/companies', [InternshipController::class, 'getCompanies'])->name('admin.internships.companies-by-cnpj');
 
         // Rota de geração de documentos de estágio
@@ -80,6 +86,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/companies/{company}/edit', [CompanyController::class, 'edit'])->name('admin.companies.edit');
         Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('admin.companies.update');
         Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
+        Route::patch('/companies/{id}/restore', [CompanyController::class, 'restore'])->name('admin.companies.restore');
     });
 
     // Rotas para Coordenadores e Orientadores

@@ -6,6 +6,11 @@
     <div class="container-fluid mt-4 mx-1">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h4 mb-0">Gerenciar Estágios</h2>
+            <a href="{{ route('admin.internships.index', array_merge(request()->except('show_deleted'), ['show_deleted' => $showDeleted ? 0 : 1])) }}"
+                class="btn btn-outline-{{ $showDeleted ? 'secondary' : 'danger' }}">
+                <i class="bi bi-trash{{ $showDeleted ? '' : '-fill' }} me-2"></i>
+                {{ $showDeleted ? 'Ver Ativos' : 'Ver Deletados' }}
+            </a>
         </div>
 
         <!-- Filtros de Pesquisa -->
@@ -51,13 +56,25 @@
                 <div class="card-body">
                     <div class="text-center py-5">
                         <div class="mb-4">
-                            @if (request()->hasAny(['search', 'status']))
+                            @if ($showDeleted)
+                                <i class="bi bi-trash text-muted" style="font-size: 4rem;"></i>
+                            @elseif (request()->hasAny(['search', 'status']))
                                 <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
                             @else
                                 <i class="bi bi-briefcase text-muted" style="font-size: 4rem;"></i>
                             @endif
                         </div>
-                        @if (request()->hasAny(['search', 'status']))
+                        @if ($showDeleted)
+                            <h4 class="text-muted mb-3">Nenhum estágio deletado</h4>
+                            <p class="text-muted mb-4">
+                                Não há estágios deletados no momento.<br>
+                                Você pode alternar para ver os ativos.
+                            </p>
+                            <a href="{{ route('admin.internships.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
+                                class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left me-2"></i>Ver Estágios Ativos
+                            </a>
+                        @elseif (request()->hasAny(['search', 'status']))
                             <h4 class="text-muted mb-3">Nenhum estágio encontrado</h4>
                             <p class="text-muted mb-4">
                                 Não foram encontrados estágios com os filtros aplicados.<br>
@@ -122,10 +139,21 @@
                                 </div>
                             </div>
                             <div class="col-md-3 text-end">
-                                <a href="{{ route('admin.internships.edit', $internship->id) }}"
-                                    class="btn btn-secondary btn-sm px-3 py-1">
-                                    <i class="bi bi-pencil me-1"></i>Editar
-                                </a>
+                                @if ($showDeleted)
+                                    <form action="{{ route('admin.internships.restore', $internship->id) }}" method="POST"
+                                        class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-success btn-sm px-3 py-1">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i>Restaurar
+                                        </button>
+                                    </form>
+                                @else
+                                    <a href="{{ route('admin.internships.edit', $internship->id) }}"
+                                        class="btn btn-secondary btn-sm px-3 py-1">
+                                        <i class="bi bi-pencil me-1"></i>Editar
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>

@@ -23,6 +23,11 @@ class CompanyController extends Controller
         // Inicia a construção da consulta ao banco de dados
         $query = Company::query();
 
+        $showDeleted = $request->input('show_deleted') === '1';
+        if ($showDeleted) {
+            $query = $query->onlyTrashed();
+        }
+
         // Aplica o filtro de nome, se ele existir
         if ($searchName) {
             SearchHelper::searchInField($query, $searchName, 'name');
@@ -42,6 +47,7 @@ class CompanyController extends Controller
             'companies' => $companies,
             'searchName' => $searchName,
             'searchLegalIdentifier' => $searchLegalIdentifier,
+            'showDeleted' => $showDeleted,
         ]);
     }
 
@@ -255,5 +261,18 @@ class CompanyController extends Controller
     private function cleanPhone($value)
     {
         return preg_replace('/[^0-9]/', '', $value);
+    }
+
+    /**
+     * Restaura uma empresa deletada (soft delete).
+     */
+    public function restore($id)
+    {
+        $company = Company::onlyTrashed()->findOrFail($id);
+        $company->restore();
+
+        return redirect()->route('admin.companies.index', ['show_deleted' => 1])
+            ->with('message', 'Parte Concedente restaurada com sucesso!')
+            ->with('messageType', 'success');
     }
 }

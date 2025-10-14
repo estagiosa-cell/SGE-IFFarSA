@@ -94,8 +94,39 @@
                         </button>
                     </div>
                 </form>
+                <hr>
+                <div class="d-flex gap-2 mt-3">
+                    <!-- Botão Deletar -->
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="bi bi-trash me-2"></i>Excluir Curso
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal Excluir -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    Tem certeza que deseja excluir este curso? Esta ação pode ser desfeita.
+                </div>
+                <div class="modal-footer">
+                    <form action="{{ route('admin.courses.destroy', $course->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i>Excluir
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
