@@ -19,7 +19,7 @@
                     @method('PUT')
 
                     <div class="row">
-                        <!-- Nome do Tipo de Estágio -->
+                        {{-- Nome do Tipo de Estágio --}}
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
@@ -34,7 +34,7 @@
                             </div>
                         </div>
 
-                        <!-- Carga Horária -->
+                        {{-- Carga Horária --}}
                         <div class="col-md-2 mb-3">
                             <div class="form-floating">
                                 <input type="number" min="1" max="9999"
@@ -51,7 +51,7 @@
                             </div>
                         </div>
 
-                        <!-- Peso -->
+                        {{-- Peso --}}
                         <div class="col-md-2 mb-3">
                             <div class="form-floating">
                                 <input type="number" min="1" max="10"
@@ -66,7 +66,7 @@
                             </div>
                         </div>
 
-                        <!-- Curso -->
+                        {{-- Curso --}}
                         <div class="col-md-2 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('course_id') is-invalid @enderror" id="course_id"
@@ -89,7 +89,7 @@
                         </div>
                     </div>
 
-                    <!-- Informações adicionais -->
+                    {{-- Informações adicionais --}}
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="card bg-light">
@@ -119,7 +119,7 @@
                         <li>Alterações podem afetar estágios já cadastrados</li>
                     </x-form-info-alert>
 
-                    <!-- Botões -->
+                    {{-- Botões --}}
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.internship-types.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancelar
@@ -131,7 +131,7 @@
                 </form>
                 <hr>
                 <div class="d-flex gap-2 mt-3">
-                    <!-- Botão Deletar -->
+                    {{-- Botão Deletar --}}
                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
                         <i class="bi bi-trash me-2"></i>Excluir Tipo de Estágio
                     </button>
@@ -140,7 +140,7 @@
         </div>
     </div>
 
-    <!-- Modal Excluir -->
+    {{-- Modal Excluir --}}
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

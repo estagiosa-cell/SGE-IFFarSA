@@ -98,6 +98,30 @@ class Internship extends Model
 
         // Google Docs
         'google_docs_id',
+
+        // Avaliação do Supervisor
+        'evaluation_supervisor_email',
+        'evaluation_supervisor_name',
+        'evaluation_has_academic_background',
+        'evaluation_completed_workload',
+        'evaluation_training_course',
+        'evaluation_education_level',
+        'evaluation_job_role',
+        'evaluation_experience_time',
+        'evaluation_performance',
+        'evaluation_comprehension',
+        'evaluation_technical_knowledge',
+        'evaluation_organization',
+        'evaluation_initiative',
+        'evaluation_attendance',
+        'evaluation_discipline',
+        'evaluation_sociability',
+        'evaluation_cooperation',
+        'evaluation_responsibility',
+        'evaluation_considerations',
+        'evaluation_suggestions_to_institution',
+        'evaluation_performance_issues',
+        'evaluation_other_observations',
     ];
 
     protected $casts = [
@@ -157,22 +181,22 @@ class Internship extends Model
 
     public function needsLegalGuardian(): bool
     {
-        return !$this->student_is_adult;
+        return ! $this->student_is_adult;
     }
 
     // Métodos de avaliação
     public function hasEvaluation(): bool
     {
-        return !is_null($this->evaluation_submitted_at);
+        return ! is_null($this->evaluation_submitted_at);
     }
 
     public function calculateEvaluationTotalScore(): float
     {
-        if (!$this->hasEvaluation()) {
+        if (! $this->hasEvaluation()) {
             return 0.0;
         }
 
-        return (float)(
+        return (float) (
             ($this->evaluation_q1_performance ?? 0) +
             ($this->evaluation_q2_comprehension ?? 0) +
             ($this->evaluation_q3_technical_knowledge ?? 0) +
@@ -188,7 +212,7 @@ class Internship extends Model
 
     public function getEvaluationPercentage(): float
     {
-        if (!$this->hasEvaluation()) {
+        if (! $this->hasEvaluation()) {
             return 0.0;
         }
 

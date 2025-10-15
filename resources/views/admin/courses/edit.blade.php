@@ -19,7 +19,7 @@
                     @method('PUT')
 
                     <div class="row">
-                        <!-- Nome do Curso -->
+                        {{-- Nome do Curso --}}
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
@@ -34,7 +34,7 @@
                             </div>
                         </div>
 
-                        <!-- Coordenador -->
+                        {{-- Coordenador --}}
                         <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('coordinator_id') is-invalid @enderror"
@@ -55,7 +55,7 @@
                         </div>
                     </div>
 
-                    <!-- Informações adicionais -->
+                    {{-- Informações adicionais --}}
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="card bg-light">
@@ -84,7 +84,7 @@
                         <li>Alterações podem afetar tipos de estágio relacionados</li>
                     </x-form-info-alert>
 
-                    <!-- Botões -->
+                    {{-- Botões --}}
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.courses.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancelar
@@ -96,7 +96,7 @@
                 </form>
                 <hr>
                 <div class="d-flex gap-2 mt-3">
-                    <!-- Botão Deletar -->
+                    {{-- Botão Deletar --}}
                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
                         <i class="bi bi-trash me-2"></i>Excluir Curso
                     </button>
@@ -105,7 +105,7 @@
         </div>
     </div>
 
-    <!-- Modal Excluir -->
+    {{-- Modal Excluir --}}
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

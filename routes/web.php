@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InternshipController;
 use App\Http\Controllers\Admin\InternshipDocumentController;
 use App\Http\Controllers\Admin\InternshipTypeController;
+use App\Http\Controllers\Admin\SupervisorEvaluationController;
 use App\Http\Controllers\Admin\SyncDataController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -66,6 +67,14 @@ Route::middleware(['auth'])->group(function () {
 
         // Rota de sincronização de dados
         Route::post('/sync/data', SyncDataController::class)->name('admin.sync.data');
+
+        // Rotas de avaliações de supervisores
+        Route::get('/supervisor-evaluations', [SupervisorEvaluationController::class, 'index'])->name('admin.supervisor-evaluations.index');
+        Route::get('/supervisor-evaluations/{evaluation}/edit', [SupervisorEvaluationController::class, 'edit'])->name('admin.supervisor-evaluations.edit');
+        Route::put('/supervisor-evaluations/{evaluation}', [SupervisorEvaluationController::class, 'update'])->name('admin.supervisor-evaluations.update');
+        Route::post('/supervisor-evaluations/{evaluation}/associate', [SupervisorEvaluationController::class, 'associate'])->name('admin.supervisor-evaluations.associate');
+        Route::delete('/supervisor-evaluations/{evaluation}', [SupervisorEvaluationController::class, 'destroy'])->name('admin.supervisor-evaluations.destroy');
+        Route::patch('/supervisor-evaluations/{id}/restore', [SupervisorEvaluationController::class, 'restore'])->name('admin.supervisor-evaluations.restore');
 
         // Rotas de Estágios
         Route::get('/internships', [InternshipController::class, 'index'])->name('admin.internships.index');

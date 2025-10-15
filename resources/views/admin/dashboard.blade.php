@@ -14,9 +14,9 @@
             </form>
         </div>
 
-        <!-- Estatísticas Gerais -->
+        {{-- Estatísticas Gerais --}}
         <div class="row mb-4">
-            <!-- Total de Estágios -->
+            {{-- Total de Estágios --}}
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-start border-primary border-4 shadow h-100 py-2">
                     <div class="card-body">
@@ -35,7 +35,7 @@
                 </div>
             </div>
 
-            <!-- Total de Partes Concedentes -->
+            {{-- Total de Partes Concedentes --}}
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-start border-success border-4 shadow h-100 py-2">
                     <div class="card-body">
@@ -45,7 +45,7 @@
                                     Partes Concedentes
                                 </div>
                                 <div class="h5 mb-0 fw-bold text-gray-800">{{ $totalCompanies }}</div>
-                                <small class="text-muted">{{ $activeCompanies }} com estágios ativos</small>
+                                <small class="text-muted">{{ $activeCompanies }} com estágio(s)</small>
                             </div>
                             <div class="col-auto">
                                 <i class="bi bi-building fs-2 text-gray-300"></i>
@@ -55,7 +55,7 @@
                 </div>
             </div>
 
-            <!-- Total de Usuários -->
+            {{-- Total de Usuários --}}
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-start border-info border-4 shadow h-100 py-2">
                     <div class="card-body">
@@ -74,7 +74,7 @@
                 </div>
             </div>
 
-            <!-- Total de Cursos -->
+            {{-- Total de Cursos --}}
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-start border-warning border-4 shadow h-100 py-2">
                     <div class="card-body">
@@ -94,9 +94,9 @@
             </div>
         </div>
 
-        <!-- Segunda linha de estatísticas -->
+        {{-- Segunda linha de estatísticas --}}
         <div class="row mb-4">
-            <!-- Estágios por Status -->
+            {{-- Estágios por Status --}}
             <div class="col-xl-8 col-lg-7">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
@@ -164,7 +164,7 @@
                 </div>
             </div>
 
-            <!-- Usuários por Tipo -->
+            {{-- Usuários por Tipo --}}
             <div class="col-xl-4 col-lg-5">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
@@ -203,7 +203,7 @@
             </div>
         </div>
 
-        <!-- Estágios Recentes -->
+        {{-- Estágios Recentes --}}
         <div class="row">
             <div class="col-12">
                 <div class="card shadow mb-4">

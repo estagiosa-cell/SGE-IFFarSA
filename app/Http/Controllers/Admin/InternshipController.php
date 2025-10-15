@@ -148,15 +148,42 @@ class InternshipController extends Controller
             'end_date' => 'required|date|after:start_date',
             'required_hours' => 'required|integer|min:1',
             'activities' => 'required|string',
-            'evaluation_grade' => 'nullable|numeric|min:0|max:100',
 
             // Remuneração
             'is_remunerated' => 'nullable|boolean',
             'grant_value' => 'nullable|numeric|min:0',
             'transportation_allowance' => 'nullable|numeric|min:0',
+
+            // Avaliação do Supervisor
+            'evaluation_supervisor_name' => 'nullable|string|max:255',
+            'evaluation_supervisor_email' => 'nullable|email|max:255',
+            'evaluation_has_academic_background' => 'nullable|string|max:255',
+            'evaluation_completed_workload' => 'nullable|string|max:255',
+            'evaluation_training_course' => 'nullable|string|max:255',
+            'evaluation_education_level' => 'nullable|string|max:255',
+            'evaluation_job_role' => 'nullable|string|max:255',
+            'evaluation_experience_time' => 'nullable|string|max:255',
+            'evaluation_performance' => 'nullable|string|max:255',
+            'evaluation_comprehension' => 'nullable|string|max:255',
+            'evaluation_technical_knowledge' => 'nullable|string|max:255',
+            'evaluation_organization' => 'nullable|string|max:255',
+            'evaluation_initiative' => 'nullable|string|max:255',
+            'evaluation_attendance' => 'nullable|string|max:255',
+            'evaluation_discipline' => 'nullable|string|max:255',
+            'evaluation_sociability' => 'nullable|string|max:255',
+            'evaluation_cooperation' => 'nullable|string|max:255',
+            'evaluation_responsibility' => 'nullable|string|max:255',
+            'evaluation_considerations' => 'nullable|string',
+            'evaluation_suggestions_to_institution' => 'nullable|string',
+            'evaluation_performance_issues' => 'nullable|string',
+            'evaluation_other_observations' => 'nullable|string',
+            'evaluation_grade' => 'nullable|numeric|min:0|max:20',
         ]);
 
         try {
+            // Recalcula a nota final baseada nos critérios de avaliação
+            $validatedData['evaluation_grade'] = $this->calculateEvaluationGrade($validatedData);
+
             $internship->update($validatedData);
 
             return redirect()
@@ -229,5 +256,54 @@ class InternshipController extends Controller
         return redirect()->route('admin.internships.index', ['show_deleted' => 1])
             ->with('message', 'Estágio restaurado com sucesso!')
             ->with('messageType', 'success');
+    }
+
+    /**
+     * Calcula a nota final da avaliação baseada nos 10 critérios
+     * 
+     * @param array $data
+     * @return float
+     */
+    private function calculateEvaluationGrade(array $data): float
+    {
+        $criteria = [
+            'evaluation_performance',
+            'evaluation_comprehension',
+            'evaluation_technical_knowledge',
+            'evaluation_organization',
+            'evaluation_initiative',
+            'evaluation_attendance',
+            'evaluation_discipline',
+            'evaluation_sociability',
+            'evaluation_cooperation',
+            'evaluation_responsibility',
+        ];
+
+        $totalScore = 0.0;
+
+        foreach ($criteria as $criterion) {
+            $value = $data[$criterion] ?? null;
+            $totalScore += $this->getNumericValue($value);
+        }
+
+        return $totalScore;
+    }
+
+    /**
+     * Converte a resposta textual para valor numérico
+     * 
+     * @param string|null $value
+     * @return float
+     */
+    private function getNumericValue(?string $value): float
+    {
+        return match ($value) {
+            'Ótimo' => 2.0,
+            'Muito Bom' => 1.5,
+            'Bom' => 1.0,
+            'Satisfatório' => 0.5,
+            'Insatisfatório' => 0.0,
+            default => 0.0,
+        };
     }
 }

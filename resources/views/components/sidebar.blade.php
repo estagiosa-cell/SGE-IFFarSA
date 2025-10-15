@@ -1,4 +1,4 @@
-<!-- Header para telas pequenas -->
+{{-- Header para telas pequenas --}}
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary d-lg-none shadow-sm">
     <div class="container-fluid">
         <button class="navbar-toggler border-0 p-2" type="button" data-bs-toggle="offcanvas"
@@ -11,7 +11,7 @@
     </div>
 </nav>
 
-<!-- Sidebar para telas grandes -->
+{{-- Sidebar para telas grandes --}}
 <div class="d-none d-lg-flex bg-white flex-column vh-100 p-2 border-end position-sticky top-0">
     <h5 class="m-2">SGE-IFFarSA</h5>
     <hr>
@@ -34,7 +34,7 @@
     </div>
 </div>
 
-<!-- Offcanvas para telas pequenas -->
+{{-- Offcanvas para telas pequenas --}}
 <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">SGE-IFFarSA</h5>

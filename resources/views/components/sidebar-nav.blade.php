@@ -9,6 +9,10 @@
             Estágios
         </x-sidebar-nav-link>
 
+        <x-sidebar-nav-link route="admin.supervisor-evaluations.index" icon="clipboard-check">
+            Avaliações do Supervisor
+        </x-sidebar-nav-link>
+
         <li class="nav-item">
             <hr>
             <p class="text-muted small fw-bold text-uppercase mb-1">Configurações</p>

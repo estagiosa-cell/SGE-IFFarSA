@@ -8,26 +8,26 @@
             <h2 class="h4 mb-0">Meus Estágios</h2>
         </div>
 
-        <!-- Filtros de Pesquisa -->
+        {{-- Filtros de Pesquisa --}}
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-body py-3">
                 <form method="GET" action="{{ route('internship-view.index') }}">
                     <div class="row g-2 align-items-end">
-                        <!-- Busca por nome do estudante -->
+                        {{-- Busca por nome do estudante --}}
                         <div class="col-md-3">
                             <label for="search" class="form-label mb-0 small">Nome do Estudante</label>
                             <input type="text" class="form-control form-control-sm" id="search" name="search"
                                 value="{{ request('search') }}" placeholder="Buscar por nome">
                         </div>
 
-                        <!-- Busca por matrícula -->
+                        {{-- Busca por matrícula --}}
                         <div class="col-md-{{ auth()->user()->can('is-coordenador') ? '2' : '5' }}">
                             <label for="registration" class="form-label mb-0 small">Matrícula</label>
                             <input type="text" class="form-control form-control-sm" id="registration" name="registration"
                                 value="{{ request('registration') }}" placeholder="Matrícula">
                         </div>
 
-                        <!-- Filtro por status -->
+                        {{-- Filtro por status --}}
                         <div class="col-md-2">
                             <label for="status" class="form-label mb-0 small">Status</label>
                             <select class="form-select form-select-sm" id="status" name="status">
@@ -41,7 +41,7 @@
                             </select>
                         </div>
 
-                        <!-- Filtro por orientador (apenas para coordenadores) -->
+                        {{-- Filtro por orientador (apenas para coordenadores) --}}
                         @if (auth()->user()->can('is-coordenador'))
                             <div class="col-md-3">
                                 <label for="advisor" class="form-label mb-0 small">Orientador</label>
@@ -57,7 +57,7 @@
                             </div>
                         @endif
 
-                        <!-- Botões -->
+                        {{-- Botões --}}
                         <div class="col-md-2">
                             <div class="d-flex gap-1">
                                 <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
@@ -117,7 +117,7 @@
                                         {{ $internship->course->name }}
                                     </span>
                                     @if (auth()->user()->can('is-coordenador'))
-                                        <span class="badge bg-info text-white">
+                                        <span class="badge bg-secondary text-white">
                                             <i class="bi bi-person-badge me-1"></i>{{ $internship->advisor->name }}
                                         </span>
                                     @endif

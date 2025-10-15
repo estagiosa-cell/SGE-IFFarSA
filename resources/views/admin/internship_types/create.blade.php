@@ -17,7 +17,7 @@
                     @csrf
 
                     <div class="row">
-                        <!-- Nome do Tipo de Estágio -->
+                        {{-- Nome do Tipo de Estágio --}}
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
@@ -32,7 +32,7 @@
                             </div>
                         </div>
 
-                        <!-- Carga Horária -->
+                        {{-- Carga Horária --}}
                         <div class="col-md-2 mb-3">
                             <div class="form-floating">
                                 <input type="number" min="1" max="9999"
@@ -48,7 +48,7 @@
                             </div>
                         </div>
 
-                        <!-- Peso -->
+                        {{-- Peso --}}
                         <div class="col-md-2 mb-3">
                             <div class="form-floating">
                                 <input type="number" min="1" max="10"
@@ -63,7 +63,7 @@
                             </div>
                         </div>
 
-                        <!-- Curso -->
+                        {{-- Curso --}}
                         <div class="col-md-2 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('course_id') is-invalid @enderror" id="course_id"
@@ -93,7 +93,7 @@
                         <li>Cada curso pode ter múltiplos tipos de estágio</li>
                     </x-form-info-alert>
 
-                    <!-- Botões -->
+                    {{-- Botões --}}
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.internship-types.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancelar

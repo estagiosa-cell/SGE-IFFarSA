@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <!-- Filtros de Pesquisa -->
+        {{-- Filtros de Pesquisa --}}
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-body py-3">
                 <form method="GET" action="{{ route('admin.courses.index') }}">

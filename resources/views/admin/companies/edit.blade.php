@@ -279,7 +279,7 @@
                             rurais e outros casos específicos.</li>
                     </x-form-info-alert>
 
-                    <!-- Botões -->
+                    {{-- Botões --}}
                     <div class="d-flex justify-content-between">
                         <div>
                             <a href="{{ route('admin.companies.index') }}" class="btn btn-secondary">

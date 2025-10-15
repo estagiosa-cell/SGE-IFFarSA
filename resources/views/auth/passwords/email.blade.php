@@ -8,7 +8,7 @@
         <p class="text-muted">Informe seu e-mail para receber o link de recuperação</p>
     </div>
 
-    <!-- Alerta de sucesso -->
+    {{-- Alerta de sucesso --}}
     @if (session('status'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <div class="d-flex align-items-center">

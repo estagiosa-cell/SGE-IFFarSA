@@ -16,7 +16,7 @@
             <div class="card-body">
                 <form class="needs-validation" action="{{ route('admin.users.store') }}" method="POST" novalidate>
                     @csrf
-                    <!-- Nome -->
+                    {{-- Nome --}}
                     <div class="mb-3">
                         <div class="form-floating">
                             <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
@@ -29,7 +29,7 @@
                             @enderror
                         </div>
                     </div>
-                    <!-- E-mail -->
+                    {{-- E-mail --}}
                     <div class="mb-3">
                         <div class="form-floating">
                             <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
@@ -42,7 +42,7 @@
                             @enderror
                         </div>
                     </div>
-                    <!-- Confirmação de E-mail -->
+                    {{-- Confirmação de E-mail --}}
                     <div class="mb-3">
                         <div class="form-floating">
                             <input type="email" class="form-control @error('email_confirmation') is-invalid @enderror"
@@ -57,7 +57,7 @@
                             @enderror
                         </div>
                     </div>
-                    <!-- Papel -->
+                    {{-- Papel --}}
                     <div class="mb-3">
                         <div class="form-floating">
                             <select class="form-select @error('role') is-invalid @enderror" id="role" name="role"

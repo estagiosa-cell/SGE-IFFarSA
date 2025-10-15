@@ -4,7 +4,7 @@
 
 @section('main-content')
     <div class="container-fluid mt-4 mx-1">
-        <!-- Header -->
+        {{-- Header --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="h4 mb-1">Detalhes do Estágio</h2>
@@ -15,7 +15,7 @@
             </a>
         </div>
 
-        <!-- Status e Nota -->
+        {{-- Status e Nota --}}
         <div class="card mb-4 shadow-sm border-0">
             <div class="card-body py-3">
                 <div class="row align-items-center">
@@ -28,20 +28,11 @@
                             <span class="badge bg-light text-dark fs-6">{{ $internship->course->name }}</span>
                         </div>
                     </div>
-                    @if ($internship->evaluation_grade)
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center justify-content-md-end">
-                                <i class="bi bi-star-fill text-warning me-2"></i>
-                                <span class="h5 mb-0">{{ number_format($internship->evaluation_grade, 1) }}</span>
-                                <small class="text-muted ms-1"></small>
-                            </div>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
 
-        <!-- Dados do Estudante -->
+        {{-- Dados do Estudante --}}
         <div class="card mb-4 shadow-sm border-0">
             <div class="card-header bg-primary text-white py-2">
                 <h5 class="card-title mb-0">
@@ -84,9 +75,9 @@
             </div>
         </div>
 
-        <!-- Dados da Empresa/Concedente -->
+        {{-- Dados da Empresa/Concedente --}}
         <div class="card mb-4 shadow-sm border-0">
-            <div class="card-header bg-info text-white py-2">
+            <div class="card-header bg-primary text-white py-2">
                 <h5 class="card-title mb-0">
                     <i class="bi bi-building me-2"></i>Parte Concedente
                 </h5>
@@ -130,11 +121,11 @@
             </div>
         </div>
 
-        <!-- Dados do Supervisor -->
+        {{-- Supervisor --}}
         <div class="card mb-4 shadow-sm border-0">
-            <div class="card-header bg-success text-white py-2">
+            <div class="card-header bg-primary text-white py-2">
                 <h5 class="card-title mb-0">
-                    <i class="bi bi-person-check me-2"></i>Supervisor de Campo
+                    <i class="bi bi-person-badge me-2"></i>Supervisor de Campo
                 </h5>
             </div>
             <div class="card-body">
@@ -169,10 +160,10 @@
             </div>
         </div>
 
-        <!-- Dados do Estágio -->
+        {{-- Dados do Estágio --}}
         <div class="card mb-4 shadow-sm border-0">
-            <div class="card-header bg-warning py-2">
-                <h5 class="card-title mb-0 text-dark">
+            <div class="card-header bg-primary text-white py-2">
+                <h5 class="card-title mb-0">
                     <i class="bi bi-briefcase me-2"></i>Informações do Estágio
                 </h5>
             </div>
@@ -205,6 +196,12 @@
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="d-flex flex-column">
+                            <small class="text-muted mb-1">Peso</small>
+                            <span class="fw-medium">{{ $internship->internship_type_weight ?? 'Não definido' }}</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="d-flex flex-column">
                             <small class="text-muted mb-1">Data de Início</small>
                             <span
                                 class="fw-medium">{{ $internship->start_date?->format('d/m/Y') ?? 'Não definido' }}</span>
@@ -229,10 +226,9 @@
             </div>
         </div>
 
-        <!-- Atividades -->
-
+        {{-- Atividades --}}
         <div class="card mb-4 shadow-sm border-0">
-            <div class="card-header bg-secondary text-white py-2">
+            <div class="card-header bg-primary text-white py-2">
                 <h5 class="card-title mb-0">
                     <i class="bi bi-list-task me-2"></i>Atividades Previstas
                 </h5>
@@ -243,6 +239,266 @@
                 </div>
             </div>
         </div>
+
+        {{-- Avaliação do Supervisor --}}
+        @if ($internship->evaluation_performance)
+            @php
+                $getNumericValue = function ($value) {
+                    return match (trim($value)) {
+                        'Ótimo' => 2.0,
+                        'Muito Bom' => 1.5,
+                        'Bom' => 1.0,
+                        'Satisfatório' => 0.5,
+                        'Insatisfatório' => 0.0,
+                        default => 0.0,
+                    };
+                };
+            @endphp
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-2">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-clipboard-check me-2"></i>Avaliação do Supervisor
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{-- Informações do Supervisor da Avaliação --}}
+                    @if ($internship->evaluation_supervisor_name || $internship->evaluation_supervisor_email)
+                        <h6 class="text-primary mb-3">Dados do Avaliador</h6>
+                        <div class="row g-3 mb-4">
+                            @if ($internship->evaluation_supervisor_name)
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="d-flex flex-column">
+                                        <small class="text-muted mb-1">Nome do Supervisor</small>
+                                        <span class="fw-medium">{{ $internship->evaluation_supervisor_name }}</span>
+                                    </div>
+                                </div>
+                            @endif
+                            @if ($internship->evaluation_supervisor_email)
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="d-flex flex-column">
+                                        <small class="text-muted mb-1">E-mail</small>
+                                        <span class="fw-medium">{{ $internship->evaluation_supervisor_email }}</span>
+                                    </div>
+                                </div>
+                            @endif
+                            @if ($internship->evaluation_has_academic_background)
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="d-flex flex-column">
+                                        <small class="text-muted mb-1">Formação Acadêmica na Área</small>
+                                        <span
+                                            class="fw-medium">{{ $internship->evaluation_has_academic_background }}</span>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
+                    {{-- Informações Gerais da Avaliação --}}
+                    <h6 class="text-primary mb-3">Informações Gerais</h6>
+                    <div class="row g-3 mb-4">
+                        @if ($internship->evaluation_completed_workload)
+                            <div class="col-lg-3 col-md-6">
+                                <div class="d-flex flex-column">
+                                    <small class="text-muted mb-1">Carga Horária Cumprida</small>
+                                    <span class="fw-medium">
+                                        @if (strtolower($internship->evaluation_completed_workload) === 'sim')
+                                            <span class="badge bg-success">Sim</span>
+                                        @else
+                                            <span class="badge bg-warning text-dark">Não</span>
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_training_course)
+                            <div class="col-lg-3 col-md-6">
+                                <div class="d-flex flex-column">
+                                    <small class="text-muted mb-1">Curso de Formação</small>
+                                    <span class="fw-medium">{{ $internship->evaluation_training_course }}</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_education_level)
+                            <div class="col-lg-3 col-md-6">
+                                <div class="d-flex flex-column">
+                                    <small class="text-muted mb-1">Nível de Escolaridade</small>
+                                    <span class="fw-medium">{{ $internship->evaluation_education_level }}</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_job_role)
+                            <div class="col-lg-3 col-md-6">
+                                <div class="d-flex flex-column">
+                                    <small class="text-muted mb-1">Cargo/Função</small>
+                                    <span class="fw-medium">{{ $internship->evaluation_job_role }}</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_experience_time)
+                            <div class="col-lg-3 col-md-6">
+                                <div class="d-flex flex-column">
+                                    <small class="text-muted mb-1">Tempo de Experiência</small>
+                                    <span class="fw-medium">{{ $internship->evaluation_experience_time }}</span>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+
+                {{-- Critérios de Avaliação --}}
+                @can('is-coordenador')
+                    <h6 class="text-primary mb-3">Critérios de Avaliação</h6>
+                    <div class="row g-3 mb-4">
+                        @if ($internship->evaluation_performance)
+                            <div class="col-lg-6 col-md-6">
+                                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                    <span class="text-muted">1. Rendimento</span>
+                                    <span class="badge bg-primary">{{ $internship->evaluation_performance }}
+                                        ({{ number_format($getNumericValue($internship->evaluation_performance), 1) }})</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_comprehension)
+                            <div class="col-lg-6 col-md-6">
+                                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                    <span class="text-muted">2. Facilidade de Compreensão</span>
+                                    <span class="badge bg-primary">{{ $internship->evaluation_comprehension }}
+                                        ({{ number_format($getNumericValue($internship->evaluation_comprehension), 1) }})</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_technical_knowledge)
+                            <div class="col-lg-6 col-md-6">
+                                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                    <span class="text-muted">3. Conhecimentos Técnicos</span>
+                                    <span class="badge bg-primary">{{ $internship->evaluation_technical_knowledge }}
+                                        ({{ number_format($getNumericValue($internship->evaluation_technical_knowledge), 1) }})</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_organization)
+                            <div class="col-lg-6 col-md-6">
+                                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                    <span class="text-muted">4. Organização</span>
+                                    <span class="badge bg-primary">{{ $internship->evaluation_organization }}
+                                        ({{ number_format($getNumericValue($internship->evaluation_organization), 1) }})</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_initiative)
+                            <div class="col-lg-6 col-md-6">
+                                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                    <span class="text-muted">5. Iniciativa</span>
+                                    <span class="badge bg-primary">{{ $internship->evaluation_initiative }}
+                                        ({{ number_format($getNumericValue($internship->evaluation_initiative), 1) }})</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_attendance)
+                            <div class="col-lg-6 col-md-6">
+                                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                    <span class="text-muted">6. Assiduidade</span>
+                                    <span class="badge bg-primary">{{ $internship->evaluation_attendance }}
+                                        ({{ number_format($getNumericValue($internship->evaluation_attendance), 1) }})</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_discipline)
+                            <div class="col-lg-6 col-md-6">
+                                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                    <span class="text-muted">7. Disciplina</span>
+                                    <span class="badge bg-primary">{{ $internship->evaluation_discipline }}
+                                        ({{ number_format($getNumericValue($internship->evaluation_discipline), 1) }})</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_sociability)
+                            <div class="col-lg-6 col-md-6">
+                                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                    <span class="text-muted">8. Sociabilidade</span>
+                                    <span class="badge bg-primary">{{ $internship->evaluation_sociability }}
+                                        ({{ number_format($getNumericValue($internship->evaluation_sociability), 1) }})</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_cooperation)
+                            <div class="col-lg-6 col-md-6">
+                                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                    <span class="text-muted">9. Cooperação</span>
+                                    <span class="badge bg-primary">{{ $internship->evaluation_cooperation }}
+                                        ({{ number_format($getNumericValue($internship->evaluation_cooperation), 1) }})</span>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($internship->evaluation_responsibility)
+                            <div class="col-lg-6 col-md-6">
+                                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                    <span class="text-muted">10. Responsabilidade</span>
+                                    <span class="badge bg-primary">{{ $internship->evaluation_responsibility }}
+                                        ({{ number_format($getNumericValue($internship->evaluation_responsibility), 1) }})</span>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                @endcan
+
+                {{-- Nota Final --}}
+                @if ($internship->evaluation_grade)
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="alert alert-success mb-0" role="alert">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-star-fill me-2"></i>
+                                        <strong>Nota Final da Avaliação</strong>
+                                    </div>
+                                    <span
+                                        class="badge bg-success fs-5">{{ number_format($internship->evaluation_grade, 1) }}/20.0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Observações --}}
+                @if (
+                    $internship->evaluation_considerations ||
+                        $internship->evaluation_suggestions_to_institution ||
+                        $internship->evaluation_performance_issues ||
+                        $internship->evaluation_other_observations)
+                    <h6 class="text-primary mb-3">Observações</h6>
+
+                    @if ($internship->evaluation_considerations)
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">Considerações</small>
+                            <div class="p-3 bg-light rounded">
+                                {!! nl2br(e($internship->evaluation_considerations)) !!}
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($internship->evaluation_performance_issues)
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">Aspectos que Prejudicaram o Desempenho</small>
+                            <div class="p-3 bg-light rounded">
+                                {!! nl2br(e($internship->evaluation_performance_issues)) !!}
+                            </div>
+                        </div>
+                    @endif
+
+                    @can('is-coordenador')
+                        @if ($internship->evaluation_suggestions_to_institution)
+                            <div class="mb-3">
+                                <small class="text-muted d-block mb-1">Sugestões à Instituição</small>
+                                <div class="p-3 bg-light rounded">
+                                    {!! nl2br(e($internship->evaluation_suggestions_to_institution)) !!}
+                                </div>
+                            </div>
+                        @endif
+                    @endcan
+                @endif
+            </div>
+    </div>
+    @endif
 
     </div>
 @endsection

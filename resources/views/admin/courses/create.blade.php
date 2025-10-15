@@ -17,7 +17,7 @@
                     @csrf
 
                     <div class="row">
-                        <!-- Nome do Curso -->
+                        {{-- Nome do Curso --}}
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
@@ -32,7 +32,7 @@
                             </div>
                         </div>
 
-                        <!-- Coordenador -->
+                        {{-- Coordenador --}}
                         <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('coordinator_id') is-invalid @enderror"
@@ -57,7 +57,7 @@
                         <li>O nome do curso deve ser único no sistema</li>
                     </x-form-info-alert>
 
-                    <!-- Botões -->
+                    {{-- Botões --}}
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('admin.courses.index') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-2"></i>Cancelar

@@ -5,7 +5,7 @@
         <h3 class="card-title mb-3">Acesso ao Sistema</h3>
         <p class="text-muted">Faça login para acessar o SGE-IFFarSA</p>
     </div>
-    <!-- Alerta de erro de credenciais -->
+    {{-- Alerta de erro de credenciais --}}
     @if ($errors->has('login_error'))
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <div class="d-flex align-items-center">

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Course;
 use App\Models\Internship;
+use App\Models\SupervisorEvaluation;
 use App\Models\User;
 use App\Services\FuzzySearchService;
 use App\Services\GoogleApiService;
@@ -17,16 +18,55 @@ use Illuminate\Http\Request;
 class SyncDataController extends Controller
 {
     /**
-     * Sincroniza os dados com a planilha do Google
+     * Sincroniza os dados com as planilhas do Google (estágios e avaliações)
      */
     public function __invoke(Request $request, GoogleApiService $googleService, FuzzySearchService $fuzzySearch)
+    {
+        $messages = [];
+        $hasSuccess = false;
+
+        // Sincroniza dados de estágios
+        try {
+            $internshipsCount = $this->syncInternshipsData($googleService, $fuzzySearch);
+            if ($internshipsCount > 0) {
+                $messages[] = "{$internshipsCount} novo(s) estágio(s) sincronizado(s)";
+                $hasSuccess = true;
+            }
+        } catch (\Exception $e) {
+            $messages[] = 'Estágios: '.$e->getMessage();
+        }
+
+        // Sincroniza avaliações de supervisores
+        try {
+            $evaluationsCount = $this->syncSupervisorEvaluations($googleService);
+            if ($evaluationsCount > 0) {
+                $messages[] = "{$evaluationsCount} nova(s) avaliação(ões) sincronizada(s)";
+                $hasSuccess = true;
+            }
+        } catch (\Exception $e) {
+            $messages[] = 'Avaliações: '.$e->getMessage();
+        }
+
+        $finalMessage = empty($messages)
+            ? 'Nenhum dado novo para sincronizar.'
+            : implode(' | ', $messages);
+
+        $messageType = $hasSuccess ? 'success' : 'info';
+
+        return redirect()->route('admin.dashboard')
+            ->with('message', $finalMessage)
+            ->with('messageType', $messageType);
+    }
+
+    /**
+     * Sincroniza os dados de estágios com a planilha do Google
+     */
+    private function syncInternshipsData(GoogleApiService $googleService, FuzzySearchService $fuzzySearch): int
     {
         $spreadsheetId = config('services.google.sheets.data_collection_id');
 
         if (! $spreadsheetId) {
-            return redirect()->route('admin.dashboard')
-                ->with('message', 'O ID da planilha do Google não está configurado.')
-                ->with('messageType', 'danger');
+            throw new \Exception('ID da planilha de estágios não configurado');
         }
 
         $client = $googleService->getClient();
@@ -38,9 +78,7 @@ class SyncDataController extends Controller
         $rows = $response->getValues();
 
         if (empty($rows)) {
-            return redirect()->route('admin.dashboard')
-                ->with('message', 'Nenhum dado novo para sincronizar encontrado na planilha.')
-                ->with('messageType', 'info');
+            return 0; // Nenhum dado para sincronizar
         }
 
         $processedCount = 0;
@@ -48,8 +86,8 @@ class SyncDataController extends Controller
         foreach ($rows as $index => $row) {
             $rowNumber = $index + 2;
 
-            // se a coluna BJ (índice 60) estiver marcada como 'sincronizado', pula a linha
-            if (isset($row[60]) && $row[60] == 'sincronizado') {
+            // se a coluna BJ (índice 60) estiver marcada como 1, pula a linha
+            if (isset($row[60]) && $row[60] == 1) {
                 continue;
             }
 
@@ -150,14 +188,10 @@ class SyncDataController extends Controller
                     $requiredHours = $internshipType->required_hours;
                     $internshipTypeWeight = $internshipType->weight;
                 } else {
-                    return redirect()->route('admin.dashboard')
-                        ->with('message', "Nenhum tipo de estágio encontrado para o curso '$nomeCurso' do estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
-                        ->with('messageType', 'danger');
+                    throw new \Exception("Nenhum tipo de estágio encontrado para o curso '$nomeCurso' do estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
                 }
             } else {
-                return redirect()->route('admin.dashboard')
-                    ->with('message', "Curso '$nomeCurso' não encontrado para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
-                    ->with('messageType', 'danger');
+                throw new \Exception("Curso '$nomeCurso' não encontrado para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
             }
 
             // busca orientador (tolera erro de digitação)
@@ -166,9 +200,7 @@ class SyncDataController extends Controller
             $advisorWarning = '';
 
             if (! $result) {
-                return redirect()->route('admin.dashboard')
-                    ->with('message', "Orientador '$nomeOrientador' não encontrado para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
-                    ->with('messageType', 'danger');
+                throw new \Exception("Orientador '$nomeOrientador' não encontrado para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
             }
 
             $orientador = $result['entity'];
@@ -256,9 +288,7 @@ class SyncDataController extends Controller
                 try {
                     $dataNascimento = Carbon::createFromFormat('d/m/Y', $row[12])->startOfDay();
                 } catch (\Exception $e) {
-                    return redirect()->route('admin.dashboard')
-                        ->with('message', "Data de nascimento inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
-                        ->with('messageType', 'danger');
+                    throw new \Exception("Data de nascimento inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
                 }
             }
 
@@ -266,9 +296,7 @@ class SyncDataController extends Controller
                 try {
                     $rgDataExpedicao = Carbon::createFromFormat('d/m/Y', $row[15])->startOfDay();
                 } catch (\Exception $e) {
-                    return redirect()->route('admin.dashboard')
-                        ->with('message', "Data de expedição do RG inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
-                        ->with('messageType', 'danger');
+                    throw new \Exception("Data de expedição do RG inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
                 }
             }
 
@@ -276,9 +304,7 @@ class SyncDataController extends Controller
                 try {
                     $dataInicioEstagio = Carbon::createFromFormat('d/m/Y', $row[55])->startOfDay();
                 } catch (\Exception $e) {
-                    return redirect()->route('admin.dashboard')
-                        ->with('message', "Data de início do estágio inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.")
-                        ->with('messageType', 'danger');
+                    throw new \Exception("Data de início do estágio inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
                 }
             }
 
@@ -297,16 +323,12 @@ class SyncDataController extends Controller
 
             // Validação: máximo 30 horas semanais
             if ($totalWeeklyHours > 30) {
-                return redirect()->route('admin.dashboard')
-                    ->with('message', "A carga horária semanal do estagiário '$nomeCompletoEstagiario' na linha $rowNumber excede o limite de 30 horas. Total informado: {$totalWeeklyHours} horas.")
-                    ->with('messageType', 'danger');
+                throw new \Exception("A carga horária semanal do estagiário '$nomeCompletoEstagiario' na linha $rowNumber excede o limite de 30 horas. Total informado: {$totalWeeklyHours} horas.");
             }
 
             // Validação: deve ter pelo menos 1 hora semanal
             if ($totalWeeklyHours <= 0) {
-                return redirect()->route('admin.dashboard')
-                    ->with('message', "A carga horária semanal do estagiário '$nomeCompletoEstagiario' na linha $rowNumber deve ser maior que zero.")
-                    ->with('messageType', 'danger');
+                throw new \Exception("A carga horária semanal do estagiário '$nomeCompletoEstagiario' na linha $rowNumber deve ser maior que zero.");
             }
 
             // Cálculo da data de fim do estágio
@@ -319,9 +341,7 @@ class SyncDataController extends Controller
                         $requiredHours
                     );
                 } catch (\Exception $e) {
-                    return redirect()->route('admin.dashboard')
-                        ->with('message', "Erro ao calcular data de fim do estágio para '$nomeCompletoEstagiario' na linha $rowNumber: ".$e->getMessage())
-                        ->with('messageType', 'danger');
+                    throw new \Exception("Erro ao calcular data de fim do estágio para '$nomeCompletoEstagiario' na linha $rowNumber: ".$e->getMessage());
                 }
             }
 
@@ -417,20 +437,160 @@ class SyncDataController extends Controller
             $processedCount++;
 
             $updateRange = "'Respostas ao formulário 1'!BJ".$rowNumber;
-            $values = [['sincronizado']];
+            $values = [[1]];
             $body = new \Google_Service_Sheets_ValueRange(['values' => $values]);
             $params = ['valueInputOption' => 'RAW'];
 
             $service->spreadsheets_values->update($spreadsheetId, $updateRange, $body, $params);
         }
 
-        $message = ($processedCount == 0)
-            ? 'Nenhum registro novo para sincronizar.'
-            : $processedCount.' novos registros foram sincronizados com sucesso!';
-        $messageType = ($processedCount == 0) ? 'info' : 'success';
+        return $processedCount;
+    }
 
-        return redirect()->route('admin.dashboard')
-            ->with('message', $message)
-            ->with('messageType', $messageType);
+    /**
+     * Sincroniza as avaliações de supervisores com a planilha do Google
+     */
+    private function syncSupervisorEvaluations(GoogleApiService $googleService): int
+    {
+        $spreadsheetId = config('services.google.sheets.supervisor_evaluation_id');
+
+        if (! $spreadsheetId) {
+            throw new \Exception('ID da planilha de avaliações não configurado');
+        }
+
+        $client = $googleService->getClient();
+        $service = new \Google_Service_Sheets($client);
+
+        // Range incluindo coluna Z para controle de sincronização
+        $range = "'Respostas ao formulário 1'!A2:Z";
+
+        $response = $service->spreadsheets_values->get($spreadsheetId, $range);
+        $rows = $response->getValues();
+
+        if (empty($rows)) {
+            return 0; // Nenhuma avaliação para sincronizar
+        }
+
+        $processedCount = 0;
+        $skippedCount = 0;
+
+        foreach ($rows as $index => $row) {
+            // Verifica se já foi sincronizado (coluna Z = 1)
+            if (isset($row[25]) && $row[25] == 1) {
+                $skippedCount++;
+
+                continue;
+            }
+
+            // Mapeamento das colunas baseado no CSV
+            $timestamp = $row[0] ?? null;                           // Coluna A - Carimbo de data/hora
+            $supervisorEmail = $row[1] ?? null;                     // Coluna B - Endereço de e-mail
+            $studentName = $row[2] ?? null;                         // Coluna C - Nome do estagiário
+            $supervisorName = $row[3] ?? null;                      // Coluna D - Seu nome completo
+            $hasAcademicBackgroundRaw = $row[4] ?? null;            // Coluna E - Formação acadêmica na área?
+            $completedWorkload = $row[5] ?? null;                   // Coluna F - Cumpriu a carga horária?
+
+            // Extrai apenas "Sim" ou "Não" da resposta de formação acadêmica
+            $hasAcademicBackground = $this->extractSimNao($hasAcademicBackgroundRaw);
+            $trainingCourse = $row[6] ?? null;                      // Coluna G - Curso de formação
+            $educationLevel = $row[7] ?? null;                      // Coluna H - Nível
+            $jobRole1 = $row[8] ?? null;                            // Coluna I - Cargo/Função (opção 1)
+            $jobRole2 = $row[9] ?? null;                            // Coluna J - Cargo/Função (opção 2)
+            $experienceTime = $row[10] ?? null;                     // Coluna K - Tempo de experiência
+            $performance = $row[11] ?? null;                        // Coluna L - 1. Rendimento
+            $comprehension = $row[12] ?? null;                      // Coluna M - 2. Facilidade de compreensão
+            $technicalKnowledge = $row[13] ?? null;                 // Coluna N - 3. Conhecimentos técnicos
+            $organization = $row[14] ?? null;                       // Coluna O - 4. Organização
+            $initiative = $row[15] ?? null;                         // Coluna P - 5. Iniciativa
+            $attendance = $row[16] ?? null;                         // Coluna Q - 6. Assiduidade
+            $discipline = $row[17] ?? null;                         // Coluna R - 7. Disciplina
+            $sociability = $row[18] ?? null;                        // Coluna S - 8. Sociabilidade
+            $cooperation = $row[19] ?? null;                        // Coluna T - 9. Cooperação
+            $responsibility = $row[20] ?? null;                     // Coluna U - 10. Responsabilidade
+            $considerations = $row[21] ?? null;                     // Coluna V - Considerações
+            $suggestionsToInstitution = $row[22] ?? null;           // Coluna W - Sugestões à instituição
+            $performanceIssues = $row[23] ?? null;                  // Coluna X - Aspectos que prejudicaram
+            $otherObservations = $row[24] ?? null;                  // Coluna Y - Outras observações
+
+            // Usa o cargo que estiver preenchido (prioriza jobRole1, depois jobRole2)
+            $jobRole = ! empty($jobRole1) ? $jobRole1 : $jobRole2;
+
+            // Verifica se já existe uma avaliação idêntica (evita duplicatas)
+            $exists = SupervisorEvaluation::where('supervisor_email', $supervisorEmail)
+                ->where('student_name', $studentName)
+                ->exists();
+
+            if ($exists) {
+                $skippedCount++;
+
+                continue;
+            }
+
+            // Cria o registro da avaliação
+            SupervisorEvaluation::create([
+                'supervisor_email' => $supervisorEmail,
+                'student_name' => $studentName,
+                'supervisor_name' => $supervisorName,
+                'has_academic_background' => $hasAcademicBackground,
+                'completed_workload' => $completedWorkload,
+                'training_course' => $trainingCourse,
+                'education_level' => $educationLevel,
+                'job_role' => $jobRole,
+                'experience_time' => $experienceTime,
+                'performance' => $performance,
+                'comprehension' => $comprehension,
+                'technical_knowledge' => $technicalKnowledge,
+                'organization' => $organization,
+                'initiative' => $initiative,
+                'attendance' => $attendance,
+                'discipline' => $discipline,
+                'sociability' => $sociability,
+                'cooperation' => $cooperation,
+                'responsibility' => $responsibility,
+                'considerations' => $considerations,
+                'suggestions_to_institution' => $suggestionsToInstitution,
+                'performance_issues' => $performanceIssues,
+                'other_observations' => $otherObservations,
+            ]);
+
+            // Marca como sincronizado na planilha (coluna Z = 1)
+            $rowNumber = $index + 2; // +2 porque começa em A2
+            $updateRange = "'Respostas ao formulário 1'!Z{$rowNumber}";
+            $values = [[1]];
+            $body = new \Google_Service_Sheets_ValueRange([
+                'values' => $values,
+            ]);
+            $params = ['valueInputOption' => 'RAW'];
+            $service->spreadsheets_values->update($spreadsheetId, $updateRange, $body, $params);
+
+            $processedCount++;
+        }
+
+        return $processedCount;
+    }
+
+    /**
+     * Extrai apenas "Sim" ou "Não" da primeira palavra de uma resposta
+     */
+    private function extractSimNao(?string $text): ?string
+    {
+        if (empty($text)) {
+            return null;
+        }
+
+        // Remove espaços extras e pega a primeira palavra
+        $firstWord = strtok(trim($text), ' ,');
+
+        // Normaliza para maiúsculas/minúsculas
+        $normalized = mb_strtolower($firstWord);
+
+        // Retorna "Sim" ou "Não" baseado na primeira palavra
+        if (str_starts_with($normalized, 'sim')) {
+            return 'Sim';
+        } elseif (str_starts_with($normalized, 'não') || str_starts_with($normalized, 'nao')) {
+            return 'Não';
+        }
+
+        return null;
     }
 }

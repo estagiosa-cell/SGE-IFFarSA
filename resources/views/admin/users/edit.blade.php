@@ -18,7 +18,7 @@
                     @csrf
                     @method('PUT')
                     <div class="row">
-                        <!-- Nome -->
+                        {{-- Nome --}}
                         <div class="mb-3 col-md-6">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
@@ -32,7 +32,7 @@
                                 @enderror
                             </div>
                         </div>
-                        <!-- E-mail -->
+                        {{-- E-mail --}}
                         <div class="mb-3 col-md-6">
                             <div class="form-floating">
                                 <input type="email" class="form-control @error('email') is-invalid @enderror"
@@ -48,7 +48,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <!-- Papel -->
+                        {{-- Papel --}}
                         <div class="mb-3 col-md-6">
                             <div class="form-floating">
                                 <select class="form-select @error('role') is-invalid @enderror" id="role"
@@ -69,7 +69,7 @@
                                 @enderror
                             </div>
                         </div>
-                        <!-- Status -->
+                        {{-- Status --}}
                         <div class="mb-3 col-md-6">
                             <div class="form-floating">
                                 <input type="text" class="form-control" id="status"
@@ -79,7 +79,7 @@
                         </div>
                     </div>
 
-                    <!-- Informações adicionais -->
+                    {{-- Informações adicionais --}}
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="card bg-light">
@@ -121,19 +121,19 @@
                 <hr>
                 <div class="d-flex gap-2 mt-3">
                     @if ($user->isActive())
-                        <!-- Botão Desativar -->
+                        {{-- Botão Desativar --}}
                         <button type="button" class="btn btn-warning" data-bs-toggle="modal"
                             data-bs-target="#deactivateModal">
                             <i class="bi bi-person-dash me-2"></i>Desativar Conta
                         </button>
                     @else
-                        <!-- Botão Reativar -->
+                        {{-- Botão Reativar --}}
                         <button type="button" class="btn btn-success" data-bs-toggle="modal"
                             data-bs-target="#reactivateModal">
                             <i class="bi bi-person-check me-2"></i>Reativar Conta
                         </button>
                     @endif
-                    <!-- Botão Deletar -->
+                    {{-- Botão Deletar --}}
                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
                         <i class="bi bi-trash me-2"></i>Excluir Conta
                     </button>
@@ -142,7 +142,7 @@
         </div>
     </div>
 
-    <!-- Modal Desativar -->
+    {{-- Modal Desativar --}}
     <div class="modal fade" id="deactivateModal" tabindex="-1" aria-labelledby="deactivateModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -167,7 +167,7 @@
         </div>
     </div>
 
-    <!-- Modal Reativar -->
+    {{-- Modal Reativar --}}
     <div class="modal fade" id="reactivateModal" tabindex="-1" aria-labelledby="reactivateModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -193,7 +193,7 @@
         </div>
     </div>
 
-    <!-- Modal Excluir -->
+    {{-- Modal Excluir --}}
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

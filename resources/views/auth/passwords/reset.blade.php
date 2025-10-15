@@ -8,7 +8,7 @@
         <p class="text-muted">Digite sua nova senha para concluir a redefinição</p>
     </div>
 
-    <!-- Alerta de erro -->
+    {{-- Alerta de erro --}}
     @if ($errors->any())
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <div class="d-flex align-items-center">
@@ -48,7 +48,8 @@
         <div class="mb-3">
             <div class="form-floating">
                 <input type="password" name="password" id="password"
-                    class="form-control @error('password') is-invalid @enderror" placeholder="Nova Senha" maxlength="64" required>
+                    class="form-control @error('password') is-invalid @enderror" placeholder="Nova Senha" maxlength="64"
+                    required>
                 <label for="password"><i class="bi bi-lock me-2"></i>Nova Senha</label>
                 <div class="invalid-feedback">
                     @if ($errors->has('password'))
