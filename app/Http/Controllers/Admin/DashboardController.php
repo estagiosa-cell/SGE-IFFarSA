@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Course;
 use App\Models\Internship;
+use App\Models\SupervisorEvaluation;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -19,6 +20,7 @@ class DashboardController extends Controller
     {
         // Estatísticas de estágios
         $totalInternships = Internship::count();
+        $deletedInternships = Internship::onlyTrashed()->count();
         $internshipsByStatus = [
             'pending' => Internship::where('status', InternshipStatus::PENDING->value)->count(),
             'awaiting_signature' => Internship::where('status', InternshipStatus::AWAITING_SIGNATURE->value)->count(),
@@ -29,11 +31,15 @@ class DashboardController extends Controller
 
         // Estatísticas de empresas (partes concedentes)
         $totalCompanies = Company::count();
-        // Contar empresas únicas que têm estágios (via company_legal_identifier)
-        $activeCompanies = Internship::distinct('company_legal_identifier')->count('company_legal_identifier');
+        $deletedCompanies = Company::onlyTrashed()->count();
+        // Contar empresas únicas que têm estágios em andamento (via company_legal_identifier)
+        $activeCompanies = Internship::where('status', InternshipStatus::IN_PROGRESS->value)
+            ->distinct('company_legal_identifier')
+            ->count('company_legal_identifier');
 
         // Estatísticas de usuários
         $totalUsers = User::count();
+        $deletedUsers = User::onlyTrashed()->count();
         $usersByRole = User::selectRaw('role, count(*) as count')
             ->groupBy('role')
             ->pluck('count', 'role')
@@ -41,6 +47,11 @@ class DashboardController extends Controller
 
         // Estatísticas de cursos
         $totalCourses = Course::count();
+        $deletedCourses = Course::onlyTrashed()->count();
+
+        // Estatísticas de avaliações do supervisor
+        $totalEvaluations = SupervisorEvaluation::count();
+        $deletedEvaluations = SupervisorEvaluation::onlyTrashed()->count();
 
         // Estágios recentes
         $recentInternships = Internship::with(['advisor', 'course'])
@@ -50,12 +61,18 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'totalInternships',
+            'deletedInternships',
             'internshipsByStatus',
             'totalCompanies',
+            'deletedCompanies',
             'activeCompanies',
             'totalUsers',
+            'deletedUsers',
             'usersByRole',
             'totalCourses',
+            'deletedCourses',
+            'totalEvaluations',
+            'deletedEvaluations',
             'recentInternships'
         ));
     }
