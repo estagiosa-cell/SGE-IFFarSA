@@ -33,7 +33,7 @@
                                 <p class="text-muted small mb-4">Sistema de Gestão de Estágios</p>
                             </div>
                             <div class="card shadow border-0">
-                                <div class="card-body p-3">
+                                <div class="card-body p-4">
                                     @yield('main-content')
                                 </div>
                             </div>

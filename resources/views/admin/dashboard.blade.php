@@ -46,7 +46,8 @@
                                     Partes Concedentes
                                 </div>
                                 <div class="h5 mb-0 fw-bold text-gray-800">{{ $totalCompanies }}</div>
-                                <small class="text-muted">{{ $deletedCompanies }} Excluída(s) | {{ $activeCompanies }} com estágio(s) ativo(s)</small>
+                                <small class="text-muted">{{ $deletedCompanies }} Excluída(s) | {{ $activeCompanies }} com
+                                    estágio(s) ativo(s)</small>
                             </div>
                             <div class="col-auto">
                                 <i class="bi bi-building fs-2 text-gray-300"></i>
@@ -122,7 +123,7 @@
             {{-- Estágios por Status --}}
             <div class="col-xl-8 col-lg-7">
                 <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 fw-bold text-primary">Estágios por Status</h6>
                     </div>
                     <div class="card-body">
@@ -190,7 +191,7 @@
             {{-- Usuários por Tipo --}}
             <div class="col-xl-4 col-lg-5">
                 <div class="card shadow mb-4">
-                    <div class="card-header py-3">
+                    <div class="card-header bg-light py-2">
                         <h6 class="m-0 fw-bold text-primary">Usuários por Tipo</h6>
                     </div>
                     <div class="card-body">
@@ -230,7 +231,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card shadow mb-4">
-                    <div class="card-header py-3">
+                    <div class="card-header bg-light py-2">
                         <h6 class="m-0 fw-bold text-primary">Estágios Recentes</h6>
                     </div>
                     <div class="card-body">

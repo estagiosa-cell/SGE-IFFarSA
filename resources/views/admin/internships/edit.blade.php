@@ -13,7 +13,7 @@
 
         {{-- Geração de Documentos --}}
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-primary text-white py-2">
                 <h5 class="mb-0">
                     <i class="bi bi-file-earmark-text me-2"></i>Geração de Documentos
                 </h5>
@@ -68,7 +68,7 @@
 
             {{-- Informações do Sistema --}}
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white py-2">
                     <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informações do Sistema</h5>
                 </div>
                 <div class="card-body">

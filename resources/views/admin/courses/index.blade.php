@@ -23,19 +23,19 @@
             <div class="card-body py-3">
                 <form method="GET" action="{{ route('admin.courses.index') }}">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-9">
-                            <label for="search" class="form-label mb-0 small">Buscar</label>
+                        <div class="col-md-9 col-lg-9">
+                            <label for="search" class="form-label mb-0 small">Buscar por nome</label>
                             <input type="text" class="form-control form-control-sm" id="search" name="search"
                                 value="{{ request('search') }}" placeholder="Nome do curso">
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-lg-3">
                             <div class="d-flex gap-1">
                                 <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
                                     <i class="bi bi-funnel"></i> Filtrar
                                 </button>
                                 <a href="{{ route('admin.courses.index') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-clockwise"></i> Limpar
+                                    <i class="bi bi-arrow-clockwise"></i>
                                 </a>
                             </div>
                         </div>

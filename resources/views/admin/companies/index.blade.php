@@ -23,26 +23,26 @@
             <div class="card-body py-3">
                 <form method="GET" action="{{ route('admin.companies.index') }}">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-5">
-                            <label for="name" class="form-label mb-0 small">Buscar por Nome / Razão Social</label>
+                        <div class="col-md-5 col-lg-5">
+                            <label for="name" class="form-label mb-0 small">Nome / Razão Social</label>
                             <input type="text" class="form-control form-control-sm" id="name" name="name"
                                 value="{{ $searchName }}" placeholder="Nome ou parte do nome">
                         </div>
 
-                        <div class="col-md-4">
-                            <label for="legal_identifier" class="form-label mb-0 small">Buscar por CPF / CNPJ</label>
+                        <div class="col-md-4 col-lg-4">
+                            <label for="legal_identifier" class="form-label mb-0 small">CPF / CNPJ</label>
                             <input type="text" class="form-control form-control-sm" id="legal_identifier"
                                 name="legal_identifier" value="{{ $searchLegalIdentifier }}"
                                 placeholder="Número do documento">
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-lg-3">
                             <div class="d-flex gap-1">
                                 <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
                                     <i class="bi bi-funnel"></i> Filtrar
                                 </button>
                                 <a href="{{ route('admin.companies.index') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-clockwise"></i> Limpar
+                                    <i class="bi bi-arrow-clockwise"></i>
                                 </a>
                             </div>
                         </div>
@@ -115,7 +115,7 @@
                                     <strong>CPF/CNPJ: </strong>{{ $company->legal_identifier }}
                                 @endif
                             </div>
-                            <div class="col-md-3 text-end d-flex gap-1 justify-content-end">
+                            <div class="col-md-3 text-end">
                                 @if ($showDeleted)
                                     <form action="{{ route('admin.companies.restore', $company->id) }}" method="POST"
                                         class="d-inline">

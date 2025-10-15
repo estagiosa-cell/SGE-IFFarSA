@@ -23,16 +23,16 @@
             <div class="card-body py-3">
                 <form method="GET" action="{{ route('admin.users.index') }}">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-4">
+                        <div class="col-md-4 col-lg-4">
                             <label for="search" class="form-label mb-0 small">Buscar</label>
                             <input type="text" class="form-control form-control-sm" id="search" name="search"
                                 value="{{ request('search') }}" placeholder="Nome ou e-mail">
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-lg-2">
                             <label for="role" class="form-label mb-0 small">Papel</label>
                             <select class="form-select form-select-sm" id="role" name="role">
-                                <option value="">Todos os Papéis</option>
+                                <option value="">Todos</option>
                                 @foreach ($roles as $role)
                                     <option value="{{ $role->value }}"
                                         {{ request('role') == $role->value ? 'selected' : '' }}>
@@ -42,23 +42,23 @@
                             </select>
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-3 col-lg-3">
                             <label for="status" class="form-label mb-0 small">Status</label>
                             <select class="form-select form-select-sm" id="status" name="status">
-                                <option value="">Todos os Status</option>
+                                <option value="">Todos</option>
                                 <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Ativo</option>
                                 <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Desativado
                                 </option>
                             </select>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-lg-3">
                             <div class="d-flex gap-1">
                                 <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
                                     <i class="bi bi-funnel"></i> Filtrar
                                 </button>
                                 <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-clockwise"></i> Limpar
+                                    <i class="bi bi-arrow-clockwise"></i>
                                 </a>
                             </div>
                         </div>
@@ -118,8 +118,10 @@
                     <div class="card-body py-3 px-4">
                         <div class="row align-items-center g-0">
                             <div class="col-md-3 fw-bold text-dark">{{ $user->name }}</div>
-                            <div class="col-md-3 small">{{ $user->email }}</div>
-                            <div class="col-md-2 small">{{ $user->role->label() ?? $user->role }}</div>
+                            <div class="col-md-3 small text-muted">{{ $user->email }}</div>
+                            <div class="col-md-2 small">
+                                <span class="badge bg-secondary">{{ $user->role->label() ?? $user->role }}</span>
+                            </div>
                             <div class="col-md-2">
                                 @if ($user->isActive())
                                     <span class="badge bg-success">Ativo</span>
@@ -127,9 +129,10 @@
                                     <span class="badge bg-danger">Desativado</span>
                                 @endif
                             </div>
-                            <div class="col-md-2 text-end d-flex gap-1 justify-content-end">
+                            <div class="col-md-2 text-end">
                                 @if ($showDeleted)
-                                    <form method="POST" action="{{ route('admin.users.restore', $user->id) }}">
+                                    <form method="POST" action="{{ route('admin.users.restore', $user->id) }}"
+                                        class="d-inline">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="btn btn-success btn-sm px-3 py-1" title="Restaurar">

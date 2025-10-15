@@ -5,9 +5,9 @@
 @section('main-content')
     <div class="container-fluid mt-4 mx-1">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Gerenciar Avaliação #{{ $evaluation->id }}</h1>
-            <a href="{{ route('admin.supervisor-evaluations.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Voltar
+            <h2 class="h4 mb-0">Gerenciar Avaliação #{{ $evaluation->id }}</h2>
+            <a href="{{ route('admin.supervisor-evaluations.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left-circle me-2"></i>Voltar
             </a>
         </div>
 
@@ -26,9 +26,9 @@
 
         {{-- Card de Associação ao Estágio --}}
         <div class="card shadow mb-4 border-left-primary">
-            <div class="card-header py-3 bg-primary text-white">
-                <h6 class="m-0 font-weight-bold">
-                    <i class="fas fa-link"></i> Associar ao Estágio
+            <div class="card-header bg-primary text-white py-2">
+                <h6 class="m-0 fw-bold">
+                    <i class="bi bi-link-45deg"></i> Associar ao Estágio
                 </h6>
             </div>
             <div class="card-body">
@@ -75,9 +75,9 @@
 
         {{-- Card de Edição da Avaliação --}}
         <div class="card shadow mb-4">
-            <div class="card-header py-3 bg-primary text-white">
-                <h6 class="m-0 font-weight-bold">
-                    <i class="fas fa-edit"></i> Editar Dados da Avaliação
+            <div class="card-header bg-primary text-white py-2">
+                <h6 class="m-0 fw-bold">
+                    <i class="bi bi-pencil-square"></i> Editar Dados da Avaliação
                 </h6>
             </div>
             <div class="card-body">

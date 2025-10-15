@@ -18,13 +18,13 @@
             <div class="card-body py-3">
                 <form method="GET" action="{{ route('admin.supervisor-evaluations.index') }}">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-6">
-                            <label for="search" class="form-label mb-0 small">Buscar</label>
+                        <div class="col-md-6 col-lg-6">
+                            <label for="search" class="form-label mb-0 small">Buscar por nome</label>
                             <input type="text" class="form-control form-control-sm" id="search" name="search"
                                 value="{{ request('search') }}" placeholder="Nome do estagiário">
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-lg-3">
                             <label for="workload" class="form-label mb-0 small">Carga Horária</label>
                             <select class="form-select form-select-sm" id="workload" name="workload">
                                 <option value="">Todos</option>
@@ -35,14 +35,14 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-lg-3">
                             <div class="d-flex gap-1">
                                 <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
                                     <i class="bi bi-funnel"></i> Filtrar
                                 </button>
                                 <a href="{{ route('admin.supervisor-evaluations.index') }}"
                                     class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-clockwise"></i> Limpar
+                                    <i class="bi bi-arrow-clockwise"></i>
                                 </a>
                             </div>
                         </div>
@@ -99,7 +99,7 @@
                     <div class="card-body py-3 px-4">
                         <div class="row align-items-center g-0">
                             <div class="col-md-9">
-                                <div class="d-flex align-items-center gap-2 mb-2">
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                                     <h6 class="fw-bold text-dark mb-0">
                                         {{ $evaluation->student_name ?? 'Nome não informado' }}</h6>
                                     @if ($evaluation->hasCompletedWorkload())
