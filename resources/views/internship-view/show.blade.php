@@ -341,10 +341,10 @@
                                     <span class="fw-medium">{{ $internship->evaluation_experience_time }}</span>
                                 </div>
                             </div>
+                        @endif
                     </div>
-                </div>
 
-                {{-- Critérios de Avaliação --}}
+                    {{-- Critérios de Avaliação --}}
                 @can('is-coordenador')
                     <h6 class="text-primary mb-3">Critérios de Avaliação</h6>
                     <div class="row g-3 mb-4">
@@ -496,6 +496,9 @@
                         @endif
                     @endcan
                 @endif
+                </div>
+
+                
             </div>
     </div>
     @endif

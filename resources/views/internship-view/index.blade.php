@@ -5,7 +5,13 @@
 @section('main-content')
     <div class="container-fluid mt-4 mx-1">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h4 mb-0">Meus Estágios</h2>
+            <h2 class="h4 mb-0">
+                @if (auth()->user()->can('is-coordenador'))
+                    Estágios do Curso
+                @else
+                    Meus Estágios
+                @endif
+            </h2>
         </div>
 
         {{-- Filtros de Pesquisa --}}
