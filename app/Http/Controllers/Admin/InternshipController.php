@@ -144,6 +144,7 @@ class InternshipController extends Controller
             // Dados do Estágio
             'internship_type_name' => 'required|string|max:100',
             'internship_sector' => 'nullable|string|max:100',
+            'internship_type_weight' => 'nullable|integer|min:1|max:10',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'required_hours' => 'required|integer|min:1',
@@ -178,11 +179,18 @@ class InternshipController extends Controller
             'evaluation_performance_issues' => 'nullable|string',
             'evaluation_other_observations' => 'nullable|string',
             'evaluation_grade' => 'nullable|numeric|min:0|max:20',
+
+            // Valores customizáveis para conceitos (numéricos) - agora obrigatórios
+            'great_value' => 'required|numeric|min:0',
+            'very_good_value' => 'required|numeric|min:0',
+            'good_value' => 'required|numeric|min:0',
+            'satisfactory_value' => 'required|numeric|min:0',
+            'unsatisfactory_value' => 'required|numeric|min:0',
         ]);
 
         try {
             // Recalcula a nota final baseada nos critérios de avaliação
-            $validatedData['evaluation_grade'] = $this->calculateEvaluationGrade($validatedData);
+            $validatedData['evaluation_grade'] = $this->calculateEvaluationGrade($validatedData, $internship);
 
             $internship->update($validatedData);
 
@@ -260,11 +268,8 @@ class InternshipController extends Controller
 
     /**
      * Calcula a nota final da avaliação baseada nos 10 critérios
-     * 
-     * @param array $data
-     * @return float
      */
-    private function calculateEvaluationGrade(array $data): float
+    private function calculateEvaluationGrade(array $data, Internship $internship): float
     {
         $criteria = [
             'evaluation_performance',
@@ -280,30 +285,63 @@ class InternshipController extends Controller
         ];
 
         $totalScore = 0.0;
+        $count = 0;
 
         foreach ($criteria as $criterion) {
-            $value = $data[$criterion] ?? null;
-            $totalScore += $this->getNumericValue($value);
+            $text = $data[$criterion] ?? null;
+            if (! empty($text)) {
+                $totalScore += $this->getNumericValue($text, $data, $internship);
+                $count++;
+            }
         }
 
-        return $totalScore;
+        return $count > 0 ? $totalScore / $count : 0.0;
     }
 
     /**
      * Converte a resposta textual para valor numérico
-     * 
-     * @param string|null $value
-     * @return float
      */
-    private function getNumericValue(?string $value): float
+    /**
+     * Resolve the numeric value for a textual concept using (in order):
+     * - the request-provided numeric overrides in $data (great_value, ...)
+     * - the internship stored values ($internship->great_value, ...)
+     * - built-in defaults
+     */
+    private function getNumericValue(?string $value, array $data = [], ?Internship $internship = null): float
     {
-        return match ($value) {
+        $defaults = [
             'Ótimo' => 2.0,
             'Muito Bom' => 1.5,
             'Bom' => 1.0,
             'Satisfatório' => 0.5,
             'Insatisfatório' => 0.0,
-            default => 0.0,
-        };
+        ];
+
+        if (empty($value)) {
+            return 0.0;
+        }
+
+        $map = [
+            'Ótimo' => 'great_value',
+            'Muito Bom' => 'very_good_value',
+            'Bom' => 'good_value',
+            'Satisfatório' => 'satisfactory_value',
+            'Insatisfatório' => 'unsatisfactory_value',
+        ];
+
+        $key = $map[$value] ?? null;
+
+        // 1) request override
+        if ($key && isset($data[$key]) && is_numeric($data[$key])) {
+            return (float) $data[$key];
+        }
+
+        // 2) internship stored value
+        if ($key && $internship && isset($internship->{$key})) {
+            return (float) $internship->{$key};
+        }
+
+        // 3) defaults
+        return $defaults[$value] ?? 0.0;
     }
 }

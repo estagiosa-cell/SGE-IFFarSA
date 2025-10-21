@@ -37,6 +37,11 @@ class InternshipTypeRequest extends FormRequest
             'required_hours' => ['required', 'integer', 'min:1'],
             'weight' => ['required', 'integer', 'min:1', 'max:10'],
             'course_id' => ['required', 'exists:courses,id'],
+            'great_value' => ['required', 'numeric', 'min:0'],
+            'very_good_value' => ['required', 'numeric', 'min:0'],
+            'good_value' => ['required', 'numeric', 'min:0'],
+            'satisfactory_value' => ['required', 'numeric', 'min:0'],
+            'unsatisfactory_value' => ['required', 'numeric', 'min:0'],
         ];
     }
 }

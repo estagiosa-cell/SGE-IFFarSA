@@ -14,6 +14,11 @@ class InternshipType extends Model
         'required_hours',
         'weight',
         'course_id',
+        'great_value',
+        'very_good_value',
+        'good_value',
+        'satisfactory_value',
+        'unsatisfactory_value',
     ];
 
     protected $casts = [

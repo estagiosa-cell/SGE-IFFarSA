@@ -387,6 +387,11 @@ class SyncDataController extends Controller
                 'notes' => $observacoes,
                 'required_hours' => $requiredHours,
                 'internship_type_weight' => $internshipTypeWeight,
+                'great_value' => $internshipType->great_value,
+                'very_good_value' => $internshipType->very_good_value,
+                'good_value' => $internshipType->good_value,
+                'satisfactory_value' => $internshipType->satisfactory_value,
+                'unsatisfactory_value' => $internshipType->unsatisfactory_value,
 
                 // dados supervisor
                 'supervisor_name' => $nomeSupervisor,
@@ -514,17 +519,6 @@ class SyncDataController extends Controller
 
             // Usa o cargo que estiver preenchido (prioriza jobRole1, depois jobRole2)
             $jobRole = ! empty($jobRole1) ? $jobRole1 : $jobRole2;
-
-            // Verifica se já existe uma avaliação idêntica (evita duplicatas)
-            $exists = SupervisorEvaluation::where('supervisor_email', $supervisorEmail)
-                ->where('student_name', $studentName)
-                ->exists();
-
-            if ($exists) {
-                $skippedCount++;
-
-                continue;
-            }
 
             // Cria o registro da avaliação
             SupervisorEvaluation::create([

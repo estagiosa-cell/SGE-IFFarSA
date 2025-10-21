@@ -15,7 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('required_hours');
-            $table->unsignedTinyInteger('weight')->default(1);
+            $table->unsignedTinyInteger('weight');
+            $table->decimal('great_value', 8, 2);
+            $table->decimal('very_good_value', 8, 2);
+            $table->decimal('good_value', 8, 2);
+            $table->decimal('satisfactory_value', 8, 2);
+            $table->decimal('unsatisfactory_value', 8, 2);
             $table->foreignId('course_id')->constrained('courses');
             $table->timestamps();
         });

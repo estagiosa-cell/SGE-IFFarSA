@@ -86,6 +86,70 @@
                         </div>
                     </div>
 
+                    <h5 class="mb-3 pt-3 border-bottom pb-2">Valores das Avaliações</h5>
+                    <div class="row">
+                        <div class="col-md-2 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="0.1"
+                                    class="form-control @error('great_value') is-invalid @enderror" id="great_value"
+                                    name="great_value" value="{{ old('great_value', '0') }}" placeholder="Ótimo"
+                                    min="0" required>
+                                <label for="great_value">Ótimo *</label>
+                                @error('great_value')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="0.1"
+                                    class="form-control @error('very_good_value') is-invalid @enderror" id="very_good_value"
+                                    name="very_good_value" min="0" value="{{ old('very_good_value', '0') }}"
+                                    placeholder="Muito Bom" required>
+                                <label for="very_good_value">Muito Bom *</label>
+                                @error('very_good_value')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="0.1"
+                                    class="form-control @error('good_value') is-invalid @enderror" id="good_value"
+                                    name="good_value" value="{{ old('good_value', '0') }}" placeholder="Bom" min="0"
+                                    required>
+                                <label for="good_value">Bom *</label>
+                                @error('good_value')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="0.1"
+                                    class="form-control @error('satisfactory_value') is-invalid @enderror"
+                                    id="satisfactory_value" name="satisfactory_value" min="0"
+                                    value="{{ old('satisfactory_value', '0') }}" placeholder="Satisfatório" required>
+                                <label for="satisfactory_value">Satisfatório *</label>
+                                @error('satisfactory_value')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="0.1"
+                                    class="form-control @error('unsatisfactory_value') is-invalid @enderror"
+                                    id="unsatisfactory_value" name="unsatisfactory_value" min="0"
+                                    value="{{ old('unsatisfactory_value', '0') }}" placeholder="Insatisfatório" required>
+                                <label for="unsatisfactory_value">Insatisfatório *</label>
+                                @error('unsatisfactory_value')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
                     <x-form-info-alert>
                         <li>A carga horária deve ser definida em horas</li>
                         <li>O peso define a importância do tipo de estágio (escala de 1 a 10, onde 1 é o menor peso e 10 é o

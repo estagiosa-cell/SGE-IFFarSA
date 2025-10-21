@@ -125,7 +125,7 @@ class SupervisorEvaluationController extends Controller
         DB::beginTransaction();
         try {
             // Calcula a nota total da avaliação
-            $evaluationGrade = $evaluation->calculateGrade();
+                $evaluationGrade = $evaluation->calculateGrade() / 10.0;
 
             // Copia os dados da avaliação para o estágio
             $internship->update([

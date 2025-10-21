@@ -97,6 +97,11 @@ return new class extends Migration
 
             // Avaliação
             $table->decimal('evaluation_grade', 5, 2)->nullable(); // Nota da avaliação do estágio (0.00 a 100.00)
+            $table->decimal('great_value', 8, 2);
+            $table->decimal('very_good_value', 8, 2);
+            $table->decimal('good_value', 8, 2);
+            $table->decimal('satisfactory_value', 8, 2);
+            $table->decimal('unsatisfactory_value', 8, 2);
 
             $table->string('google_docs_id')->nullable();
 
