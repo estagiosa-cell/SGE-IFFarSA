@@ -1094,248 +1094,46 @@
 
                     {{-- Critérios de Avaliação (1-10) --}}
                     <h6 class="mb-3 mt-4 border-bottom pb-2">Critérios de Avaliação</h6>
+                    @php
+                        $criteria = [
+                            'evaluation_performance' => '1. Desempenho',
+                            'evaluation_comprehension' => '2. Compreensão',
+                            'evaluation_technical_knowledge' => '3. Conhecimento Técnico',
+                            'evaluation_organization' => '4. Organização',
+                            'evaluation_initiative' => '5. Iniciativa',
+                            'evaluation_attendance' => '6. Assiduidade',
+                            'evaluation_discipline' => '7. Disciplina',
+                            'evaluation_sociability' => '8. Sociabilidade',
+                            'evaluation_cooperation' => '9. Cooperação',
+                            'evaluation_responsibility' => '10. Responsabilidade',
+                        ];
+                        $options = ['Ótimo', 'Muito Bom', 'Bom', 'Satisfatório', 'Insatisfatório'];
+                        $chunks = array_chunk($criteria, 5, true);
+                    @endphp
+
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select" id="evaluation_performance" name="evaluation_performance">
-                                    <option value="">Selecione</option>
-                                    <option value="Ótimo"
-                                        {{ old('evaluation_performance', $internship->evaluation_performance) == 'Ótimo' ? 'selected' : '' }}>
-                                        Ótimo</option>
-                                    <option value="Muito Bom"
-                                        {{ old('evaluation_performance', $internship->evaluation_performance) == 'Muito Bom' ? 'selected' : '' }}>
-                                        Muito Bom</option>
-                                    <option value="Bom"
-                                        {{ old('evaluation_performance', $internship->evaluation_performance) == 'Bom' ? 'selected' : '' }}>
-                                        Bom</option>
-                                    <option value="Satisfatório"
-                                        {{ old('evaluation_performance', $internship->evaluation_performance) == 'Satisfatório' ? 'selected' : '' }}>
-                                        Satisfatório</option>
-                                    <option value="Insatisfatório"
-                                        {{ old('evaluation_performance', $internship->evaluation_performance) == 'Insatisfatório' ? 'selected' : '' }}>
-                                        Insatisfatório</option>
-                                </select>
-                                <label for="evaluation_performance">1. Desempenho</label>
+                        @foreach ($chunks as $chunk)
+                            <div class="col-md-6">
+                                <div class="row">
+                                    @foreach ($chunk as $field => $label)
+                                        <div class="col-md-12 mb-3">
+                                            <div class="form-floating">
+                                                <select class="form-select @error($field) is-invalid @enderror"
+                                                    id="{{ $field }}" name="{{ $field }}">
+                                                    <option value="">Selecione</option>
+                                                    @foreach ($options as $option)
+                                                        <option value="{{ $option }}"
+                                                            {{ old($field, $internship->{$field}) == $option ? 'selected' : '' }}>
+                                                            {{ $option }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <label for="{{ $field }}">{{ $label }}</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select" id="evaluation_comprehension"
-                                    name="evaluation_comprehension">
-                                    <option value="">Selecione</option>
-                                    <option value="Ótimo"
-                                        {{ old('evaluation_comprehension', $internship->evaluation_comprehension) == 'Ótimo' ? 'selected' : '' }}>
-                                        Ótimo</option>
-                                    <option value="Muito Bom"
-                                        {{ old('evaluation_comprehension', $internship->evaluation_comprehension) == 'Muito Bom' ? 'selected' : '' }}>
-                                        Muito Bom</option>
-                                    <option value="Bom"
-                                        {{ old('evaluation_comprehension', $internship->evaluation_comprehension) == 'Bom' ? 'selected' : '' }}>
-                                        Bom</option>
-                                    <option value="Satisfatório"
-                                        {{ old('evaluation_comprehension', $internship->evaluation_comprehension) == 'Satisfatório' ? 'selected' : '' }}>
-                                        Satisfatório</option>
-                                    <option value="Insatisfatório"
-                                        {{ old('evaluation_comprehension', $internship->evaluation_comprehension) == 'Insatisfatório' ? 'selected' : '' }}>
-                                        Insatisfatório</option>
-                                </select>
-                                <label for="evaluation_comprehension">2. Compreensão</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select" id="evaluation_technical_knowledge"
-                                    name="evaluation_technical_knowledge">
-                                    <option value="">Selecione</option>
-                                    <option value="Ótimo"
-                                        {{ old('evaluation_technical_knowledge', $internship->evaluation_technical_knowledge) == 'Ótimo' ? 'selected' : '' }}>
-                                        Ótimo</option>
-                                    <option value="Muito Bom"
-                                        {{ old('evaluation_technical_knowledge', $internship->evaluation_technical_knowledge) == 'Muito Bom' ? 'selected' : '' }}>
-                                        Muito Bom</option>
-                                    <option value="Bom"
-                                        {{ old('evaluation_technical_knowledge', $internship->evaluation_technical_knowledge) == 'Bom' ? 'selected' : '' }}>
-                                        Bom</option>
-                                    <option value="Satisfatório"
-                                        {{ old('evaluation_technical_knowledge', $internship->evaluation_technical_knowledge) == 'Satisfatório' ? 'selected' : '' }}>
-                                        Satisfatório</option>
-                                    <option value="Insatisfatório"
-                                        {{ old('evaluation_technical_knowledge', $internship->evaluation_technical_knowledge) == 'Insatisfatório' ? 'selected' : '' }}>
-                                        Insatisfatório</option>
-                                </select>
-                                <label for="evaluation_technical_knowledge">3. Conhecimento Técnico</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select" id="evaluation_organization" name="evaluation_organization">
-                                    <option value="">Selecione</option>
-                                    <option value="Ótimo"
-                                        {{ old('evaluation_organization', $internship->evaluation_organization) == 'Ótimo' ? 'selected' : '' }}>
-                                        Ótimo</option>
-                                    <option value="Muito Bom"
-                                        {{ old('evaluation_organization', $internship->evaluation_organization) == 'Muito Bom' ? 'selected' : '' }}>
-                                        Muito Bom</option>
-                                    <option value="Bom"
-                                        {{ old('evaluation_organization', $internship->evaluation_organization) == 'Bom' ? 'selected' : '' }}>
-                                        Bom</option>
-                                    <option value="Satisfatório"
-                                        {{ old('evaluation_organization', $internship->evaluation_organization) == 'Satisfatório' ? 'selected' : '' }}>
-                                        Satisfatório</option>
-                                    <option value="Insatisfatório"
-                                        {{ old('evaluation_organization', $internship->evaluation_organization) == 'Insatisfatório' ? 'selected' : '' }}>
-                                        Insatisfatório</option>
-                                </select>
-                                <label for="evaluation_organization">4. Organização</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select" id="evaluation_initiative" name="evaluation_initiative">
-                                    <option value="">Selecione</option>
-                                    <option value="Ótimo"
-                                        {{ old('evaluation_initiative', $internship->evaluation_initiative) == 'Ótimo' ? 'selected' : '' }}>
-                                        Ótimo</option>
-                                    <option value="Muito Bom"
-                                        {{ old('evaluation_initiative', $internship->evaluation_initiative) == 'Muito Bom' ? 'selected' : '' }}>
-                                        Muito Bom</option>
-                                    <option value="Bom"
-                                        {{ old('evaluation_initiative', $internship->evaluation_initiative) == 'Bom' ? 'selected' : '' }}>
-                                        Bom</option>
-                                    <option value="Satisfatório"
-                                        {{ old('evaluation_initiative', $internship->evaluation_initiative) == 'Satisfatório' ? 'selected' : '' }}>
-                                        Satisfatório</option>
-                                    <option value="Insatisfatório"
-                                        {{ old('evaluation_initiative', $internship->evaluation_initiative) == 'Insatisfatório' ? 'selected' : '' }}>
-                                        Insatisfatório</option>
-                                </select>
-                                <label for="evaluation_initiative">5. Iniciativa</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select" id="evaluation_attendance" name="evaluation_attendance">
-                                    <option value="">Selecione</option>
-                                    <option value="Ótimo"
-                                        {{ old('evaluation_attendance', $internship->evaluation_attendance) == 'Ótimo' ? 'selected' : '' }}>
-                                        Ótimo</option>
-                                    <option value="Muito Bom"
-                                        {{ old('evaluation_attendance', $internship->evaluation_attendance) == 'Muito Bom' ? 'selected' : '' }}>
-                                        Muito Bom</option>
-                                    <option value="Bom"
-                                        {{ old('evaluation_attendance', $internship->evaluation_attendance) == 'Bom' ? 'selected' : '' }}>
-                                        Bom</option>
-                                    <option value="Satisfatório"
-                                        {{ old('evaluation_attendance', $internship->evaluation_attendance) == 'Satisfatório' ? 'selected' : '' }}>
-                                        Satisfatório</option>
-                                    <option value="Insatisfatório"
-                                        {{ old('evaluation_attendance', $internship->evaluation_attendance) == 'Insatisfatório' ? 'selected' : '' }}>
-                                        Insatisfatório</option>
-                                </select>
-                                <label for="evaluation_attendance">6. Assiduidade</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select" id="evaluation_discipline" name="evaluation_discipline">
-                                    <option value="">Selecione</option>
-                                    <option value="Ótimo"
-                                        {{ old('evaluation_discipline', $internship->evaluation_discipline) == 'Ótimo' ? 'selected' : '' }}>
-                                        Ótimo</option>
-                                    <option value="Muito Bom"
-                                        {{ old('evaluation_discipline', $internship->evaluation_discipline) == 'Muito Bom' ? 'selected' : '' }}>
-                                        Muito Bom</option>
-                                    <option value="Bom"
-                                        {{ old('evaluation_discipline', $internship->evaluation_discipline) == 'Bom' ? 'selected' : '' }}>
-                                        Bom</option>
-                                    <option value="Satisfatório"
-                                        {{ old('evaluation_discipline', $internship->evaluation_discipline) == 'Satisfatório' ? 'selected' : '' }}>
-                                        Satisfatório</option>
-                                    <option value="Insatisfatório"
-                                        {{ old('evaluation_discipline', $internship->evaluation_discipline) == 'Insatisfatório' ? 'selected' : '' }}>
-                                        Insatisfatório</option>
-                                </select>
-                                <label for="evaluation_discipline">7. Disciplina</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select" id="evaluation_sociability" name="evaluation_sociability">
-                                    <option value="">Selecione</option>
-                                    <option value="Ótimo"
-                                        {{ old('evaluation_sociability', $internship->evaluation_sociability) == 'Ótimo' ? 'selected' : '' }}>
-                                        Ótimo</option>
-                                    <option value="Muito Bom"
-                                        {{ old('evaluation_sociability', $internship->evaluation_sociability) == 'Muito Bom' ? 'selected' : '' }}>
-                                        Muito Bom</option>
-                                    <option value="Bom"
-                                        {{ old('evaluation_sociability', $internship->evaluation_sociability) == 'Bom' ? 'selected' : '' }}>
-                                        Bom</option>
-                                    <option value="Satisfatório"
-                                        {{ old('evaluation_sociability', $internship->evaluation_sociability) == 'Satisfatório' ? 'selected' : '' }}>
-                                        Satisfatório</option>
-                                    <option value="Insatisfatório"
-                                        {{ old('evaluation_sociability', $internship->evaluation_sociability) == 'Insatisfatório' ? 'selected' : '' }}>
-                                        Insatisfatório</option>
-                                </select>
-                                <label for="evaluation_sociability">8. Sociabilidade</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select" id="evaluation_cooperation" name="evaluation_cooperation">
-                                    <option value="">Selecione</option>
-                                    <option value="Ótimo"
-                                        {{ old('evaluation_cooperation', $internship->evaluation_cooperation) == 'Ótimo' ? 'selected' : '' }}>
-                                        Ótimo</option>
-                                    <option value="Muito Bom"
-                                        {{ old('evaluation_cooperation', $internship->evaluation_cooperation) == 'Muito Bom' ? 'selected' : '' }}>
-                                        Muito Bom</option>
-                                    <option value="Bom"
-                                        {{ old('evaluation_cooperation', $internship->evaluation_cooperation) == 'Bom' ? 'selected' : '' }}>
-                                        Bom</option>
-                                    <option value="Satisfatório"
-                                        {{ old('evaluation_cooperation', $internship->evaluation_cooperation) == 'Satisfatório' ? 'selected' : '' }}>
-                                        Satisfatório</option>
-                                    <option value="Insatisfatório"
-                                        {{ old('evaluation_cooperation', $internship->evaluation_cooperation) == 'Insatisfatório' ? 'selected' : '' }}>
-                                        Insatisfatório</option>
-                                </select>
-                                <label for="evaluation_cooperation">9. Cooperação</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select" id="evaluation_responsibility"
-                                    name="evaluation_responsibility">
-                                    <option value="">Selecione</option>
-                                    <option value="Ótimo"
-                                        {{ old('evaluation_responsibility', $internship->evaluation_responsibility) == 'Ótimo' ? 'selected' : '' }}>
-                                        Ótimo</option>
-                                    <option value="Muito Bom"
-                                        {{ old('evaluation_responsibility', $internship->evaluation_responsibility) == 'Muito Bom' ? 'selected' : '' }}>
-                                        Muito Bom</option>
-                                    <option value="Bom"
-                                        {{ old('evaluation_responsibility', $internship->evaluation_responsibility) == 'Bom' ? 'selected' : '' }}>
-                                        Bom</option>
-                                    <option value="Satisfatório"
-                                        {{ old('evaluation_responsibility', $internship->evaluation_responsibility) == 'Satisfatório' ? 'selected' : '' }}>
-                                        Satisfatório</option>
-                                    <option value="Insatisfatório"
-                                        {{ old('evaluation_responsibility', $internship->evaluation_responsibility) == 'Insatisfatório' ? 'selected' : '' }}>
-                                        Insatisfatório</option>
-                                </select>
-                                <label for="evaluation_responsibility">10. Responsabilidade</label>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
 
                     {{-- Nota Final --}}
@@ -1584,14 +1382,12 @@
         </script>
 
         {{-- Modal Excluir --}}
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header bg-danger text-white">
                         <h5 class="modal-title" id="deleteModalLabel">Confirmar Exclusão</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Fechar"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                     </div>
                     <div class="modal-body">
                         Tem certeza que deseja excluir este estágio? Esta ação pode ser desfeita.
