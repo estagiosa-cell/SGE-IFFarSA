@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Http\Requests\InternshipTypeRequest;
-use App\Models\InternshipType;
 use App\Models\Course;
+use App\Models\InternshipType;
 use App\Utils\SearchHelper;
+use Illuminate\Http\Request;
 
 class InternshipTypeController extends Controller
 {
@@ -33,7 +33,7 @@ class InternshipTypeController extends Controller
             $query->where('course_id', $request->course_id);
         }
 
-        $internshipTypes = $query->orderBy('name')->get();
+        $internshipTypes = $query->orderBy('name')->paginate(100);
 
         // Dados para os filtros
         $courses = Course::orderBy('name')->get();
@@ -47,6 +47,7 @@ class InternshipTypeController extends Controller
     public function create()
     {
         $courses = Course::all();
+
         return view('admin.internship_types.create', compact('courses'));
     }
 
@@ -57,6 +58,7 @@ class InternshipTypeController extends Controller
     {
         $data = $request->validated();
         InternshipType::create($data);
+
         return redirect()->route('admin.internship-types.index')
             ->with('message', 'Tipo de estágio cadastrado com sucesso!')
             ->with('messageType', 'success');
@@ -69,6 +71,7 @@ class InternshipTypeController extends Controller
     {
         $internshipType = InternshipType::findOrFail($id);
         $courses = Course::all();
+
         return view('admin.internship_types.edit', compact('internshipType', 'courses'));
     }
 

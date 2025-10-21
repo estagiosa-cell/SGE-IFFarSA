@@ -51,7 +51,7 @@ class InternshipController extends Controller
         $internships = $query->orderByRaw($statusOrderSql)
             ->latest('end_date')
             ->latest('updated_at')
-            ->get();
+            ->paginate(100);
 
         $statusOptions = InternshipStatus::options();
 

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
-use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Utils\SearchHelper;
 use Illuminate\Http\Request;
@@ -36,11 +36,11 @@ class CompanyController extends Controller
         // Aplica o filtro de CPF/CNPJ, se ele existir
         if ($searchLegalIdentifier) {
             // Usa 'like' para permitir a busca mesmo que o usuário não digite a máscara
-            $query->where('legal_identifier', 'like', '%' . $searchLegalIdentifier . '%');
+            $query->where('legal_identifier', 'like', '%'.$searchLegalIdentifier.'%');
         }
 
         // Executa a consulta, ordena os resultados pelo nome
-        $companies = $query->orderBy('name')->get();
+        $companies = $query->orderBy('name')->paginate(100);
 
         // Retorna a view, passando a lista de empresas e os valores dos filtros
         return view('admin.companies.index', [
@@ -141,8 +141,9 @@ class CompanyController extends Controller
                 // Valida os dados obrigatórios
                 $validation = $this->validateCompanyData($companyData, $lineNumber + 2);
 
-                if (!empty($validation['errors'])) {
+                if (! empty($validation['errors'])) {
                     $errors = array_merge($errors, $validation['errors']);
+
                     continue;
                 }
 
@@ -152,8 +153,9 @@ class CompanyController extends Controller
             }
             $message = "Importação concluída! {$imported} empresas importadas.";
 
-            if (!empty($errors)) {
-                $message .= " " . count($errors) . " erros encontrados.";
+            if (! empty($errors)) {
+                $message .= ' '.count($errors).' erros encontrados.';
+
                 return redirect()->back()
                     ->with('message', $message)
                     ->with('messageType', 'warning')
@@ -165,7 +167,7 @@ class CompanyController extends Controller
                 ->with('messageType', 'success');
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('message', 'Erro ao processar o arquivo: ' . $e->getMessage())
+                ->with('message', 'Erro ao processar o arquivo: '.$e->getMessage())
                 ->with('messageType', 'danger');
         }
     }
@@ -224,7 +226,7 @@ class CompanyController extends Controller
         }
 
         // Validação de CPF/CNPJ
-        if (!empty($data['legal_identifier'])) {
+        if (! empty($data['legal_identifier'])) {
             $cleaned = preg_replace('/[^0-9]/', '', $data['legal_identifier']);
             if (strlen($cleaned) !== 11 && strlen($cleaned) !== 14) {
                 $errors[] = "Linha {$lineNumber}: CPF/CNPJ deve ter 11 ou 14 dígitos.";
@@ -232,7 +234,7 @@ class CompanyController extends Controller
         }
 
         // Validação de email
-        if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        if (! empty($data['email']) && ! filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $errors[] = "Linha {$lineNumber}: Email inválido.";
         }
 

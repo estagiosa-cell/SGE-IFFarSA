@@ -136,6 +136,11 @@
                     </div>
                 </div>
             @endforeach
+
+            {{-- Paginação --}}
+            <div class="mt-3">
+                {{ $companies->withQueryString()->links() }}
+            </div>
         @endif
     </div>
 @endsection

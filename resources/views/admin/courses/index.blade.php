@@ -121,6 +121,11 @@
                     </div>
                 </div>
             @endforeach
+
+            {{-- Paginação --}}
+            <div class="mt-3">
+                {{ $courses->withQueryString()->links() }}
+            </div>
         @endif
     </div>
 @endsection

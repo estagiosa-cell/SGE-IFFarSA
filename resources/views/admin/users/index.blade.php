@@ -150,6 +150,11 @@
                     </div>
                 </div>
             @endforeach
+
+            {{-- Paginação --}}
+            <div class="mt-3">
+                {{ $users->withQueryString()->links() }}
+            </div>
         @endif
     </div>
 @endsection

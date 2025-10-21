@@ -152,6 +152,10 @@
                     </div>
                 </div>
             @endforeach
+
+            <div class="mt-3">
+                {{ $evaluations->withQueryString()->links() }}
+            </div>
         @endif
     </div>
 @endsection

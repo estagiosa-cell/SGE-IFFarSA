@@ -28,7 +28,7 @@ class CourseController extends Controller
             SearchHelper::searchInField($query, $request->search, 'name');
         }
 
-        $courses = $query->orderBy('name')->get();
+    $courses = $query->orderBy('name')->paginate(100);
 
         return view('admin.courses.index', compact('courses', 'showDeleted'));
     }

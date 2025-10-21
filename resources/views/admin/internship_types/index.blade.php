@@ -139,6 +139,10 @@
                     </div>
                 </div>
             @endforeach
+
+            <div class="mt-3">
+                {{ $internshipTypes->withQueryString()->links() }}
+            </div>
         @endif
     </div>
 

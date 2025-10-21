@@ -45,7 +45,7 @@ class SupervisorEvaluationController extends Controller
             }
         }
 
-        $evaluations = $query->orderBy('created_at', 'desc')->paginate(20);
+        $evaluations = $query->orderBy('created_at', 'desc')->paginate(100);
 
         return view('admin.supervisor-evaluations.index', compact('evaluations'));
     }
@@ -125,7 +125,7 @@ class SupervisorEvaluationController extends Controller
         DB::beginTransaction();
         try {
             // Calcula a nota total da avaliação
-                $evaluationGrade = $evaluation->calculateGrade() / 10.0;
+            $evaluationGrade = $evaluation->calculateGrade() / 10.0;
 
             // Copia os dados da avaliação para o estágio
             $internship->update([
