@@ -348,97 +348,45 @@
                 </div>
                 <div class="card-body">
                     @can('is-coordenador')
+                        @php
+                            $criteria = [
+                                'evaluation_performance' => '1. Desempenho',
+                                'evaluation_comprehension' => '2. Compreensão',
+                                'evaluation_technical_knowledge' => '3. Conhecimento Técnico',
+                                'evaluation_organization' => '4. Organização',
+                                'evaluation_initiative' => '5. Iniciativa',
+                                'evaluation_attendance' => '6. Assiduidade',
+                                'evaluation_discipline' => '7. Disciplina',
+                                'evaluation_sociability' => '8. Sociabilidade',
+                                'evaluation_cooperation' => '9. Cooperação',
+                                'evaluation_responsibility' => '10. Responsabilidade',
+                            ];
+                        @endphp
+
+                        @php
+                            $chunks = array_chunk($criteria, 5, true);
+                        @endphp
+
                         <div class="row g-3 mb-4">
-                            @if ($internship->evaluation_performance)
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                                        <span class="text-muted">1. Rendimento</span>
-                                        <span class="badge bg-primary">{{ $internship->evaluation_performance }}
-                                            ({{ number_format($getNumericValue($internship->evaluation_performance), 1) }})</span>
+                            @foreach ($chunks as $chunk)
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        @foreach ($chunk as $field => $label)
+                                            @if ($internship->{$field})
+                                                <div class="col-md-12 mb-3">
+                                                    <div
+                                                        class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                                        <span class="text-muted">{{ $label }}</span>
+                                                        <span class="badge bg-primary">{{ $internship->{$field} }}
+                                                            ({{ number_format($getNumericValue($internship->{$field}), 1) }})
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        @endforeach
                                     </div>
                                 </div>
-                            @endif
-                            @if ($internship->evaluation_comprehension)
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                                        <span class="text-muted">2. Facilidade de Compreensão</span>
-                                        <span class="badge bg-primary">{{ $internship->evaluation_comprehension }}
-                                            ({{ number_format($getNumericValue($internship->evaluation_comprehension), 1) }})</span>
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($internship->evaluation_technical_knowledge)
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                                        <span class="text-muted">3. Conhecimentos Técnicos</span>
-                                        <span class="badge bg-primary">{{ $internship->evaluation_technical_knowledge }}
-                                            ({{ number_format($getNumericValue($internship->evaluation_technical_knowledge), 1) }})</span>
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($internship->evaluation_organization)
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                                        <span class="text-muted">4. Organização</span>
-                                        <span class="badge bg-primary">{{ $internship->evaluation_organization }}
-                                            ({{ number_format($getNumericValue($internship->evaluation_organization), 1) }})</span>
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($internship->evaluation_initiative)
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                                        <span class="text-muted">5. Iniciativa</span>
-                                        <span class="badge bg-primary">{{ $internship->evaluation_initiative }}
-                                            ({{ number_format($getNumericValue($internship->evaluation_initiative), 1) }})</span>
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($internship->evaluation_attendance)
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                                        <span class="text-muted">6. Assiduidade</span>
-                                        <span class="badge bg-primary">{{ $internship->evaluation_attendance }}
-                                            ({{ number_format($getNumericValue($internship->evaluation_attendance), 1) }})</span>
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($internship->evaluation_discipline)
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                                        <span class="text-muted">7. Disciplina</span>
-                                        <span class="badge bg-primary">{{ $internship->evaluation_discipline }}
-                                            ({{ number_format($getNumericValue($internship->evaluation_discipline), 1) }})</span>
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($internship->evaluation_sociability)
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                                        <span class="text-muted">8. Sociabilidade</span>
-                                        <span class="badge bg-primary">{{ $internship->evaluation_sociability }}
-                                            ({{ number_format($getNumericValue($internship->evaluation_sociability), 1) }})</span>
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($internship->evaluation_cooperation)
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                                        <span class="text-muted">9. Cooperação</span>
-                                        <span class="badge bg-primary">{{ $internship->evaluation_cooperation }}
-                                            ({{ number_format($getNumericValue($internship->evaluation_cooperation), 1) }})</span>
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($internship->evaluation_responsibility)
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-                                        <span class="text-muted">10. Responsabilidade</span>
-                                        <span class="badge bg-primary">{{ $internship->evaluation_responsibility }}
-                                            ({{ number_format($getNumericValue($internship->evaluation_responsibility), 1) }})</span>
-                                    </div>
-                                </div>
-                            @endif
+                            @endforeach
                         </div>
                     @endcan
                     {{-- Nota Final --}}

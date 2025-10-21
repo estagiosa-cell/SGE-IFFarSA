@@ -207,16 +207,16 @@
                     <h5 class="text-primary mb-3">Critérios de Avaliação</h5>
                     @php
                         $criteria = [
-                            'performance' => 'Desempenho',
-                            'comprehension' => 'Compreensão',
-                            'technical_knowledge' => 'Conhecimento Técnico',
-                            'organization' => 'Organização',
-                            'initiative' => 'Iniciativa',
-                            'attendance' => 'Assiduidade',
-                            'discipline' => 'Disciplina',
-                            'sociability' => 'Sociabilidade',
-                            'cooperation' => 'Cooperação',
-                            'responsibility' => 'Responsabilidade',
+                            'performance' => '1. Desempenho',
+                            'comprehension' => '2. Compreensão',
+                            'technical_knowledge' => '3. Conhecimento Técnico',
+                            'organization' => '4. Organização',
+                            'initiative' => '5. Iniciativa',
+                            'attendance' => '6. Assiduidade',
+                            'discipline' => '7. Disciplina',
+                            'sociability' => '8. Sociabilidade',
+                            'cooperation' => '9. Cooperação',
+                            'responsibility' => '10. Responsabilidade',
                         ];
                         $options = ['Ótimo', 'Muito Bom', 'Bom', 'Satisfatório', 'Insatisfatório'];
                     @endphp
