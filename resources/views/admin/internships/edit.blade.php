@@ -1142,7 +1142,7 @@
                             <div class="form-floating">
                                 <input type="number" class="form-control" id="evaluation_grade" name="evaluation_grade"
                                     step="0.01" min="0"
-                                    value="{{ number_format($internship->evaluation_grade, 1) }}"
+                                    value="{{ number_format($internship->evaluation_grade, 2) }}"
                                     placeholder="Nota final" readonly>
                                 <label for="evaluation_grade">Nota Final</label>
                             </div>

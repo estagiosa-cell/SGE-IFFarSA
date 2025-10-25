@@ -400,7 +400,7 @@
                                             <strong>Nota Final da Avaliação</strong>
                                         </div>
                                         <span
-                                            class="badge bg-success fs-5">{{ number_format($internship->evaluation_grade, 1) }}/{{ number_format($internship->internship_type_weight, 1) }}</span>
+                                            class="badge bg-success fs-5">{{ number_format($internship->evaluation_grade, 2) }}/{{ number_format($internship->internship_type_weight, 1) }}</span>
                                     </div>
                                 </div>
                             </div>
