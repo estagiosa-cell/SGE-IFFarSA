@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use App\Enums\UserRole;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
+use App\Models\User;
 use App\Utils\SearchHelper;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -42,8 +42,9 @@ class UserController extends Controller
             }
         }
 
-    $users = $query->latest()->paginate(100);
+        $users = $query->latest()->paginate(100);
         $roles = UserRole::cases();
+
         return view('admin.users.index', compact('users', 'roles', 'showDeleted'));
     }
 
@@ -53,6 +54,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = UserRole::cases();
+
         return view('admin.users.create', compact('roles'));
     }
 
@@ -77,6 +79,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $roles = UserRole::cases();
+
         return view('admin.users.edit', compact('user', 'roles'));
     }
 
@@ -90,7 +93,16 @@ class UserController extends Controller
 
         // Não permitir alteração do próprio papel se for o próprio usuário
         if ($user->id === Auth::id()) {
-            unset($data['role']);
+            return back()
+                ->with('message', 'Não é possível alterar o próprio papel!')
+                ->with('messageType', 'danger');
+        }
+
+        // Impedir alteração do papel se for um coordenador com cursos atrelados
+        if ($user->role === UserRole::COORDENADOR && $user->coordinatedCourses()->exists() && $data['role'] !== UserRole::COORDENADOR->value) {
+            return back()
+                ->with('message', 'Não é possível alterar o papel de um coordenador com cursos atrelados!')
+                ->with('messageType', 'danger');
         }
 
         $user->update($data);
@@ -121,20 +133,19 @@ class UserController extends Controller
         }
         fclose($handle);
 
-
         // Verifica duplicidade de e-mails no banco
-        $emails = array_map(fn($r) => $r[1], $rows);
+        $emails = array_map(fn ($r) => $r[1], $rows);
         $existingEmails = User::whereIn('email', $emails)->pluck('email')->toArray();
 
-        if (!empty($existingEmails)) {
-            return back()->with('importStatus', 'Os seguintes e-mails já existem no sistema: <br>' . implode('<br>', $existingEmails));
+        if (! empty($existingEmails)) {
+            return back()->with('importStatus', 'Os seguintes e-mails já existem no sistema: <br>'.implode('<br>', $existingEmails));
         }
 
         foreach ($rows as $row) {
             User::create([
-                'name'     => $row[0],
-                'email'    => $row[1],
-                'role'     => UserRole::ORIENTADOR,
+                'name' => $row[0],
+                'email' => $row[1],
+                'role' => UserRole::ORIENTADOR,
                 'password' => bcrypt(Str::random(40)),
             ]);
         }
@@ -156,6 +167,7 @@ class UserController extends Controller
         }
 
         $user->delete();
+
         return redirect()->route('admin.users.index')
             ->with('message', 'Usuário excluído com sucesso!')
             ->with('messageType', 'success');
@@ -168,10 +180,12 @@ class UserController extends Controller
     {
         $user = User::onlyTrashed()->findOrFail($id);
         $user->restore();
+
         return redirect()->route('admin.users.index', ['show_deleted' => 1])
             ->with('message', 'Usuário restaurado com sucesso!')
             ->with('messageType', 'success');
     }
+
     /**
      * Desativa um usuário.
      */
@@ -182,6 +196,7 @@ class UserController extends Controller
         }
 
         $user->update(['deactivated_at' => now()]);
+
         return back()->with('message', 'Usuário desativado com sucesso!')->with('messageType', 'success');
     }
 
@@ -191,6 +206,7 @@ class UserController extends Controller
     public function reactivate(User $user)
     {
         $user->update(['deactivated_at' => null]);
+
         return back()->with('message', 'Usuário reativado com sucesso!')->with('messageType', 'success');
     }
 }
