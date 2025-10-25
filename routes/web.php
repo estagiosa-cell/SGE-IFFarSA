@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\InternshipViewController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SessionController::class, 'create'])->name('login');
@@ -102,5 +103,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['can:view-internships'])->group(function () {
         Route::get('/estagios', [InternshipViewController::class, 'index'])->name('internship-view.index');
         Route::get('/estagios/{internship}', [InternshipViewController::class, 'show'])->name('internship-view.show');
+    });
+
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/internships', ReportController::class)->name('internships');
+        Route::post('/internships/export', [ReportController::class, 'exportInternships'])->name('internships.export');
     });
 });

@@ -4,7 +4,7 @@
             Estágios
         </x-sidebar-nav-link>
     @endcan
-    
+
     @can('is-admin')
         <x-sidebar-nav-link route="admin.dashboard" icon="columns-gap">
             Dashboard
@@ -19,7 +19,7 @@
         </x-sidebar-nav-link>
     @endcan
 
-    <x-sidebar-nav-link route="" icon="filetype-csv">
+    <x-sidebar-nav-link route="reports.internships" icon="filetype-csv">
         Exportar Dados de Estágios
 
     </x-sidebar-nav-link>
