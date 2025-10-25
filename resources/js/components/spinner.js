@@ -19,7 +19,12 @@ export function initializeSpinner() {
   // Gatilho para formulários
   const forms = document.querySelectorAll('form');
   forms.forEach(form => {
-    form.addEventListener('submit', function(event) {
+    form.addEventListener('submit', function (event) {
+      // Verifica se o formulário possui a classe específica para ignorar o spinner
+      if (form.classList.contains('no-spinner')) {
+        return;
+      }
+
       // Só mostra o spinner se o formulário for válido
       if (form.checkValidity()) {
         showSpinner();
