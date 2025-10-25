@@ -25,7 +25,7 @@
         @endif
 
         {{-- Card de Associação ao Estágio --}}
-        <div class="card shadow mb-4 border-left-primary">
+        <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-primary text-white py-2">
                 <h6 class="m-0 fw-bold">
                     <i class="bi bi-link-45deg"></i> Associar ao Estágio
@@ -74,7 +74,7 @@
         </div>
 
         {{-- Card de Edição da Avaliação --}}
-        <div class="card shadow mb-4">
+        <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-primary text-white py-2">
                 <h6 class="m-0 fw-bold">
                     <i class="bi bi-pencil-square"></i> Editar Dados da Avaliação
