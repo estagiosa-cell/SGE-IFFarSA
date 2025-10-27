@@ -92,7 +92,7 @@ class UserController extends Controller
         $data = $request->validated();
 
         // Não permitir alteração do próprio papel se for o próprio usuário
-        if ($user->id === Auth::id()) {
+        if ($user->id === Auth::id() && $data['role'] !== $user->role->value) {
             return back()
                 ->with('message', 'Não é possível alterar o próprio papel!')
                 ->with('messageType', 'danger');
