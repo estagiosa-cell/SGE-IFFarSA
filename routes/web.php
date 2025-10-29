@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\InternshipViewController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\BackupController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SessionController::class, 'create'])->name('login');
@@ -97,6 +98,11 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('admin.companies.update');
         Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
         Route::patch('/companies/{id}/restore', [CompanyController::class, 'restore'])->name('admin.companies.restore');
+
+        // Rota de Backup
+        Route::get('/backup', BackupController::class)->name('admin.backup');
+        Route::post('/backup/create', [BackupController::class, 'createBackup'])->name('admin.backup.create');
+
     });
 
     // Rotas para Coordenadores e Orientadores

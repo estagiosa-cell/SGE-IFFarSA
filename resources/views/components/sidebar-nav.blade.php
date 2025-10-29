@@ -45,6 +45,10 @@
         <x-sidebar-nav-link route="admin.companies.index" icon="building-gear">
             Gerenciar Partes concedentes
         </x-sidebar-nav-link>
+
+        <x-sidebar-nav-link route="admin.backup" icon="database-down">
+            Backup da Base de Dados
+        </x-sidebar-nav-link>
     @endcan
 
 </ul>
