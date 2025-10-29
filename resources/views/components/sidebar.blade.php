@@ -1,16 +1,3 @@
-{{-- Header para telas pequenas --}}
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary d-lg-none shadow-sm">
-    <div class="container-fluid">
-        <button class="navbar-toggler border-0 p-2" type="button" data-bs-toggle="offcanvas"
-            data-bs-target="#sidebarOffcanvas">
-            <i class="bi bi-layout-sidebar-inset fs-5"></i>
-        </button>
-        <span class="navbar-brand fw-bold fs-4 position-absolute start-50 translate-middle-x">
-            SGE-IFFarSA
-        </span>
-    </div>
-</nav>
-
 {{-- Sidebar para telas grandes --}}
 <div class="d-none d-lg-flex bg-white flex-column vh-100 p-2 border-end position-sticky top-0">
     <h5 class="m-2">SGE-IFFarSA</h5>
