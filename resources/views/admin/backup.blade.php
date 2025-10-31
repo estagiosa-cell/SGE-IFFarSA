@@ -21,7 +21,7 @@
                 <p><strong>Instruções para Backup:</strong></p>
                 <ul>
                     <li>Clique no botão "Fazer Backup Completo" abaixo.</li>
-                    <li>Aguarde o download do arquivo <code>NOME-DA-APP-ANO-MES-DIA_HORA-MINUTO-SEGUNDO.zip</code>.</li>
+                    <li>Aguarde o download do arquivo <code>backup-sge-ANO-MES-DIA_HORA-MINUTO-SEGUNDO.zip</code>.</li>
                     <li>Armazene o arquivo em um local seguro.</li>
                 </ul>
 
@@ -29,10 +29,26 @@
 
                 <p><strong>Instruções para Restauração:</strong></p>
                 <ol>
+                    <li><strong>Crie um banco de dados vazio</strong> no seu ambiente, definindo as configurações adequadas.
+                        Por exemplo, para MySQL:
+                        <ul>
+                            <li><code>CREATE DATABASE nome_do_banco CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;</code>
+                            </li>
+                        </ul>
+                    </li>
                     <li><strong>Extraia o arquivo .zip</strong> que você baixou.</li>
-                    <li>Dentro da pasta extraída, você encontrará uma subpasta chamada <code>db-dumps</code>. Dentro dela, haverá um arquivo com final <code>.sql</code>. <strong>Este é o seu backup do banco de dados.</strong></li>
-                    <li>Em um ambiente novo, execute o comando <code>php artisan migrate</code> para criar a estrutura inicial do banco de dados.</li>
-                    <li>Importe o arquivo <code>.sql</code> para o seu banco de dados.</li>
+                    <li>Dentro da pasta extraída, você encontrará uma subpasta chamada <code>db-dumps</code>. Dentro dela,
+                        haverá um arquivo com final <code>.sql</code>. <strong>Este é o seu backup do banco de
+                            dados.</strong></li>
+                    <li>Importe o arquivo <code>.sql</code> para o banco de dados vazio utilizando um cliente SQL ou
+                        ferramenta apropriada. Por exemplo:
+                        <ul>
+                            <li>Para MySQL: <code>mysql -u usuario -p nome_do_banco < caminho/do/arquivo.sql</code>
+                            </li>
+                            <li>Para PostgreSQL: <code>psql -U usuario -d nome_do_banco -f caminho/do/arquivo.sql</code>
+                            </li>
+                        </ul>
+                    </li>
                 </ol>
 
                 <form method="POST" action="{{ route('admin.backup.create') }}"
