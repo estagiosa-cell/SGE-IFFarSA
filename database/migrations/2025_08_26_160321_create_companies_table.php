@@ -41,6 +41,7 @@ return new class extends Migration
             $table->string('process_number')->nullable(); // Número do Processo (para Credenciamentos)
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

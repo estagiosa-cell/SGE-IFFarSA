@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('coordinator_id')->nullable()->constrained('users');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

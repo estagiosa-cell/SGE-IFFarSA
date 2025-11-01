@@ -105,7 +105,34 @@ return new class extends Migration
 
             $table->string('google_docs_id')->nullable();
 
+            // Dados da avaliação do supervisor
+            $table->string('evaluation_has_academic_background')->nullable();
+            $table->string('evaluation_completed_workload')->nullable();
+            $table->string('evaluation_training_course')->nullable();
+            $table->string('evaluation_education_level')->nullable();
+            $table->string('evaluation_job_role')->nullable();
+            $table->string('evaluation_experience_time')->nullable();
+
+            // Avaliações (Ótimo, Muito Bom, Bom, Satisfatório, Insatisfatório)
+            $table->string('evaluation_performance')->nullable();
+            $table->string('evaluation_comprehension')->nullable();
+            $table->string('evaluation_technical_knowledge')->nullable();
+            $table->string('evaluation_organization')->nullable();
+            $table->string('evaluation_initiative')->nullable();
+            $table->string('evaluation_attendance')->nullable();
+            $table->string('evaluation_discipline')->nullable();
+            $table->string('evaluation_sociability')->nullable();
+            $table->string('evaluation_cooperation')->nullable();
+            $table->string('evaluation_responsibility')->nullable();
+
+            // Campos de texto livre
+            $table->text('evaluation_considerations')->nullable();
+            $table->text('evaluation_suggestions_to_institution')->nullable();
+            $table->text('evaluation_performance_issues')->nullable();
+            $table->text('evaluation_other_observations')->nullable();
+
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

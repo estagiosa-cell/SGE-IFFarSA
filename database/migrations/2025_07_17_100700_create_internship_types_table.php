@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('unsatisfactory_value', 8, 2);
             $table->foreignId('course_id')->constrained('courses');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
