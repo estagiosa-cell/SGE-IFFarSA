@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\SendPasswordResetLinkRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\Rules\Password as PasswordRules;
 
 /**
  * Controlador que gerencia a lógica de redefinição de senha.
@@ -33,13 +33,11 @@ class PasswordResetController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(SendPasswordResetLinkRequest $request)
     {
-        $request->validate(['email' => 'required|email']);
-
         // Tenta enviar o link de redefinição de senha para o e-mail fornecido.
         $status = Password::sendResetLink(
-            $request->only('email')
+            $request->validated()
         );
 
         // Verifica o status do envio e redireciona com a mensagem apropriada.
@@ -64,17 +62,11 @@ class PasswordResetController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request)
+    public function update(ResetPasswordRequest $request)
     {
-        $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => ['required', 'confirmed', PasswordRules::min(8)->max(64)->mixedCase()->numbers()->symbols()->uncompromised()],
-        ]);
-
         // Tenta redefinir a senha usando o broker de senha do Laravel.
         $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
+            $request->validated(),
             function (User $user, string $password) {
                 // Atualiza a senha do usuário no banco de dados.
                 $user->forceFill([
