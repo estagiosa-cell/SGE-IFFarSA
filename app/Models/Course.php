@@ -29,4 +29,12 @@ class Course extends Model
     {
         return $this->hasMany(InternshipType::class);
     }
+
+    /**
+     * Retorna os estágios do curso.
+     */
+    public function internships()
+    {
+        return $this->hasMany(Internship::class);
+    }
 }

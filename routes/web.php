@@ -49,10 +49,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/courses', [CourseController::class, 'index'])->name('admin.courses.index');
         Route::get('/courses/create', [CourseController::class, 'create'])->name('admin.courses.create');
         Route::post('/courses', [CourseController::class, 'store'])->name('admin.courses.store');
-        Route::get('/courses/{id}/edit', [CourseController::class, 'edit'])->name('admin.courses.edit');
-        Route::put('/courses/{id}', [CourseController::class, 'update'])->name('admin.courses.update');
-        Route::delete('/courses/{id}', [CourseController::class, 'destroy'])->name('admin.courses.destroy');
-        Route::patch('/courses/{id}/restore', [CourseController::class, 'restore'])->name('admin.courses.restore');
+        Route::get('/courses/{course}/edit', [CourseController::class, 'edit'])->name('admin.courses.edit');
+        Route::put('/courses/{course}', [CourseController::class, 'update'])->name('admin.courses.update');
+        Route::delete('/courses/{course}', [CourseController::class, 'destroy'])->name('admin.courses.destroy');
+        Route::patch('/courses/{course}/restore', [CourseController::class, 'restore'])->name('admin.courses.restore');
 
         // Rotas de Tipos de Estágio
         Route::get('/internship-types', [InternshipTypeController::class, 'index'])->name('admin.internship-types.index');
