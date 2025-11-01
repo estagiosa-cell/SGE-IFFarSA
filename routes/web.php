@@ -11,10 +11,10 @@ use App\Http\Controllers\Admin\SyncDataController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\SessionController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\InternshipViewController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\BackupController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SessionController::class, 'create'])->name('login');
@@ -58,10 +58,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/internship-types', [InternshipTypeController::class, 'index'])->name('admin.internship-types.index');
         Route::get('/internship-types/create', [InternshipTypeController::class, 'create'])->name('admin.internship-types.create');
         Route::post('/internship-types', [InternshipTypeController::class, 'store'])->name('admin.internship-types.store');
-        Route::get('/internship-types/{id}/edit', [InternshipTypeController::class, 'edit'])->name('admin.internship-types.edit');
-        Route::put('/internship-types/{id}', [InternshipTypeController::class, 'update'])->name('admin.internship-types.update');
-        Route::delete('/internship-types/{id}', [InternshipTypeController::class, 'destroy'])->name('admin.internship-types.destroy');
-        Route::patch('/internship-types/{id}/restore', [InternshipTypeController::class, 'restore'])->name('admin.internship-types.restore');
+        Route::get('/internship-types/{internship_type}/edit', [InternshipTypeController::class, 'edit'])->name('admin.internship-types.edit');
+        Route::put('/internship-types/{internship_type}', [InternshipTypeController::class, 'update'])->name('admin.internship-types.update');
+        Route::delete('/internship-types/{internship_type}', [InternshipTypeController::class, 'destroy'])->name('admin.internship-types.destroy');
+        Route::patch('/internship-types/{internship_type}/restore', [InternshipTypeController::class, 'restore'])->name('admin.internship-types.restore');
 
         // Rotas de autenticação com Google
         Route::get('/google/redirect', [GoogleAuthController::class, 'redirect'])->name('google.redirect');

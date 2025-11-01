@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\InternshipTypeRequest;
+use App\Http\Requests\StoreInternshipTypeRequest;
+use App\Http\Requests\UpdateInternshipTypeRequest;
 use App\Models\Course;
 use App\Models\InternshipType;
 use App\Utils\SearchHelper;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 /**
@@ -18,6 +21,8 @@ use Illuminate\Http\Request;
  */
 class InternshipTypeController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Exibe a lista de tipos de estágio com filtros e paginação.
      *
@@ -26,6 +31,8 @@ class InternshipTypeController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', InternshipType::class);
+
         // Inicia a query com o relacionamento do curso para otimização.
         $query = InternshipType::with('course');
 
@@ -62,6 +69,8 @@ class InternshipTypeController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', InternshipType::class);
+
         // Carrega todos os cursos para o dropdown de seleção.
         $courses = Course::all();
 
@@ -71,10 +80,10 @@ class InternshipTypeController extends Controller
     /**
      * Armazena um novo tipo de estágio no banco de dados.
      *
-     * @param  \App\Http\Requests\InternshipTypeRequest  $request  A requisição validada.
+     * @param  \App\Http\Requests\StoreInternshipTypeRequest  $request  A requisição validada.
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(InternshipTypeRequest $request)
+    public function store(StoreInternshipTypeRequest $request)
     {
         // Obtém os dados validados da requisição.
         $data = $request->validated();
@@ -90,13 +99,13 @@ class InternshipTypeController extends Controller
     /**
      * Exibe o formulário para editar um tipo de estágio específico.
      *
-     * @param  string  $id  O ID do tipo de estágio a ser editado.
+     * @param  \App\Models\InternshipType  $internshipType  O tipo de estágio a ser editado.
      * @return \Illuminate\View\View
      */
-    public function edit(string $id)
+    public function edit(InternshipType $internshipType)
     {
-        // Encontra o tipo de estágio ou falha se não existir.
-        $internshipType = InternshipType::findOrFail($id);
+        $this->authorize('update', $internshipType);
+
         // Carrega todos os cursos para o dropdown de seleção.
         $courses = Course::all();
 
@@ -106,19 +115,17 @@ class InternshipTypeController extends Controller
     /**
      * Atualiza um tipo de estágio específico no banco de dados.
      *
-     * @param  \App\Http\Requests\InternshipTypeRequest  $request  A requisição validada.
-     * @param  string  $id  O ID do tipo de estágio a ser atualizado.
+     * @param  \App\Http\Requests\UpdateInternshipTypeRequest  $request  A requisição validada.
+     * @param  \App\Models\InternshipType  $internshipType  O tipo de estágio a ser atualizado.
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(InternshipTypeRequest $request, string $id)
+    public function update(UpdateInternshipTypeRequest $request, InternshipType $internshipType)
     {
-        // Encontra o tipo de estágio ou falha se não existir.
-        $internshipType = InternshipType::findOrFail($id);
         // Atualiza o tipo de estágio com os dados validados.
         $internshipType->update($request->validated());
 
         // Redireciona para o formulário de edição com uma mensagem de sucesso.
-        return redirect()->route('admin.internship-types.edit', $id)
+        return redirect()->route('admin.internship-types.edit', $internshipType)
             ->with('message', 'Tipo de estágio atualizado com sucesso!')
             ->with('messageType', 'success');
     }
@@ -126,15 +133,17 @@ class InternshipTypeController extends Controller
     /**
      * Remove o tipo de estágio especificado (soft delete).
      *
-     * @param  string  $id  O ID do tipo de estágio a ser excluído.
+     * @param  \App\Models\InternshipType  $internshipType  O tipo de estágio a ser excluído.
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(string $id)
+    public function destroy(InternshipType $internshipType)
     {
-        // Encontra o tipo de estágio ou falha se não existir.
-        $internshipType = InternshipType::findOrFail($id);
-        // Realiza o soft delete.
-        $internshipType->delete();
+        try {
+            $this->authorize('delete', $internshipType);
+            $internshipType->delete();
+        } catch (AuthorizationException $e) {
+            return redirect()->route('admin.internship-types.index')->with('error', $e->getMessage());
+        }
 
         // Redireciona para a lista com uma mensagem de sucesso.
         return redirect()->route('admin.internship-types.index')
@@ -152,6 +161,7 @@ class InternshipTypeController extends Controller
     {
         // Encontra o tipo de estágio na lixeira ou falha se não existir.
         $internshipType = InternshipType::onlyTrashed()->findOrFail($id);
+        $this->authorize('restore', $internshipType);
         // Restaura o registro.
         $internshipType->restore();
 
