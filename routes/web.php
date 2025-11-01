@@ -37,11 +37,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
         Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
         Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
-        Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
-        Route::put('/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
         Route::post('/users/import', [UserController::class, 'import'])->name('admin.users.import');
-        Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
-        Route::patch('/users/{id}/restore', [UserController::class, 'restore'])->name('admin.users.restore');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('admin.users.restore');
         Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('admin.users.deactivate');
         Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('admin.users.reactivate');
 

@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UserRequest;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Utils\SearchHelper;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 /**
@@ -19,6 +21,8 @@ use Illuminate\Support\Str;
  */
 class UserController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Exibe uma lista de usuários com filtros.
      *
@@ -26,6 +30,8 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', User::class);
+
         // Inicia a query para buscar usuários.
         $query = User::query();
 
@@ -70,6 +76,8 @@ class UserController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', User::class);
+
         // Busca todos os papéis de usuário para o formulário.
         $roles = UserRole::cases();
 
@@ -82,7 +90,7 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(UserRequest $request)
+    public function store(StoreUserRequest $request)
     {
         // Obtém os dados validados da requisição.
         $data = $request->validated();
@@ -102,14 +110,13 @@ class UserController extends Controller
     /**
      * Exibe o formulário para editar um usuário existente.
      *
-     * @param  string  $id  O ID do usuário.
+     * @param  \App\Models\User  $user  O usuário a ser editado.
      * @return \Illuminate\View\View
      */
-    public function edit(string $id)
+    public function edit(User $user)
     {
-        // Encontra o usuário pelo ID ou falha.
-        $user = User::findOrFail($id);
-        
+        $this->authorize('update', $user);
+
         // Busca todos os papéis de usuário para o formulário.
         $roles = UserRole::cases();
 
@@ -120,37 +127,30 @@ class UserController extends Controller
     /**
      * Atualiza um usuário específico no banco de dados.
      *
-     * @param  string  $id  O ID do usuário.
+     * @param  \App\Models\User  $user  O usuário a ser atualizado.
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UserRequest $request, string $id)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        // Encontra o usuário pelo ID ou falha.
-        $user = User::findOrFail($id);
-        // Obtém os dados validados da requisição.
-        $data = $request->validated();
+        try {
+            // A autorização já foi feita pelo UpdateUserRequest, mas podemos chamar de novo se quisermos.
+            // $this->authorize('update', $user);
 
-        // Regra de negócio: Não permitir que o usuário altere o próprio papel.
-        if ($user->id === Auth::id() && $data['role'] !== $user->role->value) {
+            // Obtém os dados validados da requisição.
+            $data = $request->validated();
+
+            // Atualiza os dados do usuário.
+            $user->update($data);
+
+            // Redireciona para a página de edição com uma mensagem de sucesso.
+            return redirect()->route('admin.users.edit', $user->id)
+                ->with('message', 'Usuário atualizado com sucesso!')
+                ->with('messageType', 'success');
+        } catch (AuthorizationException $e) {
             return back()
-                ->with('message', 'Não é possível alterar o próprio papel!')
+                ->with('message', $e->getMessage())
                 ->with('messageType', 'danger');
         }
-
-        // Regra de negócio: Impedir a alteração do papel de um coordenador que possui cursos associados.
-        if ($user->role === UserRole::COORDENADOR && $user->coordinatedCourses()->exists() && $data['role'] !== UserRole::COORDENADOR->value) {
-            return back()
-                ->with('message', 'Não é possível alterar o papel de um coordenador com cursos atrelados!')
-                ->with('messageType', 'danger');
-        }
-
-        // Atualiza os dados do usuário.
-        $user->update($data);
-
-        // Redireciona para a página de edição com uma mensagem de sucesso.
-        return redirect()->route('admin.users.edit', $user->id)
-            ->with('message', 'Usuário atualizado com sucesso!')
-            ->with('messageType', 'success');
     }
 
     /**
@@ -163,9 +163,11 @@ class UserController extends Controller
      */
     public function import(Request $request)
     {
+        $this->authorize('create', User::class);
+
         // Valida o arquivo enviado.
         $request->validate([
-            'file' => 'required|file|mimes:csv|max:10240', // max 10MB
+            'file' => 'required|file|mimes:csv,txt|max:10240', // max 10MB
         ]);
 
         $file = $request->file('file');
@@ -210,19 +212,17 @@ class UserController extends Controller
     /**
      * Remove um usuário do sistema (soft delete).
      *
-     * @param  string  $id  O ID do usuário a ser excluído.
+     * @param  \App\Models\User  $user  O usuário a ser excluído.
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        $user = User::findOrFail($id);
-
-        // Impede que o usuário exclua a própria conta.
-        if ($user->id === Auth::id()) {
-            return back()->with('message', 'Você não pode excluir sua própria conta!')->with('messageType', 'danger');
+        try {
+            $this->authorize('delete', $user);
+            $user->delete();
+        } catch (AuthorizationException $e) {
+            return back()->with('message', $e->getMessage())->with('messageType', 'danger');
         }
-
-        $user->delete();
 
         return redirect()->route('admin.users.index')
             ->with('message', 'Usuário excluído com sucesso!')
@@ -239,6 +239,7 @@ class UserController extends Controller
     {
         // Busca o usuário apenas na lixeira (onlyTrashed).
         $user = User::onlyTrashed()->findOrFail($id);
+        $this->authorize('restore', $user);
         $user->restore();
 
         // Redireciona de volta para a lista de usuários excluídos.
@@ -255,13 +256,13 @@ class UserController extends Controller
      */
     public function deactivate(User $user)
     {
-        // Impede que o usuário desative a própria conta.
-        if ($user->id === Auth::id()) {
-            return back()->with('message', 'Você não pode desativar sua própria conta!')->with('messageType', 'danger');
+        try {
+            $this->authorize('deactivate', $user);
+            // Define a data de desativação para o momento atual.
+            $user->update(['deactivated_at' => now()]);
+        } catch (AuthorizationException $e) {
+            return back()->with('message', $e->getMessage())->with('messageType', 'danger');
         }
-
-        // Define a data de desativação para o momento atual.
-        $user->update(['deactivated_at' => now()]);
 
         return back()->with('message', 'Usuário desativado com sucesso!')->with('messageType', 'success');
     }
@@ -274,6 +275,7 @@ class UserController extends Controller
      */
     public function reactivate(User $user)
     {
+        $this->authorize('reactivate', $user);
         // Remove a data de desativação, tornando o usuário ativo novamente.
         $user->update(['deactivated_at' => null]);
 

@@ -2,37 +2,36 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\Rule;
 use App\Enums\UserRole;
+use App\Models\User;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
-/**
- * @method mixed route($param = null, $default =  null)
- */
-class UserRequest extends FormRequest
+class StoreUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return Gate::allows('is-admin');
+        return Auth::user()->can('create', User::class);
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, mixed>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
-        $rules = [
+        return [
             'name' => 'required|string|max:255',
             'email' => [
                 'required',
                 'email',
-                Rule::unique('users')->ignore($this->route('id')),
+                Rule::unique('users'),
+                'confirmed',
             ],
             'role' => [
                 'required',
@@ -40,12 +39,5 @@ class UserRequest extends FormRequest
                 Rule::enum(UserRole::class),
             ],
         ];
-
-        // Se for criação , adiciona confirmação de email
-        if (request()->routeIs('admin.users.store')) {
-            $rules['email'][] = 'confirmed';
-        }
-
-        return $rules;
     }
 }
