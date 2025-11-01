@@ -9,34 +9,46 @@ use App\Models\Internship;
 use App\Utils\SearchHelper;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador para gerenciar os Estágios no painel administrativo.
+ *
+ * Este controlador lida com a listagem, edição, atualização, exclusão
+ * e restauração de estágios, além de fornecer endpoints para dados auxiliares.
+ */
 class InternshipController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Exibe uma lista de estágios com filtros e ordenação.
+     *
+     * @param  \Illuminate\Http\Request  $request  A requisição HTTP com os parâmetros de filtro.
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
         $search = $request->get('search');
         $status = $request->get('status');
 
+        // Inicia a query com o carregamento antecipado de relacionamentos para otimização.
         $query = Internship::with(['advisor', 'course']);
 
+        // Verifica se o filtro 'show_deleted' está ativo para incluir estágios removidos (soft delete).
         $showDeleted = $request->input('show_deleted') === '1';
         if ($showDeleted) {
             $query = $query->onlyTrashed();
         }
 
-        // Filtro por nome do estudante
+        // Aplica o filtro de busca por nome do estudante, se presente.
         if ($request->filled('search')) {
             SearchHelper::searchInField($query, $search, 'student_name');
         }
 
-        // Filtro por status
+        // Aplica o filtro por status do estágio, se presente.
         if ($request->filled('status')) {
             $query->where('status', $status);
         }
 
-        // Raw SQL para ordenação por prioridade de status
+        // Define uma ordem de prioridade para os status dos estágios,
+        // garantindo que os pendentes e em andamento apareçam primeiro.
         $statusOrderSql = "
             CASE status
                 WHEN 'Pendente' THEN 1
@@ -48,25 +60,31 @@ class InternshipController extends Controller
             END
         ";
 
+        // Executa a query com a ordenação customizada e pagina os resultados.
         $internships = $query->orderByRaw($statusOrderSql)
             ->latest('end_date')
             ->latest('updated_at')
             ->paginate(100);
 
+        // Obtém as opções de status para o dropdown de filtro.
         $statusOptions = InternshipStatus::options();
 
         return view('admin.internships.index', compact('internships', 'search', 'status', 'statusOptions', 'showDeleted'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Exibe o formulário para editar um estágio específico.
+     *
+     * @param  \App\Models\Internship  $internship  A instância do estágio injetada pelo Route Model Binding.
+     * @return \Illuminate\View\View
      */
     public function edit(Internship $internship)
     {
+        // Carrega os relacionamentos para serem usados na view.
         $internship->load(['advisor', 'course']);
         $statusOptions = InternshipStatus::options();
 
-        // Busca orientadores disponíveis (usuários com role orientador ou coordenador)
+        // Busca orientadores disponíveis (usuários com papel de orientador ou coordenador) que estão ativos.
         $advisors = \App\Models\User::whereIn('role', ['orientador', 'coordenador'])
             ->whereNull('deactivated_at')
             ->orderBy('name')
@@ -76,10 +94,15 @@ class InternshipController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Atualiza um estágio específico no banco de dados.
+     *
+     * @param  \Illuminate\Http\Request  $request  A requisição HTTP com os dados do formulário.
+     * @param  \App\Models\Internship  $internship  A instância do estágio a ser atualizada.
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Internship $internship)
     {
+        // Valida todos os campos do formulário de edição de estágio.
         $validatedData = $request->validate([
             // Informações do Sistema
             'advisor_id' => 'required|exists:users,id',
@@ -107,7 +130,7 @@ class InternshipController extends Controller
             'student_address_state' => 'required|string|size:2',
             'student_address_zip' => 'required|string|max:10',
 
-            // Dados do Responsável Legal
+            // Dados do Responsável Legal (obrigatório se o aluno for menor de idade)
             'legal_guardian_name' => 'nullable|required_if:student_is_adult,0|string|max:255',
             'legal_guardian_cpf' => 'nullable|required_if:student_is_adult,0|string|max:14',
             'legal_guardian_kinship' => 'nullable|required_if:student_is_adult,0|string|max:50',
@@ -189,9 +212,10 @@ class InternshipController extends Controller
         ]);
 
         try {
-            // Recalcula a nota final baseada nos critérios de avaliação
+            // Recalcula a nota final da avaliação com base nos critérios preenchidos.
             $validatedData['evaluation_grade'] = $this->calculateEvaluationGrade($validatedData, $internship);
 
+            // Atualiza o estágio com os dados validados e a nota calculada.
             $internship->update($validatedData);
 
             return redirect()
@@ -208,7 +232,13 @@ class InternshipController extends Controller
     }
 
     /**
-     * Get companies by CNPJ
+     * Busca empresas pelo CPF/CNPJ.
+     *
+     * Este método é usado como um endpoint de API (geralmente via AJAX)
+     * para preencher dados da empresa no formulário de estágio.
+     *
+     * @param  \Illuminate\Http\Request  $request  A requisição contendo o identificador.
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getCompanies(Request $request)
     {
@@ -218,6 +248,7 @@ class InternshipController extends Controller
             return response()->json([]);
         }
 
+        // Busca empresas que correspondem ao CPF/CNPJ fornecido.
         $companies = Company::where('legal_identifier', $identificador)
             ->get([
                 'id',
@@ -242,7 +273,10 @@ class InternshipController extends Controller
     }
 
     /**
-     * Remove o estágio especificado (soft delete).
+     * Remove o estágio especificado do sistema (soft delete).
+     *
+     * @param  \App\Models\Internship  $internship  A instância do estágio a ser excluída.
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Internship $internship)
     {
@@ -254,23 +288,33 @@ class InternshipController extends Controller
     }
 
     /**
-     * Restaura um estágio deletado (soft deleted).
+     * Restaura um estágio que foi removido via soft delete.
+     *
+     * @param  string  $id  O ID do estágio a ser restaurado.
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function restore($id)
     {
+        // Busca o estágio apenas na lixeira (onlyTrashed).
         $internship = Internship::onlyTrashed()->findOrFail($id);
         $internship->restore();
 
+        // Redireciona de volta para a lista de estágios excluídos.
         return redirect()->route('admin.internships.index', ['show_deleted' => 1])
             ->with('message', 'Estágio restaurado com sucesso!')
             ->with('messageType', 'success');
     }
 
     /**
-     * Calcula a nota final da avaliação baseada nos 10 critérios
+     * Calcula a nota final da avaliação com base nos 10 critérios de desempenho.
+     *
+     * @param  array  $data  Os dados validados da requisição.
+     * @param  \App\Models\Internship  $internship  A instância do estágio.
+     * @return float A média das notas dos critérios preenchidos.
      */
     private function calculateEvaluationGrade(array $data, Internship $internship): float
     {
+        // Lista dos campos que representam os critérios de avaliação.
         $criteria = [
             'evaluation_performance',
             'evaluation_comprehension',
@@ -287,28 +331,36 @@ class InternshipController extends Controller
         $totalScore = 0.0;
         $count = 0;
 
+        // Itera sobre cada critério para somar as notas.
         foreach ($criteria as $criterion) {
             $text = $data[$criterion] ?? null;
             if (! empty($text)) {
+                // Converte o conceito textual (ex: "Bom") para um valor numérico.
                 $totalScore += $this->getNumericValue($text, $data, $internship);
                 $count++;
             }
         }
 
+        // Retorna a média ou 0.0 se nenhum critério foi preenchido.
         return $count > 0 ? $totalScore / $count : 0.0;
     }
 
     /**
-     * Converte a resposta textual para valor numérico
-     */
-    /**
-     * Resolve the numeric value for a textual concept using (in order):
-     * - the request-provided numeric overrides in $data (great_value, ...)
-     * - the internship stored values ($internship->great_value, ...)
-     * - built-in defaults
+     * Converte um conceito textual de avaliação (ex: "Ótimo") para seu valor numérico correspondente.
+     *
+     * A ordem de prioridade para obter o valor é:
+     * 1. Valores customizados enviados na requisição atual (ex: `great_value` no formulário).
+     * 2. Valores customizados já salvos no registro do estágio.
+     * 3. Valores padrão definidos no código.
+     *
+     * @param  string|null  $value  O conceito textual (ex: "Ótimo", "Bom").
+     * @param  array  $data  Os dados da requisição atual, que podem conter overrides.
+     * @param  \App\Models\Internship|null  $internship  O estágio, para buscar valores salvos.
+     * @return float O valor numérico correspondente.
      */
     private function getNumericValue(?string $value, array $data = [], ?Internship $internship = null): float
     {
+        // Valores padrão caso nenhuma customização seja encontrada.
         $defaults = [
             'Ótimo' => 2.0,
             'Muito Bom' => 1.5,
@@ -321,6 +373,7 @@ class InternshipController extends Controller
             return 0.0;
         }
 
+        // Mapeia o conceito textual para a chave do campo no banco/requisição.
         $map = [
             'Ótimo' => 'great_value',
             'Muito Bom' => 'very_good_value',
@@ -331,17 +384,17 @@ class InternshipController extends Controller
 
         $key = $map[$value] ?? null;
 
-        // 1) request override
+        // Prioridade 1: Verifica se há um valor customizado na requisição atual.
         if ($key && isset($data[$key]) && is_numeric($data[$key])) {
             return (float) $data[$key];
         }
 
-        // 2) internship stored value
+        // Prioridade 2: Verifica se há um valor customizado salvo no estágio.
         if ($key && $internship && isset($internship->{$key})) {
             return (float) $internship->{$key};
         }
 
-        // 3) defaults
+        // Prioridade 3: Usa o valor padrão.
         return $defaults[$value] ?? 0.0;
     }
 }

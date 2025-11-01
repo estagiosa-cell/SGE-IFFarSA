@@ -9,26 +9,39 @@ use App\Services\GoogleApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Controlador para gerar documentos de estágio usando a API do Google Docs.
+ *
+ * Este controlador é "invokable" e sua única responsabilidade é orquestrar
+ * a criação de um documento no Google Drive a partir de um template,
+ * preenchendo-o com os dados de um estágio específico.
+ */
 class InternshipDocumentController extends Controller
 {
     /**
-     * Handle the incoming request.
+     * Manipula a requisição para gerar um documento de estágio.
+     *
+     * @param  \Illuminate\Http\Request  $request  A requisição HTTP.
+     * @param  int  $internshipId  O ID do estágio para o qual o documento será gerado.
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function __invoke(Request $request, $internshipId)
     {
-        // Verificar permissões
+        // Verifica se o usuário autenticado tem permissão de administrador.
         if (! Auth::user()->can('is-admin')) {
             return redirect()->back()
                 ->with('message', 'Você não tem permissão para gerar documentos.')
                 ->with('messageType', 'error');
         }
 
+        // Encontra o estágio ou falha, carregando relacionamentos necessários.
         $internship = Internship::with(['advisor', 'course'])->findOrFail($internshipId);
         $documentType = $request->input('document_type');
 
         try {
             $currentDateTime = now()->format('d/m/Y H:i');
 
+            // Seleciona o template e o título do documento com base no tipo solicitado.
             $documentConfig = match ($documentType) {
                 'termo-compromisso' => [
                     'template_id' => config('services.google.docs.templates.termo_compromisso_padrao'),
@@ -53,22 +66,24 @@ class InternshipDocumentController extends Controller
                 default => throw new \InvalidArgumentException("Tipo de documento '{$documentType}' não suportado.")
             };
 
+            // Validação específica para o documento de credenciamento.
             if ($documentType === 'credenciamento' && empty($internship->process_number)) {
                 throw new \Exception('Não é possível gerar o documento de credenciamento: o número do processo não foi informado.');
             }
 
+            // Verifica se o ID do template está configurado no ambiente.
             if (! $documentConfig['template_id']) {
                 throw new \Exception('ID do template do Termo de Compromisso não configurado no .env');
             }
 
-            // Inicializar serviços Google
+            // Inicializa os serviços da API do Google.
             $googleService = new GoogleApiService;
             $client = $googleService->getClient();
 
             $driveService = new \Google_Service_Drive($client);
             $docsService = new \Google_Service_Docs($client);
 
-            // Verificar se o template existe antes de tentar copiar
+            // Tenta acessar o template no Google Drive para verificar sua existência e permissões.
             try {
                 $driveService->files->get($documentConfig['template_id']);
             } catch (\Google_Service_Exception $e) {
@@ -78,10 +93,11 @@ class InternshipDocumentController extends Controller
                 throw new \Exception('Erro ao acessar template no Google Drive: '.$e->getMessage());
             }
 
-            // Criar cópia do template
+            // Cria uma cópia do arquivo de template no Google Drive.
             $copy = new \Google_Service_Drive_DriveFile;
             $copy->setName($documentConfig['title']);
 
+            // Se uma pasta de destino estiver configurada, move a cópia para lá.
             if (config('services.google.drive_folder_id')) {
                 $copy->setParents([config('services.google.drive_folder_id')]);
             }
@@ -93,13 +109,13 @@ class InternshipDocumentController extends Controller
                 throw new \Exception('Erro ao criar cópia do template: '.$e->getMessage());
             }
 
-            // busca todos os dados para substituição
+            // Busca todos os dados para substituição no documento.
             $replacements = $this->getReplacements($internship);
 
-            // Aplica as substituições no documento
+            // Prepara as requisições de substituição de texto para a API do Google Docs.
             $requests = [];
             foreach ($replacements as $placeholder => $value) {
-                // Ensure all values are strings
+                // Garante que todos os valores sejam strings para evitar erros na API.
                 $stringValue = is_null($value) ? '' : (string) $value;
 
                 $requests[] = [
@@ -113,6 +129,7 @@ class InternshipDocumentController extends Controller
                 ];
             }
 
+            // Executa a substituição em lote se houver placeholders a serem preenchidos.
             if (! empty($requests)) {
                 $batchUpdateRequest = new \Google_Service_Docs_BatchUpdateDocumentRequest([
                     'requests' => $requests,
@@ -121,7 +138,7 @@ class InternshipDocumentController extends Controller
                 $docsService->documents->batchUpdate($documentId, $batchUpdateRequest);
             }
 
-            // Salva o ID do documento no banco e atualiza o status
+            // Salva o ID do documento gerado no banco de dados e atualiza o status do estágio.
             $internship->update([
                 'google_docs_id' => $documentId,
                 'status' => InternshipStatus::AWAITING_SIGNATURE->value,
@@ -132,15 +149,22 @@ class InternshipDocumentController extends Controller
                 ->with('messageType', 'success');
 
         } catch (\Exception $e) {
+            // Captura qualquer exceção durante o processo e retorna uma mensagem de erro.
             return redirect()->back()
                 ->with('message', 'Erro ao gerar documento: '.$e->getMessage())
                 ->with('messageType', 'danger');
         }
     }
 
+    /**
+     * Coleta e formata todos os dados de um estágio para substituição em um template.
+     *
+     * @param  \App\Models\Internship  $internship  O estágio contendo os dados.
+     * @return array Um array associativo de `[placeholder => valor]`.
+     */
     private function getReplacements($internship): array
     {
-        // Calcular carga horária diária (maior valor dos dias da semana)
+        // Calcula a carga horária diária (maior valor entre os dias da semana).
         $dailyHours = max(
             (int) $internship->hours_sunday ?? 0,
             (int) $internship->hours_monday ?? 0,
@@ -151,7 +175,7 @@ class InternshipDocumentController extends Controller
             (int) $internship->hours_saturday ?? 0
         );
 
-        // Calcular carga horária semanal (soma de todos os dias)
+        // Calcula a carga horária semanal total.
         $weeklyHours = $internship->getTotalWeeklyHours();
 
         return [
@@ -207,6 +231,7 @@ class InternshipDocumentController extends Controller
             '{{TEL_SUPERVISOR}}' => $internship->supervisor_phone,
             '{{EMAIL_SUPERVISOR}}' => $internship->supervisor_email,
 
+            // Campos compostos
             '{{CAMPO_RESPONSAVEL_LEGAL}}' => $this->formatarCampoResponsavelLegal($internship),
             '{{ATIVIDADES}}' => $internship->activities ?? '',
             '{{CREDENCIAMENTO}}' => $internship->process_number ?? '',
@@ -214,13 +239,18 @@ class InternshipDocumentController extends Controller
     }
 
     /**
-     * Converte número inteiro para texto por extenso (suporta até 999.999)
+     * Converte um número inteiro para sua representação por extenso em português.
+     * Suporta números até 999.999.
+     *
+     * @param  int  $numero  O número a ser convertido.
+     * @return string O número por extenso.
      */
     private function numeroParaTexto(int $numero): string
     {
         if ($numero === 0) {
             return 'zero';
         }
+        // Casos especiais para concordância de gênero.
         if ($numero === 1) {
             return 'uma';
         }
@@ -287,7 +317,8 @@ class InternshipDocumentController extends Controller
             }
 
             if ($resto > 0) {
-                if ($resto < 100) {
+                // Regra para evitar "mil e cem" -> "mil e cem" e "mil duzentos" -> "mil e duzentos"
+                if ($resto < 100 || $resto % 100 === 0) {
                     $resultado .= ' e '.$this->numeroParaTexto($resto);
                 } else {
                     $resultado .= ' '.$this->numeroParaTexto($resto);
@@ -297,16 +328,21 @@ class InternshipDocumentController extends Controller
             return $resultado;
         }
 
-        // Para números muito grandes, retorna o número mesmo
+        // Para números muito grandes, retorna o próprio número como string.
         return (string) $numero;
     }
 
     /**
-     * Formata o campo de responsável legal para o documento
+     * Formata o bloco de texto do responsável legal para o documento.
+     *
+     * @param  \App\Models\Internship  $internship  O estágio.
+     * @return string O texto formatado ou uma string vazia.
+     *
+     * @throws \Exception Se o estagiário for menor de idade e os dados do responsável estiverem incompletos.
      */
     private function formatarCampoResponsavelLegal($internship): string
     {
-        // Se o estudante NÃO é adulto (ou seja, é menor de idade)
+        // Se o estudante for menor de idade, os dados do responsável são obrigatórios.
         if (! $internship->student_is_adult) {
             if (! empty($internship->legal_guardian_name) &&
                 ! empty($internship->legal_guardian_cpf) &&
@@ -318,21 +354,25 @@ class InternshipDocumentController extends Controller
                        "CPF: {$internship->legal_guardian_cpf}\n".
                        "Grau de parentesco: {$internship->legal_guardian_kinship}";
             } else {
+                // Lança uma exceção se os dados estiverem faltando, impedindo a geração do documento.
                 throw new \Exception('Não é possível gerar o documento: faltam dados do responsável legal para o estagiário menor de idade. Verifique se o nome, CPF e grau de parentesco estão preenchidos.');
             }
         }
 
-        // Se o estudante é adulto, não precisa de responsável
+        // Se o estudante for maior de idade, retorna uma string vazia.
         return '';
     }
 
     /**
-     * Formata o campo especial para remuneração no documento
+     * Formata a cláusula de remuneração do estágio para o documento.
+     *
+     * @param  \App\Models\Internship  $internship  O estágio.
+     * @return string A cláusula formatada.
      */
     private function formatarCampoEspecial($internship): string
     {
         if ($internship->is_remunerated) {
-            // Estágio remunerado
+            // Texto para estágio remunerado.
             $valorBolsa = $internship->grant_value ?? 0;
             $auxilioTransporte = $internship->transportation_allowance ?? 0;
 
@@ -343,13 +383,16 @@ class InternshipDocumentController extends Controller
                    number_format($valorBolsa, 2, ',', '.').' ('.$valorBolsaExtenso.') e R$ '.
                    number_format($auxilioTransporte, 2, ',', '.').' ('.$auxilioTransporteExtenso.').';
         } else {
-            // Estágio não remunerado
+            // Texto para estágio não remunerado.
             return '§1º Neste Estágio Obrigatório o estudante não receberá bolsa de estágio ou auxílio transporte.';
         }
     }
 
     /**
-     * Converte número monetário para texto por extenso
+     * Converte um valor monetário (float) para sua representação por extenso em português.
+     *
+     * @param  float  $valor  O valor monetário.
+     * @return string O valor por extenso (ex: "cem reais e cinquenta centavos").
      */
     private function numeroParaTextoMonetario(float $valor): string
     {
@@ -362,6 +405,7 @@ class InternshipDocumentController extends Controller
 
         $textoInteiro = $this->numeroParaTexto($inteiro);
 
+        // Trata o plural de "real".
         if ($inteiro == 1) {
             $resultado = $textoInteiro.' real';
         } else {
@@ -370,6 +414,7 @@ class InternshipDocumentController extends Controller
 
         if ($centavos > 0) {
             $textoCentavos = $this->numeroParaTexto($centavos);
+            // Trata o plural de "centavo".
             if ($centavos == 1) {
                 $resultado .= ' e '.$textoCentavos.' centavo';
             } else {

@@ -11,14 +11,23 @@ use App\Models\SupervisorEvaluation;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador para exibir o painel principal (dashboard) da área administrativa.
+ *
+ * Este controlador é "invokable" e sua única responsabilidade é coletar
+ * diversas estatísticas do sistema e exibi-las na view do dashboard.
+ */
 class DashboardController extends Controller
 {
     /**
-     * Handle the incoming request.
+     * Coleta dados e estatísticas e exibe o dashboard administrativo.
+     *
+     * @param  \Illuminate\Http\Request  $request  A requisição HTTP.
+     * @return \Illuminate\View\View
      */
     public function __invoke(Request $request)
     {
-        // Estatísticas de estágios
+        // Coleta estatísticas gerais sobre os estágios.
         $totalInternships = Internship::count();
         $deletedInternships = Internship::onlyTrashed()->count();
         $internshipsByStatus = [
@@ -29,36 +38,38 @@ class DashboardController extends Controller
             'cancelled' => Internship::where('status', InternshipStatus::CANCELLED->value)->count(),
         ];
 
-        // Estatísticas de empresas (partes concedentes)
+        // Coleta estatísticas sobre as empresas (partes concedentes).
         $totalCompanies = Company::count();
         $deletedCompanies = Company::onlyTrashed()->count();
-        // Contar empresas únicas que têm estágios em andamento (via company_legal_identifier)
+        // Conta quantas empresas únicas possuem estágios em andamento.
         $activeCompanies = Internship::where('status', InternshipStatus::IN_PROGRESS->value)
             ->distinct('company_legal_identifier')
             ->count('company_legal_identifier');
 
-        // Estatísticas de usuários
+        // Coleta estatísticas sobre os usuários do sistema.
         $totalUsers = User::count();
         $deletedUsers = User::onlyTrashed()->count();
+        // Agrupa e conta os usuários por papel (role).
         $usersByRole = User::selectRaw('role, count(*) as count')
             ->groupBy('role')
             ->pluck('count', 'role')
             ->toArray();
 
-        // Estatísticas de cursos
+        // Coleta estatísticas sobre os cursos.
         $totalCourses = Course::count();
         $deletedCourses = Course::onlyTrashed()->count();
 
-        // Estatísticas de avaliações do supervisor
+        // Coleta estatísticas sobre as avaliações de supervisor.
         $totalEvaluations = SupervisorEvaluation::count();
         $deletedEvaluations = SupervisorEvaluation::onlyTrashed()->count();
 
-        // Estágios recentes
+        // Busca os 10 estágios mais recentes com seus respectivos orientadores e cursos.
         $recentInternships = Internship::with(['advisor', 'course'])
             ->latest()
             ->take(10)
             ->get();
 
+        // Retorna a view do dashboard com todas as estatísticas coletadas.
         return view('admin.dashboard', compact(
             'totalInternships',
             'deletedInternships',

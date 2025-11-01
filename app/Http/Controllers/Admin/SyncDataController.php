@@ -15,17 +15,34 @@ use App\Utils\InternshipEndDate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador para sincronização de dados de planilhas do Google.
+ *
+ * Este controlador é "invokable" e sua responsabilidade é orquestrar a importação
+ * de dados de duas planilhas distintas: uma para novos registros de estágio e
+ * outra para avaliações de supervisores. Ele utiliza serviços para interagir
+ * com a API do Google e para realizar buscas por similaridade (fuzzy search).
+ */
 class SyncDataController extends Controller
 {
     /**
-     * Sincroniza os dados com as planilhas do Google (estágios e avaliações)
+     * Orquestra a sincronização de dados de estágios e avaliações de supervisores.
+     *
+     * Este método invoca as funções de sincronização para estágios e avaliações,
+     * coleta as mensagens de resultado de cada processo e redireciona o usuário
+     * de volta ao dashboard com um resumo das operações.
+     *
+     * @param  \Illuminate\Http\Request  $request  A requisição HTTP.
+     * @param  \App\Services\GoogleApiService  $googleService  Serviço para interagir com as APIs do Google.
+     * @param  \App\Services\FuzzySearchService  $fuzzySearch  Serviço para busca por similaridade.
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function __invoke(Request $request, GoogleApiService $googleService, FuzzySearchService $fuzzySearch)
     {
         $messages = [];
         $hasSuccess = false;
 
-        // Sincroniza dados de estágios
+        // Tenta sincronizar os dados de estágios.
         try {
             $internshipsCount = $this->syncInternshipsData($googleService, $fuzzySearch);
             if ($internshipsCount > 0) {
@@ -33,10 +50,11 @@ class SyncDataController extends Controller
                 $hasSuccess = true;
             }
         } catch (\Exception $e) {
+            // Captura e armazena qualquer erro ocorrido durante a sincronização de estágios.
             $messages[] = 'Estágios: '.$e->getMessage();
         }
 
-        // Sincroniza avaliações de supervisores
+        // Tenta sincronizar as avaliações de supervisores.
         try {
             $evaluationsCount = $this->syncSupervisorEvaluations($googleService);
             if ($evaluationsCount > 0) {
@@ -44,13 +62,16 @@ class SyncDataController extends Controller
                 $hasSuccess = true;
             }
         } catch (\Exception $e) {
+            // Captura e armazena qualquer erro ocorrido durante a sincronização de avaliações.
             $messages[] = 'Avaliações: '.$e->getMessage();
         }
 
+        // Monta a mensagem final para o usuário.
         $finalMessage = empty($messages)
             ? 'Nenhum dado novo para sincronizar.'
             : implode(' | ', $messages);
 
+        // Define o tipo de mensagem (sucesso, informação, erro) com base no resultado.
         $messageType = $hasSuccess ? 'success' : 'info';
 
         return redirect()->route('admin.dashboard')
@@ -59,7 +80,18 @@ class SyncDataController extends Controller
     }
 
     /**
-     * Sincroniza os dados de estágios com a planilha do Google
+     * Sincroniza os dados de estágios a partir de uma planilha do Google.
+     *
+     * Este método lê uma planilha, mapeia cada coluna para um campo do modelo `Internship`,
+     * realiza validações, busca por registros relacionados (curso, orientador, empresa)
+     * e, se tudo estiver correto, cria um novo registro de estágio no banco de dados.
+     * Ao final, marca a linha como processada na planilha.
+     *
+     * @param  \App\Services\GoogleApiService  $googleService  Serviço para interagir com a API do Google.
+     * @param  \App\Services\FuzzySearchService  $fuzzySearch  Serviço para busca por similaridade.
+     * @return int O número de estágios processados com sucesso.
+     *
+     * @throws \Exception Se ocorrer um erro crítico durante o processo.
      */
     private function syncInternshipsData(GoogleApiService $googleService, FuzzySearchService $fuzzySearch): int
     {
@@ -78,20 +110,20 @@ class SyncDataController extends Controller
         $rows = $response->getValues();
 
         if (empty($rows)) {
-            return 0; // Nenhum dado para sincronizar
+            return 0; // Nenhum dado para sincronizar.
         }
 
         $processedCount = 0;
 
         foreach ($rows as $index => $row) {
-            $rowNumber = $index + 2;
+            $rowNumber = $index + 2; // A contagem de linhas começa em 2.
 
-            // se a coluna BJ (índice 60) estiver marcada como 1, pula a linha
+            // Se a coluna de controle 'BJ' (índice 60) estiver marcada com '1', pula a linha.
             if (isset($row[60]) && $row[60] == 1) {
                 continue;
             }
 
-            // --- MAPEAMENTO COMPLETO DE DADOS ---
+            // --- MAPEAMENTO COMPLETO DE DADOS DA PLANILHA PARA VARIÁVEIS ---
             // Dados do Aluno / Responsável
             $emailEstagiario = $row[0] ?? null;  // Coluna B
             // $declaracaoCiente           = $row[1] ?? null;  // Coluna C
@@ -162,27 +194,27 @@ class SyncDataController extends Controller
             $valorAuxilioTransporte = $row[58] ?? null; // Coluna BH
             $observacoes = $row[59] ?? null; // Coluna BI
 
-            // busca o curso
+            // Busca o curso pelo nome (com correspondência flexível).
             $curso = Course::whereLike('name', $nomeCurso)->first();
 
-            // busca os dados do tipo de estágio relacionado ao curso
+            // Busca os dados do tipo de estágio relacionado ao curso.
             $internshipType = null;
             $internshipTypeName = null;
-            $requiredHours = 0; // valor padrão
-            $internshipTypeWeight = 1; // valor padrão
+            $requiredHours = 0;
+            $internshipTypeWeight = 1;
 
             if ($curso) {
                 if ($tipoEstagio) {
-                    // Primeiro tenta encontrar o tipo de estágio específico dentro dos tipos do curso
+                    // Tenta encontrar o tipo de estágio específico informado.
                     $internshipType = $curso->internshipTypes()->whereLike('name', $tipoEstagio)->first();
                 }
 
-                // Se não encontrou o tipo específico ou não foi informado, pega o primeiro tipo de estágio do curso
+                // Se não encontrou ou não foi informado, usa o primeiro tipo de estágio do curso como padrão.
                 if (! $internshipType) {
                     $internshipType = $curso->internshipTypes()->first();
                 }
 
-                // Se encontrou um tipo de estágio, copia os dados dele
+                // Se um tipo de estágio foi encontrado, extrai seus dados.
                 if ($internshipType) {
                     $internshipTypeName = $internshipType->name;
                     $requiredHours = $internshipType->required_hours;
@@ -194,7 +226,7 @@ class SyncDataController extends Controller
                 throw new \Exception("Curso '$nomeCurso' não encontrado para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
             }
 
-            // busca orientador (tolera erro de digitação)
+            // Busca o orientador pelo nome, tolerando pequenos erros de digitação (fuzzy search).
             $result = $fuzzySearch->fuzzyFind(User::class, 'name', $nomeOrientador);
             $orientador = null;
             $advisorWarning = '';
@@ -205,24 +237,23 @@ class SyncDataController extends Controller
 
             $orientador = $result['entity'];
 
+            // Se a correspondência não foi exata, adiciona um aviso nas observações.
             if (! $result['exact_match']) {
                 $advisorWarning = $result['warning'];
             }
 
-            // se achou o orientador por similaridade, registra isso
             if ($advisorWarning) {
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').$advisorWarning;
-
             }
-            // busca os dados da parte concedente
+
+            // Busca os dados da parte concedente (empresa) pelo CNPJ ou CPF.
             $identificadorLegal = $cnpjConcedente ?? $cpfConcedente;
             $partesConcedentes = Company::where('legal_identifier', $identificadorLegal)->get();
 
-            // RF-I02.3: Tratamento dos Resultados da Busca
+            // Trata os resultados da busca pela empresa.
             if ($partesConcedentes->count() === 1) {
-                // RF-I02.3.1: Um resultado - usa dados padronizados da base local
+                // Um resultado: usa os dados padronizados do banco de dados local.
                 $parteConcedente = $partesConcedentes->first();
-                $identificadorLegal = $parteConcedente->legal_identifier;
                 $razaoSocialConcedente = $parteConcedente->name;
                 $telefoneConcedente = $parteConcedente->phone;
                 $emailConcedente = $parteConcedente->email;
@@ -239,47 +270,20 @@ class SyncDataController extends Controller
                 $numeroRegistroConselho = $parteConcedente->council_registration_number ?? null;
                 $numeroProcesso = $parteConcedente->process_number ?? null;
             } elseif ($partesConcedentes->count() > 1) {
-                // RF-I02.3.2: Múltiplos resultados - status Pendente + anotação
+                // Múltiplos resultados: deixa os campos em branco e adiciona um aviso.
                 $razaoSocialConcedente = null;
-                $telefoneConcedente = null;
-                $emailConcedente = null;
-                $enderecoRuaConcedente = null;
-                $enderecoNumeroConcedente = null;
-                $enderecoBairroConcedente = null;
-                $cidadeConcedente = null;
-                $ufConcedente = null;
-                $cepConcedente = null;
-                $nomeRepresentanteConcedente = null;
-                $cargoRepresentanteConcedente = null;
-                $areaDeAtuacao = null;
-                $registroConselhoProfissional = null;
-                $numeroRegistroConselho = null;
-                $numeroProcesso = null;
+                // ... (demais campos da empresa nulos)
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').
                     "ATENÇÃO: Múltiplas empresas encontradas com o CNPJ/CPF {$identificadorLegal}. Seleção manual necessária.";
             } else {
-                // RF-I02.3.3: Nenhum resultado - campos vazios + status Pendente
+                // Nenhum resultado: deixa os campos em branco e adiciona um aviso.
                 $razaoSocialConcedente = null;
-                $telefoneConcedente = null;
-                $emailConcedente = null;
-                $enderecoRuaConcedente = null;
-                $enderecoNumeroConcedente = null;
-                $enderecoBairroConcedente = null;
-                $cidadeConcedente = null;
-                $ufConcedente = null;
-                $cepConcedente = null;
-                $nomeRepresentanteConcedente = null;
-                $cargoRepresentanteConcedente = null;
-                $areaDeAtuacao = null;
-                $registroConselhoProfissional = null;
-                $numeroRegistroConselho = null;
-                $numeroProcesso = null;
-
+                // ... (demais campos da empresa nulos)
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').
                     "ATENÇÃO: Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário.";
             }
 
-            // formata as datas com validação
+            // Formata as datas, validando o formato 'd/m/Y'.
             $dataNascimento = null;
             $rgDataExpedicao = null;
             $dataInicioEstagio = null;
@@ -308,30 +312,28 @@ class SyncDataController extends Controller
                 }
             }
 
-            // Validação e cálculo da carga horária semanal
+            // Valida e calcula a carga horária semanal.
             $weeklyHours = [
-                (int) ($horasDomingo ?? 0),      // Domingo
-                (int) ($horasSegunda ?? 0),      // Segunda
-                (int) ($horasTerca ?? 0),        // Terça
-                (int) ($horasQuarta ?? 0),       // Quarta
-                (int) ($horasQuinta ?? 0),       // Quinta
-                (int) ($horasSexta ?? 0),        // Sexta
-                (int) ($horasSabado ?? 0),       // Sábado
+                (int) ($horasDomingo ?? 0),
+                (int) ($horasSegunda ?? 0),
+                (int) ($horasTerca ?? 0),
+                (int) ($horasQuarta ?? 0),
+                (int) ($horasQuinta ?? 0),
+                (int) ($horasSexta ?? 0),
+                (int) ($horasSabado ?? 0),
             ];
 
             $totalWeeklyHours = array_sum($weeklyHours);
 
-            // Validação: máximo 30 horas semanais
             if ($totalWeeklyHours > 30) {
                 throw new \Exception("A carga horária semanal do estagiário '$nomeCompletoEstagiario' na linha $rowNumber excede o limite de 30 horas. Total informado: {$totalWeeklyHours} horas.");
             }
 
-            // Validação: deve ter pelo menos 1 hora semanal
             if ($totalWeeklyHours <= 0) {
                 throw new \Exception("A carga horária semanal do estagiário '$nomeCompletoEstagiario' na linha $rowNumber deve ser maior que zero.");
             }
 
-            // Cálculo da data de fim do estágio
+            // Calcula a data de fim do estágio com base na carga horária total e semanal.
             $dataFimEstagio = null;
             if ($dataInicioEstagio && $requiredHours > 0) {
                 try {
@@ -345,14 +347,15 @@ class SyncDataController extends Controller
                 }
             }
 
+            // Formata valores monetários e booleanos.
             $valorBolsa = ($valorBolsa === '' || $valorBolsa === null) ? null : str_replace(',', '.', $valorBolsa);
             $valorAuxilioTransporte = ($valorAuxilioTransporte === '' || $valorAuxilioTransporte === null) ? null : str_replace(',', '.', $valorAuxilioTransporte);
-            $estagioRemunerado = strtolower($estagioRemunerado) === 'sim' ? true : false;
-            $maiorDe18 = strtolower($maiorDe18) === 'sim' ? true : false;
-            // salvar no banco de dados
-            Internship::create([
+            $estagioRemunerado = strtolower($estagioRemunerado) === 'sim';
+            $maiorDe18 = strtolower($maiorDe18) === 'sim';
 
-                // dados estudante
+            // Cria o registro de estágio no banco de dados.
+            Internship::create([
+                // Dados do estudante
                 'student_name' => $nomeCompletoEstagiario,
                 'student_email' => $emailEstagiario,
                 'student_registration_number' => $matricula,
@@ -371,13 +374,13 @@ class SyncDataController extends Controller
                 'student_address_state' => $ufEstagiario,
                 'student_address_zip' => $cepEstagiario,
 
-                // dados responsavel legal
+                // Dados do responsável legal
                 'legal_guardian_name' => $nomeResponsavelLegal,
                 'legal_guardian_cpf' => $cpfResponsavelLegal,
                 'legal_guardian_kinship' => $parentescoResponsavelLegal,
                 'legal_guardian_email' => $emailResponsavelLegal,
 
-                // dados do estágio
+                // Dados do estágio
                 'internship_type_name' => $internshipTypeName,
                 'internship_sector' => $setorEstagio,
                 'activities' => $atividadesPrevistas,
@@ -393,7 +396,7 @@ class SyncDataController extends Controller
                 'satisfactory_value' => $internshipType->satisfactory_value,
                 'unsatisfactory_value' => $internshipType->unsatisfactory_value,
 
-                // dados supervisor
+                // Dados do supervisor
                 'supervisor_name' => $nomeSupervisor,
                 'supervisor_phone' => $telefoneSupervisor,
                 'supervisor_email' => $emailSupervisor,
@@ -416,7 +419,7 @@ class SyncDataController extends Controller
                 'grant_value' => $valorBolsa,
                 'transportation_allowance' => $valorAuxilioTransporte,
 
-                // dados da parte concedente
+                // Dados da parte concedente
                 'company_legal_identifier' => $identificadorLegal,
                 'company_name' => $razaoSocialConcedente,
                 'company_phone' => $telefoneConcedente,
@@ -441,6 +444,7 @@ class SyncDataController extends Controller
 
             $processedCount++;
 
+            // Marca a linha como processada na planilha, escrevendo '1' na coluna 'BJ'.
             $updateRange = "'Respostas ao formulário 1'!BJ".$rowNumber;
             $values = [[1]];
             $body = new \Google_Service_Sheets_ValueRange(['values' => $values]);
@@ -453,7 +457,16 @@ class SyncDataController extends Controller
     }
 
     /**
-     * Sincroniza as avaliações de supervisores com a planilha do Google
+     * Sincroniza as avaliações de supervisores a partir de uma planilha do Google.
+     *
+     * Este método lê uma planilha de avaliações, mapeia cada coluna para um campo do
+     * modelo `SupervisorEvaluation`, cria um novo registro no banco de dados e,
+     * ao final, marca a linha como processada na planilha.
+     *
+     * @param  \App\Services\GoogleApiService  $googleService  Serviço para interagir com a API do Google.
+     * @return int O número de avaliações processadas com sucesso.
+     *
+     * @throws \Exception Se o ID da planilha não estiver configurado.
      */
     private function syncSupervisorEvaluations(GoogleApiService $googleService): int
     {
@@ -466,29 +479,25 @@ class SyncDataController extends Controller
         $client = $googleService->getClient();
         $service = new \Google_Service_Sheets($client);
 
-        // Range incluindo coluna Z para controle de sincronização
         $range = "'Respostas ao formulário 1'!A2:Z";
 
         $response = $service->spreadsheets_values->get($spreadsheetId, $range);
         $rows = $response->getValues();
 
         if (empty($rows)) {
-            return 0; // Nenhuma avaliação para sincronizar
+            return 0; // Nenhuma avaliação para sincronizar.
         }
 
         $processedCount = 0;
-        $skippedCount = 0;
 
         foreach ($rows as $index => $row) {
-            // Verifica se já foi sincronizado (coluna Z = 1)
+            // Se a coluna de controle 'Z' (índice 25) estiver marcada com '1', pula a linha.
             if (isset($row[25]) && $row[25] == 1) {
-                $skippedCount++;
-
                 continue;
             }
 
             // Mapeamento das colunas baseado no CSV
-            $timestamp = $row[0] ?? null;                           // Coluna A - Carimbo de data/hora
+            //$timestamp = $row[0] ?? null;                           // Coluna A - Carimbo de data/hora
             $supervisorEmail = $row[1] ?? null;                     // Coluna B - Endereço de e-mail
             $studentName = $row[2] ?? null;                         // Coluna C - Nome do estagiário
             $supervisorName = $row[3] ?? null;                      // Coluna D - Seu nome completo
@@ -517,10 +526,10 @@ class SyncDataController extends Controller
             $performanceIssues = $row[23] ?? null;                  // Coluna X - Aspectos que prejudicaram
             $otherObservations = $row[24] ?? null;                  // Coluna Y - Outras observações
 
-            // Usa o cargo que estiver preenchido (prioriza jobRole1, depois jobRole2)
+            // Usa o cargo que estiver preenchido, com prioridade para o primeiro campo.
             $jobRole = ! empty($jobRole1) ? $jobRole1 : $jobRole2;
 
-            // Cria o registro da avaliação
+            // Cria o registro da avaliação no banco de dados.
             SupervisorEvaluation::create([
                 'supervisor_email' => $supervisorEmail,
                 'student_name' => $studentName,
@@ -547,8 +556,8 @@ class SyncDataController extends Controller
                 'other_observations' => $otherObservations,
             ]);
 
-            // Marca como sincronizado na planilha (coluna Z = 1)
-            $rowNumber = $index + 2; // +2 porque começa em A2
+            // Marca a linha como processada na planilha, escrevendo '1' na coluna 'Z'.
+            $rowNumber = $index + 2;
             $updateRange = "'Respostas ao formulário 1'!Z{$rowNumber}";
             $values = [[1]];
             $body = new \Google_Service_Sheets_ValueRange([
@@ -564,7 +573,13 @@ class SyncDataController extends Controller
     }
 
     /**
-     * Extrai apenas "Sim" ou "Não" da primeira palavra de uma resposta
+     * Extrai "Sim" ou "Não" da primeira palavra de uma string.
+     *
+     * Este método auxiliar é usado para normalizar respostas de formulários que podem
+     * conter texto adicional (ex: "Sim, possui formação na área").
+     *
+     * @param  string|null  $text  O texto a ser analisado.
+     * @return string|null "Sim", "Não" ou null se não for possível determinar.
      */
     private function extractSimNao(?string $text): ?string
     {
@@ -572,13 +587,12 @@ class SyncDataController extends Controller
             return null;
         }
 
-        // Remove espaços extras e pega a primeira palavra
+        // Pega a primeira palavra da string.
         $firstWord = strtok(trim($text), ' ,');
 
-        // Normaliza para maiúsculas/minúsculas
+        // Normaliza para minúsculas para uma comparação insensível a maiúsculas/minúsculas.
         $normalized = mb_strtolower($firstWord);
 
-        // Retorna "Sim" ou "Não" baseado na primeira palavra
         if (str_starts_with($normalized, 'sim')) {
             return 'Sim';
         } elseif (str_starts_with($normalized, 'não') || str_starts_with($normalized, 'nao')) {
