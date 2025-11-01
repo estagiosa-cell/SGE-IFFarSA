@@ -7,6 +7,8 @@ use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
 use App\Utils\SearchHelper;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 /**
@@ -17,6 +19,8 @@ use Illuminate\Http\Request;
  */
 class CompanyController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Exibe uma lista de partes concedentes com filtros.
      *
@@ -25,6 +29,8 @@ class CompanyController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Company::class);
+
         // Pega os valores dos filtros da requisição.
         $searchName = $request->get('name');
         $searchLegalIdentifier = $request->get('legal_identifier');
@@ -68,6 +74,8 @@ class CompanyController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Company::class);
+
         return view('admin.companies.create');
     }
 
@@ -97,6 +105,8 @@ class CompanyController extends Controller
      */
     public function edit(Company $company)
     {
+        $this->authorize('update', $company);
+
         return view('admin.companies.edit', compact('company'));
     }
 
@@ -129,7 +139,12 @@ class CompanyController extends Controller
      */
     public function destroy(Company $company)
     {
-        $company->delete();
+        try {
+            $this->authorize('delete', $company);
+            $company->delete();
+        } catch (AuthorizationException $e) {
+            return redirect()->route('admin.companies.index')->with('error', $e->getMessage());
+        }
 
         return redirect()->route('admin.companies.index')
             ->with('message', 'Parte Concedente excluída com sucesso!')
@@ -144,6 +159,8 @@ class CompanyController extends Controller
      */
     public function import(Request $request)
     {
+        $this->authorize('create', Company::class);
+
         // Valida se o arquivo foi enviado e se é um CSV válido.
         $request->validate([
             'csv_file' => 'required|file|mimes:csv,txt|max:20480', // máximo 20MB
@@ -327,6 +344,7 @@ class CompanyController extends Controller
     {
         // Busca a empresa apenas na lixeira (onlyTrashed).
         $company = Company::onlyTrashed()->findOrFail($id);
+        $this->authorize('restore', $company);
         $company->restore();
 
         // Redireciona de volta para a lista de empresas excluídas.

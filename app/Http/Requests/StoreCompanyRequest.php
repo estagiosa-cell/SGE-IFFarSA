@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class StoreCompanyRequest extends FormRequest
@@ -13,8 +14,7 @@ class StoreCompanyRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Apenas administradores podem criar novas partes concedentes.
-        return Gate::allows('is-admin');
+        return Auth::user()->can('create', Company::class);
     }
 
     /**

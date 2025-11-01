@@ -3,7 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 
 class UpdateCompanyRequest extends FormRequest
@@ -13,8 +14,7 @@ class UpdateCompanyRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Apenas administradores podem editar as partes concedentes.
-        return Gate::allows('is-admin');
+        return Auth::user()->can('update', Route::current()->parameter('company'));
     }
 
     /**
