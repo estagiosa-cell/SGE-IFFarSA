@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Services\LoginRedirectService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 
 /**
  * Controlador responsável por gerenciar a sessão do usuário (login e logout).
@@ -34,22 +33,7 @@ class SessionController extends Controller
      */
     public function store(LoginRequest $request, LoginRedirectService $redirector)
     {
-        // Tenta autenticar o usuário com as credenciais fornecidas
-        if (! Auth::attempt($request->validated())) {
-            // Se falhar, lança uma exceção de validação com mensagem de erro
-            throw ValidationException::withMessages([
-                'login_error' => __('auth.failed'),
-            ]);
-        }
-
-        // Verifica se o usuário está ativo
-        if (! Auth::user()->isActive()) {
-            Auth::logout(); // Desloga o usuário inativo
-
-            throw ValidationException::withMessages([
-                'login_error' => 'Esta conta de usuário foi desativada.',
-            ]);
-        }
+        $request->authenticate();
 
         // Se a autenticação for bem-sucedida, regenera a sessão para evitar session fixation.
         session()->regenerate();
