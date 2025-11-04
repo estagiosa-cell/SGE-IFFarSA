@@ -6,6 +6,7 @@ use App\Enums\InternshipStatus;
 use App\Models\Internship;
 use App\Models\User;
 use App\Utils\SearchHelper;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class InternshipViewController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Exibe uma lista de estágios com base no perfil do usuário (orientador ou coordenador).
      *
@@ -27,6 +29,8 @@ class InternshipViewController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Internship::class);
+
         $user = Auth::user();
         $advisors = collect();
         $statusOptions = InternshipStatus::options();
@@ -84,8 +88,8 @@ class InternshipViewController extends Controller
                 ->orderBy('name')
                 ->get();
         } else {
-            // Se o usuário não for orientador nem coordenador, nega o acesso.
-            abort(403, 'Acesso não autorizado.');
+            // Se o usuário não for orientador nem coordenador, retorna lista vazia
+            $internships = Internship::query()->whereRaw('1 = 0')->paginate(100);
         }
 
         return view('internship-view.index', compact('internships', 'advisors', 'statusOptions'));
@@ -134,29 +138,7 @@ class InternshipViewController extends Controller
      */
     public function show(Internship $internship)
     {
-        $user = Auth::user();
-
-        // Inicia a verificação de permissão como falsa.
-        $canView = false;
-
-        if ($user->can('is-orientador')) {
-            // Orientador pode ver o estágio se ele for o orientador responsável.
-            $canView = $internship->advisor_id === $user->id;
-        }
-
-        if ($user->can('is-coordenador')) {
-            // Coordenador pode ver estágios dos cursos que ele coordena.
-            $coordinatedCourseIds = $user->coordinatedCourses()->pluck('id');
-            $canView = $canView || $coordinatedCourseIds->contains($internship->course_id);
-
-            // Coordenador também pode ver estágios onde ele mesmo é o orientador.
-            $canView = $canView || $internship->advisor_id === $user->id;
-        }
-
-        // Se após todas as verificações o usuário não puder ver, nega o acesso.
-        if (! $canView) {
-            abort(403, 'Você não tem permissão para visualizar este estágio.');
-        }
+        $this->authorize('view', $internship);
 
         // Carrega os relacionamentos para evitar N+1 queries na view.
         $internship->load(['advisor', 'course']);
