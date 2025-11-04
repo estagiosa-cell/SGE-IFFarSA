@@ -2,20 +2,26 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Enums\UserRole;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Model que representa um usuário do sistema.
+ *
+ * Gerencia os dados de autenticação e autorização dos usuários,
+ * incluindo administradores, coordenadores e orientadores.
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
 
     /**
-     * The attributes that are mass assignable.
+     * Os atributos que podem ser atribuídos em massa.
      *
      * @var list<string>
      */
@@ -28,7 +34,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Os atributos que devem ser ocultados na serialização.
      *
      * @var list<string>
      */
@@ -37,7 +43,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Obtém os atributos que devem ser convertidos para tipos nativos.
      *
      * @return array<string, string>
      */
@@ -50,20 +56,30 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Envia a notificação de redefinição de senha para o usuário.
+     *
+     * Sobrescreve o método padrão do Laravel para usar uma notificação customizada
+     * com URL de redefinição incluindo o e-mail do usuário.
+     *
+     * @param  string  $token  O token de redefinição de senha.
+     */
     public function sendPasswordResetNotification($token): void
     {
-        // Constrói a URL de forma segura e com o e-mail
+        // Constrói a URL de forma segura incluindo o token e o e-mail.
         $url = route('password.reset', [
             'token' => $token,
             'email' => $this->getEmailForPasswordReset(),
         ]);
 
-        // Envia a notificação com a URL de redefinição de senha
+        // Envia a notificação customizada com a URL de redefinição de senha.
         $this->notify(new ResetPasswordNotification($url));
     }
 
     /**
-     * Verifica se o usuário está ativo.
+     * Verifica se o usuário está ativo no sistema.
+     *
+     * @return bool True se o usuário está ativo, false se foi desativado.
      */
     public function isActive(): bool
     {
@@ -71,7 +87,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Retorna todos os coordenadores ativos
+     * Retorna todos os coordenadores ativos do sistema.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function coordinators()
     {
@@ -82,7 +100,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Relacionamento: estágios onde este usuário é orientador
+     * Relacionamento: estágios onde este usuário é orientador.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function advisedInternships()
     {
@@ -90,7 +110,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Relacionamento: cursos onde este usuário é coordenador
+     * Relacionamento: cursos onde este usuário é coordenador.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function coordinatedCourses()
     {

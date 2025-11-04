@@ -6,10 +6,17 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Request para validação de dados de login.
+ *
+ * Valida as credenciais fornecidas e fornece método para autenticação.
+ */
 class LoginRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
+     *
+     * @return bool True, pois qualquer pessoa pode tentar fazer login.
      */
     public function authorize(): bool
     {
@@ -18,7 +25,7 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Define as regras de validação que se aplicam à requisição.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
@@ -33,16 +40,21 @@ class LoginRequest extends FormRequest
     /**
      * Tenta autenticar as credenciais da requisição.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * Verifica se as credenciais são válidas e se o usuário está ativo no sistema.
+     *
+     * @return void
+     * @throws \Illuminate\Validation\ValidationException Se as credenciais forem inválidas ou o usuário estiver desativado.
      */
     public function authenticate(): void
     {
+        // Tenta autenticar com as credenciais fornecidas.
         if (! Auth::attempt($this->validated())) {
             throw ValidationException::withMessages([
                 'login_error' => __('auth.failed'),
             ]);
         }
 
+        // Verifica se o usuário está ativo no sistema.
         if (! Auth::user()->isActive()) {
             Auth::logout();
 

@@ -5,17 +5,30 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Model que representa um curso da instituição.
+ *
+ * Gerencia informações dos cursos, incluindo seu coordenador,
+ * tipos de estágio associados e estágios em andamento.
+ */
 class Course extends Model
 {
     use SoftDeletes;
 
+    /**
+     * Os atributos que podem ser atribuídos em massa.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'name',
         'coordinator_id'
     ];
 
     /**
-     * Retorna o coordenador do curso.
+     * Relacionamento: retorna o coordenador do curso.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function coordinator()
     {
@@ -23,7 +36,9 @@ class Course extends Model
     }
 
     /**
-     * Retorna os tipos de estágio do curso.
+     * Relacionamento: retorna os tipos de estágio configurados para este curso.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function internshipTypes()
     {
@@ -31,7 +46,9 @@ class Course extends Model
     }
 
     /**
-     * Retorna os estágios do curso.
+     * Relacionamento: retorna os estágios vinculados a este curso.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function internships()
     {

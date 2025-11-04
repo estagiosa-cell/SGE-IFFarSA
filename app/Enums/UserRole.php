@@ -2,6 +2,11 @@
 
 namespace App\Enums;
 
+/**
+ * Enum que representa os perfis/papéis de usuário no sistema.
+ *
+ * Define os diferentes níveis de acesso e permissões que um usuário pode ter.
+ */
 enum UserRole: string
 {
     case ADMIN = 'admin';
@@ -9,7 +14,9 @@ enum UserRole: string
     case ORIENTADOR = 'orientador';
 
     /**
-     * Retorna o label legível do papel
+     * Retorna o label legível do papel do usuário.
+     *
+     * @return string O texto de exibição do papel.
      */
     public function label(): string
     {
@@ -21,7 +28,9 @@ enum UserRole: string
     }
 
     /**
-     * Retorna todos os valores como array
+     * Retorna todos os valores possíveis do enum como array.
+     *
+     * @return array Array com os valores das roles (admin, coordenador, orientador).
      */
     public static function values(): array
     {

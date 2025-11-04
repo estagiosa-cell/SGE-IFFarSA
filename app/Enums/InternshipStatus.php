@@ -2,6 +2,12 @@
 
 namespace App\Enums;
 
+/**
+ * Enum que representa os possíveis status de um estágio.
+ *
+ * Define os estados pelos quais um estágio pode passar durante seu ciclo de vida,
+ * incluindo labels legíveis e cores para exibição na interface.
+ */
 enum InternshipStatus: string
 {
     case PENDING = 'Pendente';
@@ -10,6 +16,11 @@ enum InternshipStatus: string
     case COMPLETED = 'Concluído';
     case CANCELLED = 'Cancelado';
 
+    /**
+     * Retorna o label legível do status.
+     *
+     * @return string O texto de exibição do status.
+     */
     public function label(): string
     {
         return match ($this) {
@@ -21,6 +32,13 @@ enum InternshipStatus: string
         };
     }
 
+    /**
+     * Retorna a cor do Bootstrap associada ao status.
+     *
+     * Usado para estilizar badges e alertas na interface do usuário.
+     *
+     * @return string A classe de cor do Bootstrap (warning, info, primary, success, danger).
+     */
     public function color(): string
     {
         return match ($this) {
@@ -32,6 +50,11 @@ enum InternshipStatus: string
         };
     }
 
+    /**
+     * Retorna todos os status como um array associativo para uso em selects.
+     *
+     * @return array Array no formato ['valor' => 'label'].
+     */
     public static function options(): array
     {
         return collect(self::cases())

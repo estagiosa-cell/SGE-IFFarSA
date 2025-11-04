@@ -3,10 +3,15 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+/**
+ * Notificação para redefinição de senha do usuário.
+ *
+ * Envia um e-mail com um link para redefinir a senha, incluindo
+ * informações sobre expiração e requisitos de acesso.
+ */
 class ResetPasswordNotification extends Notification
 {
     use Queueable;
@@ -19,7 +24,9 @@ class ResetPasswordNotification extends Notification
     public $url;
 
     /**
-     * Create a new notification instance.
+     * Cria uma nova instância da notificação.
+     *
+     * @param  string  $url  A URL para redefinição de senha.
      */
     public function __construct(string $url)
     {
@@ -27,9 +34,10 @@ class ResetPasswordNotification extends Notification
     }
 
     /**
-     * Get the notification's delivery channels.
+     * Define os canais de entrega da notificação.
      *
-     * @return array<int, string>
+     * @param  object  $notifiable  A entidade que receberá a notificação.
+     * @return array<int, string> Array com os canais de entrega.
      */
     public function via(object $notifiable): array
     {
@@ -37,23 +45,31 @@ class ResetPasswordNotification extends Notification
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Constrói a representação em e-mail da notificação.
+     *
+     * Define o assunto, conteúdo e ações do e-mail de redefinição de senha.
+     *
+     * @param  object  $notifiable  A entidade que receberá a notificação.
+     * @return \Illuminate\Notifications\Messages\MailMessage A mensagem de e-mail formatada.
      */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject('Redefinição de Senha')
             ->line('Você está recebendo este e-mail porque recebemos um pedido de redefinição de senha para sua conta.')
-            ->action('Redefinir Senha', $this->url) // Usa a URL customizada
-            ->line('Este link de redefinição de senha irá expirar em ' . config('auth.passwords.users.expire') . ' minutos.')
+            ->action('Redefinir Senha', $this->url) // Usa a URL customizada.
+            ->line('Este link de redefinição de senha irá expirar em '.config('auth.passwords.users.expire').' minutos.')
             ->line('**Importante:** O acesso ao sistema só é possível quando conectado na rede do campus.')
             ->line('Se você não solicitou uma redefinição de senha, nenhuma ação adicional é necessária.');
     }
 
     /**
-     * Get the array representation of the notification.
+     * Define a representação em array da notificação.
      *
-     * @return array<string, mixed>
+     * Usado quando a notificação é armazenada no banco de dados.
+     *
+     * @param  object  $notifiable  A entidade que receberá a notificação.
+     * @return array<string, mixed> Array com os dados da notificação.
      */
     public function toArray(object $notifiable): array
     {

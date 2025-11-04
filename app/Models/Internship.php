@@ -7,10 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Model que representa um estágio.
+ *
+ * Gerencia todas as informações relacionadas a um estágio, incluindo dados do estudante,
+ * empresa concedente, supervisor, orientador, carga horária, avaliações e status.
+ */
 class Internship extends Model
 {
     use SoftDeletes;
 
+    /**
+     * Os atributos que podem ser atribuídos em massa.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         // Chaves Estrangeiras
         'advisor_id',
@@ -129,6 +140,11 @@ class Internship extends Model
         'evaluation_other_observations',
     ];
 
+    /**
+     * Os atributos que devem ser convertidos para tipos nativos.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'student_birth_date' => 'date',
         'student_is_adult' => 'boolean',
@@ -149,18 +165,31 @@ class Internship extends Model
         'hours_saturday' => 'integer',
     ];
 
-    // Relacionamentos
+    /**
+     * Relacionamento: retorna o orientador responsável pelo estágio.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function advisor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'advisor_id');
     }
 
+    /**
+     * Relacionamento: retorna o curso ao qual o estágio pertence.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
     }
 
-    // Métodos auxiliares
+    /**
+     * Calcula o total de horas semanais do estágio.
+     *
+     * @return int Total de horas semanais.
+     */
     public function getTotalWeeklyHours(): int
     {
         return collect([
@@ -174,27 +203,53 @@ class Internship extends Model
         ])->filter()->sum();
     }
 
+    /**
+     * Verifica se o identificador legal da empresa é um CNPJ.
+     *
+     * @return bool True se for CNPJ, false caso contrário.
+     */
     public function isCompanyCnpj(): bool
     {
         return $this->company_legal_identifier_type === 'CNPJ';
     }
 
+    /**
+     * Verifica se o identificador legal da empresa é um CPF.
+     *
+     * @return bool True se for CPF, false caso contrário.
+     */
     public function isCompanyCpf(): bool
     {
         return $this->company_legal_identifier_type === 'CPF';
     }
 
+    /**
+     * Verifica se o estudante precisa de responsável legal.
+     *
+     * @return bool True se o estudante for menor de idade, false caso contrário.
+     */
     public function needsLegalGuardian(): bool
     {
         return ! $this->student_is_adult;
     }
 
-    // Métodos de avaliação
+    /**
+     * Verifica se o estágio possui avaliação do supervisor.
+     *
+     * @return bool True se houver avaliação, false caso contrário.
+     */
     public function hasEvaluation(): bool
     {
         return ! is_null($this->evaluation_submitted_at);
     }
 
+    /**
+     * Calcula a pontuação total da avaliação do supervisor.
+     *
+     * Soma os valores de todos os critérios de avaliação (10 questões).
+     *
+     * @return float Pontuação total da avaliação.
+     */
     public function calculateEvaluationTotalScore(): float
     {
         if (! $this->hasEvaluation()) {

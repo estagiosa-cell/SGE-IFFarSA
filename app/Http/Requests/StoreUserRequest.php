@@ -8,10 +8,19 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
+/**
+ * Request para validação de dados ao criar um novo usuário.
+ *
+ * Valida os campos obrigatórios e garante que o e-mail seja único no sistema.
+ */
 class StoreUserRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determina se o usuário está autorizado a fazer esta requisição.
+     *
+     * Verifica se o usuário autenticado tem permissão para criar novos usuários.
+     *
+     * @return bool True se autorizado, false caso contrário.
      */
     public function authorize(): bool
     {
@@ -19,7 +28,7 @@ class StoreUserRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Define as regras de validação que se aplicam à requisição.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
