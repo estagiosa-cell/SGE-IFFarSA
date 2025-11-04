@@ -119,7 +119,7 @@
                         <div class="row align-items-center g-0">
                             <div class="col-md-3 fw-bold text-dark">{{ $user->name }}</div>
                             <div class="col-md-3 small text-muted">{{ $user->email }}</div>
-                            <div class="col-md-2 small">
+                            <div class="col-md-2">
                                 <span class="badge bg-secondary">{{ $user->role->label() ?? $user->role }}</span>
                             </div>
                             <div class="col-md-2">
