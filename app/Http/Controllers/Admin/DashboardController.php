@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Internship;
 use App\Models\SupervisorEvaluation;
 use App\Models\User;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 /**
@@ -19,6 +20,8 @@ use Illuminate\Http\Request;
  */
 class DashboardController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Coleta dados e estatísticas e exibe o dashboard administrativo.
      *
@@ -27,6 +30,8 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request)
     {
+        $this->authorize('viewAny', User::class);
+
         // Coleta estatísticas gerais sobre os estágios.
         $totalInternships = Internship::count();
         $deletedInternships = Internship::onlyTrashed()->count();
