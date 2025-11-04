@@ -41,4 +41,30 @@ class UpdateUserRequest extends FormRequest
             ],
         ];
     }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator): void
+    {
+        $request = $this;
+
+        $validator->after(function ($validator) use ($request) {
+            $userToUpdate = Route::current()->parameter('user');
+            $currentUser = Auth::user();
+            $newRole = $request->input('role');
+
+            // Verifica se o usuário está tentando alterar o próprio papel
+            if ($currentUser->id === $userToUpdate->id && $currentUser->role->value !== $newRole) {
+                $validator->errors()->add('role', 'Não é possível alterar o próprio papel.');
+            }
+
+            // Verifica se está tentando alterar o papel de um coordenador com cursos atrelados
+            if ($userToUpdate->role === UserRole::COORDENADOR
+                && $userToUpdate->coordinatedCourses()->exists()
+                && $newRole !== UserRole::COORDENADOR->value) {
+                $validator->errors()->add('role', 'Não é possível alterar o papel de um coordenador com cursos atrelados.');
+            }
+        });
+    }
 }

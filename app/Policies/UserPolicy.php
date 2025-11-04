@@ -35,16 +35,8 @@ class UserPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, User $model): Response|bool
+    public function update(User $user, User $model): bool
     {
-        if ($user->id === $model->id && $user->role->value !== request()->input('role')) {
-            return Response::deny('Não é possível alterar o próprio papel.');
-        }
-
-        if ($model->role === UserRole::COORDENADOR && $model->coordinatedCourses()->exists() && request()->input('role') !== UserRole::COORDENADOR->value) {
-            return Response::deny('Não é possível alterar o papel de um coordenador com cursos atrelados.');
-        }
-
         return $user->can('is-admin');
     }
 
