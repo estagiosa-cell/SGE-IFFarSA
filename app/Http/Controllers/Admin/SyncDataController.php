@@ -13,6 +13,7 @@ use App\Services\FuzzySearchService;
 use App\Services\GoogleApiService;
 use App\Utils\InternshipEndDate;
 use Carbon\Carbon;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 /**
@@ -25,6 +26,8 @@ use Illuminate\Http\Request;
  */
 class SyncDataController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Orquestra a sincronização de dados de estágios e avaliações de supervisores.
      *
@@ -39,6 +42,8 @@ class SyncDataController extends Controller
      */
     public function __invoke(Request $request, GoogleApiService $googleService, FuzzySearchService $fuzzySearch)
     {
+        $this->authorize('viewAny', Internship::class);
+
         $messages = [];
         $hasSuccess = false;
 
@@ -497,7 +502,7 @@ class SyncDataController extends Controller
             }
 
             // Mapeamento das colunas baseado no CSV
-            //$timestamp = $row[0] ?? null;                           // Coluna A - Carimbo de data/hora
+            // $timestamp = $row[0] ?? null;                           // Coluna A - Carimbo de data/hora
             $supervisorEmail = $row[1] ?? null;                     // Coluna B - Endereço de e-mail
             $studentName = $row[2] ?? null;                         // Coluna C - Nome do estagiário
             $supervisorName = $row[3] ?? null;                      // Coluna D - Seu nome completo
