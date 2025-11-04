@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Internship;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -16,6 +17,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class ReportController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Exibe a página de filtros para o relatório de estágios.
      *
@@ -25,6 +28,8 @@ class ReportController extends Controller
      */
     public function __invoke(Request $request)
     {
+        $this->authorize('viewAny', Internship::class);
+
         $courses = collect();
         $user = Auth::user();
 
@@ -50,6 +55,8 @@ class ReportController extends Controller
      */
     public function exportInternships(Request $request)
     {
+        $this->authorize('viewAny', Internship::class);
+
         $user = Auth::user();
         $rules = [
             'start_date' => 'required|date',
