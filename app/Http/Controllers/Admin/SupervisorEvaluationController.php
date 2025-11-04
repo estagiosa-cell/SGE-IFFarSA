@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\InternshipStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AssociateSupervisorEvaluationRequest;
+use App\Http\Requests\UpdateSupervisorEvaluationRequest;
 use App\Models\Internship;
 use App\Models\SupervisorEvaluation;
 use App\Utils\SearchHelper;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -20,6 +23,7 @@ use Illuminate\Support\Facades\DB;
  */
 class SupervisorEvaluationController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Exibe a lista de avaliações de supervisores com filtros e paginação.
      *
@@ -28,6 +32,8 @@ class SupervisorEvaluationController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', SupervisorEvaluation::class);
+
         $query = SupervisorEvaluation::query();
 
         // Filtro para exibir registros que foram soft-deletados.
@@ -72,6 +78,8 @@ class SupervisorEvaluationController extends Controller
      */
     public function edit(SupervisorEvaluation $evaluation)
     {
+        $this->authorize('update', $evaluation);
+
         // Busca estágios com status "Em Andamento" para o dropdown de associação.
         $internships = Internship::where('status', InternshipStatus::IN_PROGRESS)
             ->with('course')
@@ -84,38 +92,13 @@ class SupervisorEvaluationController extends Controller
     /**
      * Atualiza os dados de uma avaliação de supervisor.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição HTTP com os dados da avaliação.
+     * @param  \App\Http\Requests\UpdateSupervisorEvaluationRequest  $request  A requisição HTTP com os dados da avaliação.
      * @param  \App\Models\SupervisorEvaluation  $evaluation  A avaliação a ser atualizada.
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, SupervisorEvaluation $evaluation)
+    public function update(UpdateSupervisorEvaluationRequest $request, SupervisorEvaluation $evaluation)
     {
-        // Valida todos os campos do formulário.
-        $validated = $request->validate([
-            'supervisor_email' => 'nullable|email|max:255',
-            'student_name' => 'nullable|string|max:255',
-            'supervisor_name' => 'nullable|string|max:255',
-            'has_academic_background' => 'nullable|string|max:255',
-            'completed_workload' => 'nullable|string|max:255',
-            'training_course' => 'nullable|string|max:255',
-            'education_level' => 'nullable|string|max:255',
-            'job_role' => 'nullable|string|max:255',
-            'experience_time' => 'nullable|string|max:255',
-            'performance' => 'nullable|string|max:255',
-            'comprehension' => 'nullable|string|max:255',
-            'technical_knowledge' => 'nullable|string|max:255',
-            'organization' => 'nullable|string|max:255',
-            'initiative' => 'nullable|string|max:255',
-            'attendance' => 'nullable|string|max:255',
-            'discipline' => 'nullable|string|max:255',
-            'sociability' => 'nullable|string|max:255',
-            'cooperation' => 'nullable|string|max:255',
-            'responsibility' => 'nullable|string|max:255',
-            'considerations' => 'nullable|string',
-            'suggestions_to_institution' => 'nullable|string',
-            'performance_issues' => 'nullable|string',
-            'other_observations' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         // Atualiza a avaliação com os dados validados.
         $evaluation->update($validated);
@@ -129,17 +112,15 @@ class SupervisorEvaluationController extends Controller
     /**
      * Associa uma avaliação de supervisor a um estágio, copia os dados e finaliza o processo.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição HTTP contendo o ID do estágio.
+     * @param  \App\Http\Requests\AssociateSupervisorEvaluationRequest  $request  A requisição HTTP contendo o ID do estágio.
      * @param  \App\Models\SupervisorEvaluation  $evaluation  A avaliação a ser associada.
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function associate(Request $request, SupervisorEvaluation $evaluation)
+    public function associate(AssociateSupervisorEvaluationRequest $request, SupervisorEvaluation $evaluation)
     {
-        $request->validate([
-            'internship_id' => 'required|exists:internships,id',
-        ]);
-
-        $internship = Internship::findOrFail($request->internship_id);
+        $validated = $request->validated();
+        
+        $internship = Internship::findOrFail($validated['internship_id']);
 
         // Garante que a associação só ocorra para estágios em andamento.
         if ($internship->status !== InternshipStatus::IN_PROGRESS) {
@@ -216,6 +197,8 @@ class SupervisorEvaluationController extends Controller
      */
     public function destroy(SupervisorEvaluation $evaluation)
     {
+        $this->authorize('delete', $evaluation);
+
         $evaluation->delete();
 
         return redirect()
@@ -234,6 +217,8 @@ class SupervisorEvaluationController extends Controller
     {
         // Busca a avaliação na lixeira ou falha.
         $evaluation = SupervisorEvaluation::withTrashed()->findOrFail($id);
+
+        $this->authorize('restore', $evaluation);
 
         // Restaura o registro.
         $evaluation->restore();
