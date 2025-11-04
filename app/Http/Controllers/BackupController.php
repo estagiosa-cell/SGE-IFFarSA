@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Backup\CreateBackupRequest;
-use Illuminate\Auth\Access\AuthorizationException;
+use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
-use App\Models\User;
 
 /**
  * Controlador responsável pela gestão de backups do sistema.
@@ -23,19 +22,13 @@ class BackupController extends Controller
     /**
      * Mostra a view de backup.
      *
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\View\View
      */
     public function __invoke(Request $request)
     {
-        try {
-            $this->authorize('viewAny', User::class);
+        $this->authorize('viewAny', User::class);
 
-            return view('admin.backup');
-        } catch (AuthorizationException $e) {
-            return redirect()->route('admin.dashboard')
-                ->with('message', 'Você não tem permissão para acessar esta página.')
-                ->with('messageType', 'danger');
-        }
+        return view('admin.backup');
     }
 
     /**
