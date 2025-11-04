@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Google\Service\Oauth2 as GoogleServiceOauth2;
 use Google_Client;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Redirect;
  */
 class GoogleAuthController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Redireciona o usuário para o fluxo de autenticação do Google.
      *
@@ -26,6 +29,11 @@ class GoogleAuthController extends Controller
      */
     public function redirect()
     {
+        // Verifica se o usuário tem permissão de admin antes de iniciar o OAuth
+        if (! Auth::check() || ! Auth::user()->can('is-admin')) {
+            abort(403, 'Você não tem permissão para conectar uma conta Google.');
+        }
+
         $client = new Google_Client;
 
         // Configurações do cliente a partir das variáveis de ambiente.
