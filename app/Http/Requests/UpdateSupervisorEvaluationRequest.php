@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 
 class UpdateSupervisorEvaluationRequest extends FormRequest
 {
@@ -13,7 +12,7 @@ class UpdateSupervisorEvaluationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::user()->can('update', Route::current()->parameter('supervisor_evaluation'));
+        return Auth::user()->can('is-admin');
     }
 
     /**
