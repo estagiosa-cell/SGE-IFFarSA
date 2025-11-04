@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\InternshipStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GenerateInternshipDocumentRequest;
 use App\Models\Internship;
 use App\Services\GoogleApiService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Controlador para gerar documentos de estágio usando a API do Google Docs.
@@ -21,22 +20,15 @@ class InternshipDocumentController extends Controller
     /**
      * Manipula a requisição para gerar um documento de estágio.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição HTTP.
+     * @param  \App\Http\Requests\GenerateInternshipDocumentRequest  $request  A requisição HTTP validada.
      * @param  int  $internshipId  O ID do estágio para o qual o documento será gerado.
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function __invoke(Request $request, $internshipId)
+    public function __invoke(GenerateInternshipDocumentRequest $request, $internshipId)
     {
-        // Verifica se o usuário autenticado tem permissão de administrador.
-        if (! Auth::user()->can('is-admin')) {
-            return redirect()->back()
-                ->with('message', 'Você não tem permissão para gerar documentos.')
-                ->with('messageType', 'error');
-        }
-
         // Encontra o estágio ou falha, carregando relacionamentos necessários.
         $internship = Internship::with(['advisor', 'course'])->findOrFail($internshipId);
-        $documentType = $request->input('document_type');
+        $documentType = $request->validated()['document_type'];
 
         try {
             $currentDateTime = now()->format('d/m/Y H:i');
