@@ -51,23 +51,6 @@ Certifique-se de ter as seguintes ferramentas instaladas:
      APP_TIMEZONE=America/Sao_Paulo
      ```
 
-   - **Banco de Dados**:
-     ```env
-     DB_CONNECTION=sqlite
-     DB_DATABASE=database/database.sqlite
-     ```
-
-   - **E-mails**:
-     ```env
-     MAIL_MAILER=smtp
-     MAIL_HOST=sandbox.smtp.mailtrap.io
-     MAIL_PORT=2525
-     MAIL_USERNAME=seu_usuario_mailtrap
-     MAIL_PASSWORD=sua_senha_mailtrap
-     MAIL_FROM_ADDRESS="email@exemplo.com"
-     MAIL_FROM_NAME="${APP_NAME}"
-     ```
-
    - **Serviços do Google**:
      Consulte o arquivo [GOOGLE_OAUTH_SETUP.md](GOOGLE_OAUTH_SETUP.md) para instruções detalhadas sobre a configuração da integração com as APIs do Google.
      ```env
