@@ -20,7 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->withSchedule(function (Schedule $schedule): void {
-        // Limpa os tokens de recuperação de senha expirados diariamente
-        $schedule->command('auth:clear-resets')->daily();
+        //
     })
     ->create();
