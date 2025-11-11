@@ -19,7 +19,7 @@ Esta seção descreve os passos essenciais para implantar a aplicação em um se
 Acesse seu servidor via SSH e clone o projeto para o diretório apropriado (ex: `/var/www/sge-iffarsa`).
 
 ```bash
-git clone https://github.com/ArthurWillers/SGE-IFFarSA.git /var/www/sge-iffarsa
+git clone https://github.com/estagiosa-cell/SGE-IFFarSA.git /var/www/sge-iffarsa
 cd /var/www/sge-iffarsa
 ```
 

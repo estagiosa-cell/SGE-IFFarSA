@@ -15,7 +15,7 @@ Certifique-se de ter as seguintes ferramentas instaladas:
 1. **Clone o repositório**:
 
    ```bash
-   git clone https://github.com/ArthurWillers/SGE-IFFarSA.git
+   git clone https://github.com/estagiosa-cell/SGE-IFFarSA.git
    cd SGE-IFFarSA
    ```
 
