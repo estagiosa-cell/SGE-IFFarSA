@@ -18,13 +18,13 @@
             <div class="card-body py-3">
                 <form method="GET" action="{{ route('admin.internships.index') }}">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-6 col-lg-6">
+                        <div class="col-md-4 col-lg-3">
                             <label for="search" class="form-label mb-0 small">Buscar por nome</label>
                             <input type="text" class="form-control form-control-sm" id="search" name="search"
                                 value="{{ request('search') }}" placeholder="Nome do estudante">
                         </div>
 
-                        <div class="col-md-3 col-lg-3">
+                        <div class="col-md-4 col-lg-2">
                             <label for="status" class="form-label mb-0 small">Status</label>
                             <select class="form-select form-select-sm" id="status" name="status">
                                 <option value="">Todos</option>
@@ -36,10 +36,34 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3 col-lg-3">
+                        <div class="col-md-4 col-lg-2">
+                            <label for="course_id" class="form-label mb-0 small">Curso</label>
+                            <select class="form-select form-select-sm" id="course_id" name="course_id">
+                                <option value="">Todos</option>
+                                @foreach ($courses as $course)
+                                    <option value="{{ $course->id }}" {{ request('course_id') == $course->id ? 'selected' : '' }}>
+                                        {{ $course->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 col-lg-2">
+                            <label for="end_date_from" class="form-label mb-0 small">Término de</label>
+                            <input type="date" class="form-control form-control-sm" id="end_date_from" name="end_date_from"
+                                value="{{ request('end_date_from') }}">
+                        </div>
+
+                        <div class="col-md-6 col-lg-2">
+                            <label for="end_date_to" class="form-label mb-0 small">Término até</label>
+                            <input type="date" class="form-control form-control-sm" id="end_date_to" name="end_date_to"
+                                value="{{ request('end_date_to') }}">
+                        </div>
+
+                        <div class="col-md-12 col-lg-1">
                             <div class="d-flex gap-1">
                                 <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
-                                    <i class="bi bi-funnel"></i> Filtrar
+                                    <i class="bi bi-funnel"></i>
                                 </button>
                                 <a href="{{ route('admin.internships.index') }}" class="btn btn-outline-secondary btn-sm">
                                     <i class="bi bi-arrow-clockwise"></i>
@@ -58,7 +82,7 @@
                         <div class="mb-4">
                             @if ($showDeleted)
                                 <i class="bi bi-trash text-muted" style="font-size: 4rem;"></i>
-                            @elseif (request()->hasAny(['search', 'status']))
+                            @elseif (request()->hasAny(['search', 'status', 'course_id', 'end_date_from', 'end_date_to']))
                                 <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
                             @else
                                 <i class="bi bi-briefcase text-muted" style="font-size: 4rem;"></i>
@@ -74,7 +98,7 @@
                                 class="btn btn-outline-primary">
                                 <i class="bi bi-arrow-left me-2"></i>Ver Estágios Ativos
                             </a>
-                        @elseif (request()->hasAny(['search', 'status']))
+                        @elseif (request()->hasAny(['search', 'status', 'course_id', 'end_date_from', 'end_date_to']))
                             <h4 class="text-muted mb-3">Nenhum estágio encontrado</h4>
                             <p class="text-muted mb-4">
                                 Não foram encontrados estágios com os filtros aplicados.<br>
