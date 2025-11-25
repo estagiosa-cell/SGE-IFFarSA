@@ -37,10 +37,15 @@
         </div>
 
         <div class="mb-3">
-            <div class="form-floating">
+            <div class="form-floating position-relative">
                 <input type="password" name="password" id="password"
                     class="form-control @error('password') is-invalid @enderror" placeholder="Senha" required>
                 <label for="password"><i class="bi bi-lock me-2"></i>Senha</label>
+                <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted" 
+                    style="z-index: 10; padding: 0.375rem 0.75rem; margin-right: 0.5rem;"
+                    onclick="togglePasswordVisibility('password', this)">
+                    <i class="bi bi-eye"></i>
+                </button>
                 <div class="invalid-feedback">
                     @if ($errors->has('password'))
                         {{ $errors->first('password') }}
@@ -63,4 +68,21 @@
             </a>
         </div>
     </form>
+
+    <script>
+        function togglePasswordVisibility(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+    </script>
 @endsection

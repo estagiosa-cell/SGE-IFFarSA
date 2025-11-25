@@ -46,11 +46,16 @@
         </div>
 
         <div class="mb-3">
-            <div class="form-floating">
+            <div class="form-floating position-relative">
                 <input type="password" name="password" id="password"
                     class="form-control @error('password') is-invalid @enderror" placeholder="Nova Senha" maxlength="64"
                     required>
                 <label for="password"><i class="bi bi-lock me-2"></i>Nova Senha</label>
+                <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted" 
+                    style="z-index: 10; padding: 0.375rem 0.75rem; margin-right: 0.5rem;"
+                    onclick="togglePasswordVisibility('password', this)">
+                    <i class="bi bi-eye"></i>
+                </button>
                 <div class="invalid-feedback">
                     @if ($errors->has('password'))
                         {{ $errors->first('password') }}
@@ -62,11 +67,16 @@
         </div>
 
         <div class="mb-3">
-            <div class="form-floating">
+            <div class="form-floating position-relative">
                 <input type="password" name="password_confirmation" id="password_confirmation"
                     class="form-control @error('password_confirmation') is-invalid @enderror"
                     placeholder="Confirmar Nova Senha" maxlength="64" required>
                 <label for="password_confirmation"><i class="bi bi-lock-fill me-2"></i>Confirmar Nova Senha</label>
+                <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted" 
+                    style="z-index: 10; padding: 0.375rem 0.75rem; margin-right: 0.5rem;"
+                    onclick="togglePasswordVisibility('password_confirmation', this)">
+                    <i class="bi bi-eye"></i>
+                </button>
                 <div class="invalid-feedback">
                     @if ($errors->has('password_confirmation'))
                         {{ $errors->first('password_confirmation') }}
@@ -81,9 +91,11 @@
                     Requisitos da senha:
                 </small>
                 <ul class="mb-0 mt-1 small">
-                    <li class="text-muted">De 8 a 64 caracteres</li>
-                    <li class="text-muted">Pelo menos uma letra maiúscula e uma minúscula</li>
+                    <li class="text-muted">Entre 8 e 64 caracteres</li>
+                    <li class="text-muted">Pelo menos uma letra maiúscula</li>
+                    <li class="text-muted">Pelo menos uma letra minúscula</li>
                     <li class="text-muted">Pelo menos um número</li>
+                    <li class="text-muted">Pelo menos um símbolo especial (!@#$%^&*...)</li>
                 </ul>
             </div>
         </div>
@@ -100,4 +112,21 @@
             </a>
         </div>
     </form>
+
+    <script>
+        function togglePasswordVisibility(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+    </script>
 @endsection
