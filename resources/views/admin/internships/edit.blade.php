@@ -2,6 +2,48 @@
 
 @section('title', 'Editar Estágio')
 
+@push('styles')
+    <style>
+        .accordion-button {
+            background-color: var(--bs-primary);
+            color: var(--bs-white);
+            font-weight: 500;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background-color: var(--bs-primary);
+            color: var(--bs-white);
+            box-shadow: none;
+        }
+
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: rgba(var(--bs-primary-rgb), 0.5);
+        }
+
+        .accordion-button.collapsed {
+            background-color: #e7e7e7;
+            color: #495057;
+        }
+
+        .accordion-button:not(.collapsed)::after {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+        }
+
+        .accordion-item {
+            border: 1px solid rgba(0,0,0,.125);
+            margin-bottom: 0.5rem;
+            border-radius: 0.375rem !important;
+            overflow: hidden;
+        }
+
+        .accordion-item:first-of-type .accordion-button {
+            border-top-left-radius: 0.375rem;
+            border-top-right-radius: 0.375rem;
+        }
+    </style>
+@endpush
+
 @section('main-content')
     <div class="container-fluid mt-4 mx-1">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -66,12 +108,17 @@
             @csrf
             @method('PUT')
 
-            {{-- Informações do Sistema --}}
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white py-2">
-                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informações do Sistema</h5>
-                </div>
-                <div class="card-body">
+            <div class="accordion mb-4" id="internshipAccordion">
+                {{-- Informações do Sistema --}}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingSystem">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseSystem" aria-expanded="true" aria-controls="collapseSystem">
+                            <i class="bi bi-info-circle me-2"></i>Informações do Sistema
+                        </button>
+                    </h2>
+                    <div id="collapseSystem" class="accordion-collapse collapse show" aria-labelledby="headingSystem">
+                        <div class="accordion-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
@@ -144,15 +191,20 @@
                             </div>
                         </div>
                     </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Dados do Aluno --}}
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-person me-2"></i>Dados do Aluno</h5>
-                </div>
-                <div class="card-body">
+                {{-- Dados do Aluno --}}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingStudent">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseStudent" aria-expanded="false" aria-controls="collapseStudent">
+                            <i class="bi bi-person me-2"></i>Dados do Aluno
+                        </button>
+                    </h2>
+                    <div id="collapseStudent" class="accordion-collapse collapse" aria-labelledby="headingStudent">
+                        <div class="accordion-body">
                     <div class="row">
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
@@ -377,15 +429,22 @@
                             </div>
                         </div>
                     </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Dados do Responsável Legal --}}
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-person-check me-2"></i>Dados do Responsável Legal</h5>
-                </div>
-                <div class="card-body">
+                {{-- Dados do Responsável Legal --}}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingLegalGuardian">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseLegalGuardian" aria-expanded="false"
+                            aria-controls="collapseLegalGuardian">
+                            <i class="bi bi-person-check me-2"></i>Dados do Responsável Legal
+                        </button>
+                    </h2>
+                    <div id="collapseLegalGuardian" class="accordion-collapse collapse"
+                        aria-labelledby="headingLegalGuardian">
+                        <div class="accordion-body">
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <div class="form-check form-switch">
@@ -471,15 +530,20 @@
                             </div>
                         </div>
                     </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Dados da Empresa/Parte Concedente --}}
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-building me-2"></i>Dados da Parte Concedente</h5>
-                </div>
-                <div class="card-body">
+                {{-- Dados da Empresa/Parte Concedente --}}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingCompany">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseCompany" aria-expanded="false" aria-controls="collapseCompany">
+                            <i class="bi bi-building me-2"></i>Dados da Parte Concedente
+                        </button>
+                    </h2>
+                    <div id="collapseCompany" class="accordion-collapse collapse" aria-labelledby="headingCompany">
+                        <div class="accordion-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
@@ -731,15 +795,21 @@
                             </div>
                         </div>
                     </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Dados do Supervisor --}}
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Dados do Supervisor</h5>
-                </div>
-                <div class="card-body">
+                {{-- Dados do Supervisor --}}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingSupervisor">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseSupervisor" aria-expanded="false"
+                            aria-controls="collapseSupervisor">
+                            <i class="bi bi-person-badge me-2"></i>Dados do Supervisor
+                        </button>
+                    </h2>
+                    <div id="collapseSupervisor" class="accordion-collapse collapse" aria-labelledby="headingSupervisor">
+                        <div class="accordion-body">
                     <div class="row">
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
@@ -794,15 +864,21 @@
                             </div>
                         </div>
                     </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Dados do Estágio --}}
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-briefcase me-2"></i>Dados do Estágio</h5>
-                </div>
-                <div class="card-body">
+                {{-- Dados do Estágio --}}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingInternship">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseInternship" aria-expanded="false"
+                            aria-controls="collapseInternship">
+                            <i class="bi bi-briefcase me-2"></i>Dados do Estágio
+                        </button>
+                    </h2>
+                    <div id="collapseInternship" class="accordion-collapse collapse" aria-labelledby="headingInternship">
+                        <div class="accordion-body">
                     <div class="row">
                         <div class="col-md-5 mb-3">
                             <div class="form-floating">
@@ -1011,15 +1087,21 @@
                             </div>
                         </div>
                     </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Avaliação do Supervisor --}}
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Avaliação do Supervisor</h5>
-                </div>
-                <div class="card-body">
+                {{-- Avaliação do Supervisor --}}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingEvaluation">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseEvaluation" aria-expanded="false"
+                            aria-controls="collapseEvaluation">
+                            <i class="bi bi-clipboard-check me-2"></i>Avaliação do Supervisor
+                        </button>
+                    </h2>
+                    <div id="collapseEvaluation" class="accordion-collapse collapse" aria-labelledby="headingEvaluation">
+                        <div class="accordion-body">
 
                     {{-- Informações Gerais da Avaliação --}}
                     <h6 class="mb-3 mt-4 border-bottom pb-2">Informações Gerais</h6>
@@ -1185,6 +1267,8 @@
                                     style="height: 100px" placeholder="Outras observações">{{ old('evaluation_other_observations', $internship->evaluation_other_observations) }}</textarea>
                                 <label for="evaluation_other_observations">Outras Observações</label>
                             </div>
+                        </div>
+                    </div>
                         </div>
                     </div>
                 </div>
