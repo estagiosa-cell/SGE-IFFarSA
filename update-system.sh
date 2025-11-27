@@ -97,7 +97,6 @@ echo -e "${BLUE}Branch atual: ${CURRENT_BRANCH}${NC}"
 echo -e "${BLUE}Descartando mudanças locais...${NC}"
 su - $REAL_USER -c "cd $PWD && git reset --hard origin/$CURRENT_BRANCH"
 
-# Verificar se houve mudanças
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ Código atualizado com sucesso!${NC}"
 else
@@ -106,32 +105,20 @@ else
 fi
 
 # Atualizar dependências do Composer (como usuário normal)
-echo -e "\n${BLUE}📦 Atualizando dependências do Composer...${NC}"
-if su - $REAL_USER -c "cd $PWD && composer install --optimize-autoloader --no-dev"; then
-    echo -e "${GREEN}✓ Dependências do Composer atualizadas!${NC}"
+echo -e "\n${BLUE}📦 Instalando dependências do Composer...${NC}"
+if su - $REAL_USER -c "cd $PWD && composer install --no-interaction --optimize-autoloader --no-dev"; then
+    echo -e "${GREEN}✓ Dependências do Composer instaladas!${NC}"
 else
-    echo -e "${RED}❌ Erro ao atualizar dependências do Composer!${NC}"
-    restore_app
-fi
-
-# Verificar se o autoload foi gerado corretamente
-if [ ! -f "vendor/autoload.php" ]; then
-    echo -e "${RED}❌ Erro: vendor/autoload.php não foi gerado!${NC}"
+    echo -e "${RED}❌ Erro ao instalar dependências do Composer!${NC}"
     restore_app
 fi
 
 # Atualizar dependências do NPM (como usuário normal)
-echo -e "\n${BLUE}📦 Atualizando dependências do NPM...${NC}"
+echo -e "\n${BLUE}📦 Instalando dependências do NPM...${NC}"
 if su - $REAL_USER -c "cd $PWD && npm install"; then
-    echo -e "${GREEN}✓ Dependências do NPM atualizadas!${NC}"
+    echo -e "${GREEN}✓ Dependências do NPM instaladas!${NC}"
 else
-    echo -e "${RED}❌ Erro ao atualizar dependências do NPM!${NC}"
-    restore_app
-fi
-
-# Verificar se node_modules foi criado
-if [ ! -d "node_modules" ]; then
-    echo -e "${RED}❌ Erro: node_modules não foi criado!${NC}"
+    echo -e "${RED}❌ Erro ao instalar dependências do NPM!${NC}"
     restore_app
 fi
 
@@ -144,29 +131,6 @@ else
     restore_app
 fi
 
-# Verificar se os assets foram gerados
-if [ ! -d "public/build" ]; then
-    echo -e "${YELLOW}⚠️  Aviso: public/build não foi encontrado!${NC}"
-fi
-
-# Limpar caches do Laravel
-echo -e "\n${BLUE}🧹 Limpando caches do Laravel...${NC}"
-if php artisan optimize:clear; then
-    echo -e "${GREEN}✓ Caches limpos!${NC}"
-else
-    echo -e "${RED}❌ Erro ao limpar caches!${NC}"
-    restore_app
-fi
-
-# Verificar conexão com banco de dados
-echo -e "\n${BLUE}🔍 Verificando conexão com banco de dados...${NC}"
-if php artisan db:show &> /dev/null; then
-    echo -e "${GREEN}✓ Conexão com banco de dados OK!${NC}"
-else
-    echo -e "${YELLOW}⚠️  Aviso: Não foi possível verificar conexão com banco de dados!${NC}"
-    echo -e "${YELLOW}   Continuando mesmo assim...${NC}"
-fi
-
 # Executar migrações do banco de dados
 echo -e "\n${BLUE}🗄️  Executando migrações do banco de dados...${NC}"
 if php artisan migrate --force; then
@@ -176,12 +140,12 @@ else
     restore_app
 fi
 
-# Otimizar caches do Laravel
-echo -e "\n${BLUE}⚡ Otimizando caches do Laravel...${NC}"
+# Otimizar aplicação
+echo -e "\n${BLUE}⚡ Otimizando aplicação...${NC}"
 if php artisan optimize; then
-    echo -e "${GREEN}✓ Caches otimizados!${NC}"
+    echo -e "${GREEN}✓ Aplicação otimizada!${NC}"
 else
-    echo -e "${RED}❌ Erro ao otimizar caches!${NC}"
+    echo -e "${RED}❌ Erro ao otimizar aplicação!${NC}"
     restore_app
 fi
 
