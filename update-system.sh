@@ -23,6 +23,17 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+# Obter o usuário real (não root)
+REAL_USER=${SUDO_USER:-$USER}
+if [ "$REAL_USER" = "root" ]; then
+    echo -e "${RED}❌ Erro: Não execute este script diretamente como root!${NC}"
+    echo -e "${YELLOW}   Execute com sudo a partir de um usuário normal.${NC}"
+    exit 1
+fi
+
+echo -e "${BLUE}ℹ️  Executando como: root (via sudo)${NC}"
+echo -e "${BLUE}ℹ️  Usuário original: $REAL_USER${NC}"
+
 # Verificar se está na pasta correta
 if [ ! -f "artisan" ]; then
     echo -e "${RED}❌ Erro: Execute este script na raiz do projeto Laravel!${NC}"
@@ -48,15 +59,15 @@ echo -e "${GREEN}✓ Todas as dependências estão instaladas!${NC}"
 
 # Verificar conexão com repositório Git
 echo -e "\n${BLUE}🔍 Verificando conexão com repositório Git...${NC}"
-if ! git ls-remote &> /dev/null; then
+if ! su - $REAL_USER -c "cd $PWD && git ls-remote" &> /dev/null; then
     echo -e "${RED}❌ Erro: Não foi possível conectar ao repositório Git!${NC}"
     echo -e "${YELLOW}   Verifique sua conexão de rede e permissões.${NC}"
     exit 1
 fi
 echo -e "${GREEN}✓ Conexão com repositório OK!${NC}"
 
-# Verificar se há mudanças não commitadas
-if ! git diff-index --quiet HEAD --; then
+# Verificar se há mudanças não commitadas (como usuário normal)
+if ! su - $REAL_USER -c "cd $PWD && git diff-index --quiet HEAD --" 2>/dev/null; then
     echo -e "${YELLOW}⚠️  Aviso: Existem mudanças não commitadas no repositório!${NC}"
     echo -e "${YELLOW}   As mudanças locais podem causar conflitos durante o git pull.${NC}"
     read -p "Deseja continuar mesmo assim? (s/N): " -n 1 -r
@@ -81,12 +92,12 @@ restore_app() {
 # Capturar erros e restaurar aplicação
 trap restore_app ERR
 
-# Atualizar código do repositório
+# Atualizar código do repositório (como usuário normal)
 echo -e "\n${BLUE}📥 Atualizando código do repositório...${NC}"
-git fetch origin
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+su - $REAL_USER -c "cd $PWD && git fetch origin"
+CURRENT_BRANCH=$(su - $REAL_USER -c "cd $PWD && git rev-parse --abbrev-ref HEAD")
 echo -e "${BLUE}Branch atual: ${CURRENT_BRANCH}${NC}"
-git pull origin $CURRENT_BRANCH
+su - $REAL_USER -c "cd $PWD && git pull origin $CURRENT_BRANCH"
 
 # Verificar se houve mudanças
 if [ $? -eq 0 ]; then
