@@ -35,6 +35,7 @@ class InternshipController extends Controller
         $courseId = $request->get('course_id');
         $endDateFrom = $request->get('end_date_from');
         $endDateTo = $request->get('end_date_to');
+        $orderBy = $request->get('order_by', 'status_priority'); // Padrão: ordenação por prioridade de status
 
         // Inicia a query com o carregamento antecipado de relacionamentos para otimização.
         $query = Internship::with(['advisor', 'course']);
@@ -83,11 +84,36 @@ class InternshipController extends Controller
             END
         ";
 
-        // Executa a query com a ordenação customizada e pagina os resultados.
-        $internships = $query->orderByRaw($statusOrderSql)
-            ->latest('end_date')
-            ->latest('updated_at')
-            ->paginate(100);
+        // Aplica a ordenação baseada no parâmetro order_by
+        switch ($orderBy) {
+            case 'name_asc':
+                $query->orderBy('student_name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('student_name', 'desc');
+                break;
+            case 'start_date_asc':
+                $query->orderBy('start_date', 'asc');
+                break;
+            case 'start_date_desc':
+                $query->orderBy('start_date', 'desc');
+                break;
+            case 'end_date_asc':
+                $query->orderBy('end_date', 'asc');
+                break;
+            case 'end_date_desc':
+                $query->orderBy('end_date', 'desc');
+                break;
+            case 'status_priority':
+            default:
+                $query->orderByRaw($statusOrderSql)
+                    ->latest('end_date')
+                    ->latest('updated_at');
+                break;
+        }
+
+        // Executa a query e pagina os resultados.
+        $internships = $query->paginate(100);
 
         // Obtém as opções de status para o dropdown de filtro.
         $statusOptions = InternshipStatus::options();
@@ -95,7 +121,7 @@ class InternshipController extends Controller
         // Obtém todos os cursos para o filtro.
         $courses = \App\Models\Course::orderBy('name')->get(['id', 'name']);
 
-        return view('admin.internships.index', compact('internships', 'search', 'status', 'statusOptions', 'showDeleted', 'courses', 'courseId', 'endDateFrom', 'endDateTo'));
+        return view('admin.internships.index', compact('internships', 'search', 'status', 'statusOptions', 'showDeleted', 'courses', 'courseId', 'endDateFrom', 'endDateTo', 'orderBy'));
     }
 
     /**
