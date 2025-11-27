@@ -1,0 +1,247 @@
+#!/bin/bash
+
+set -e
+
+# Cores para output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# URL da aplicação (pode ser configurada)
+APP_URL="${APP_URL:-http://localhost}"
+
+echo -e "${BLUE}=========================================="
+echo "SGE-IFFarSA - Script de Atualização"
+echo -e "==========================================${NC}"
+
+# Verificar se está rodando como root/sudo
+if [ "$EUID" -ne 0 ]; then
+    echo -e "${RED}❌ Erro: Este script precisa ser executado com sudo!${NC}"
+    echo -e "${YELLOW}   Execute: sudo bash $0${NC}"
+    exit 1
+fi
+
+# Verificar se está na pasta correta
+if [ ! -f "artisan" ]; then
+    echo -e "${RED}❌ Erro: Execute este script na raiz do projeto Laravel!${NC}"
+    exit 1
+fi
+
+# Verificar se o arquivo .env existe
+if [ ! -f ".env" ]; then
+    echo -e "${RED}❌ Erro: Arquivo .env não encontrado!${NC}"
+    exit 1
+fi
+
+# Verificar se comandos necessários estão disponíveis
+echo -e "\n${BLUE}🔍 Verificando dependências...${NC}"
+REQUIRED_COMMANDS=("git" "php" "composer" "npm" "curl")
+for cmd in "${REQUIRED_COMMANDS[@]}"; do
+    if ! command -v $cmd &> /dev/null; then
+        echo -e "${RED}❌ Erro: $cmd não está instalado!${NC}"
+        exit 1
+    fi
+done
+echo -e "${GREEN}✓ Todas as dependências estão instaladas!${NC}"
+
+# Verificar conexão com repositório Git
+echo -e "\n${BLUE}🔍 Verificando conexão com repositório Git...${NC}"
+if ! git ls-remote &> /dev/null; then
+    echo -e "${RED}❌ Erro: Não foi possível conectar ao repositório Git!${NC}"
+    echo -e "${YELLOW}   Verifique sua conexão de rede e permissões.${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✓ Conexão com repositório OK!${NC}"
+
+# Verificar se há mudanças não commitadas
+if ! git diff-index --quiet HEAD --; then
+    echo -e "${YELLOW}⚠️  Aviso: Existem mudanças não commitadas no repositório!${NC}"
+    echo -e "${YELLOW}   As mudanças locais podem causar conflitos durante o git pull.${NC}"
+    read -p "Deseja continuar mesmo assim? (s/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Ss]$ ]]; then
+        echo -e "${BLUE}ℹ️  Atualização cancelada pelo usuário.${NC}"
+        exit 0
+    fi
+fi
+
+# Colocar aplicação em modo de manutenção
+echo -e "\n${YELLOW}⏸️  Colocando aplicação em modo de manutenção...${NC}"
+php artisan down
+
+# Função para restaurar a aplicação em caso de erro
+restore_app() {
+    echo -e "\n${RED}❌ Erro detectado! Restaurando aplicação...${NC}"
+    php artisan up
+    exit 1
+}
+
+# Capturar erros e restaurar aplicação
+trap restore_app ERR
+
+# Atualizar código do repositório
+echo -e "\n${BLUE}📥 Atualizando código do repositório...${NC}"
+git fetch origin
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+echo -e "${BLUE}Branch atual: ${CURRENT_BRANCH}${NC}"
+git pull origin $CURRENT_BRANCH
+
+# Verificar se houve mudanças
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✓ Código atualizado com sucesso!${NC}"
+else
+    echo -e "${RED}❌ Erro ao atualizar código!${NC}"
+    restore_app
+fi
+
+# Atualizar dependências do Composer
+echo -e "\n${BLUE}📦 Atualizando dependências do Composer...${NC}"
+if composer install --optimize-autoloader --no-dev; then
+    echo -e "${GREEN}✓ Dependências do Composer atualizadas!${NC}"
+else
+    echo -e "${RED}❌ Erro ao atualizar dependências do Composer!${NC}"
+    restore_app
+fi
+
+# Verificar se o autoload foi gerado corretamente
+if [ ! -f "vendor/autoload.php" ]; then
+    echo -e "${RED}❌ Erro: vendor/autoload.php não foi gerado!${NC}"
+    restore_app
+fi
+
+# Atualizar dependências do NPM
+echo -e "\n${BLUE}📦 Atualizando dependências do NPM...${NC}"
+if npm install; then
+    echo -e "${GREEN}✓ Dependências do NPM atualizadas!${NC}"
+else
+    echo -e "${RED}❌ Erro ao atualizar dependências do NPM!${NC}"
+    restore_app
+fi
+
+# Verificar se node_modules foi criado
+if [ ! -d "node_modules" ]; then
+    echo -e "${RED}❌ Erro: node_modules não foi criado!${NC}"
+    restore_app
+fi
+
+# Compilar assets
+echo -e "\n${BLUE}🔨 Compilando assets...${NC}"
+if npm run build; then
+    echo -e "${GREEN}✓ Assets compilados!${NC}"
+else
+    echo -e "${RED}❌ Erro ao compilar assets!${NC}"
+    restore_app
+fi
+
+# Verificar se os assets foram gerados
+if [ ! -d "public/build" ]; then
+    echo -e "${YELLOW}⚠️  Aviso: public/build não foi encontrado!${NC}"
+fi
+
+# Limpar caches do Laravel
+echo -e "\n${BLUE}🧹 Limpando caches do Laravel...${NC}"
+if php artisan optimize:clear; then
+    echo -e "${GREEN}✓ Caches limpos!${NC}"
+else
+    echo -e "${RED}❌ Erro ao limpar caches!${NC}"
+    restore_app
+fi
+
+# Verificar conexão com banco de dados
+echo -e "\n${BLUE}🔍 Verificando conexão com banco de dados...${NC}"
+if php artisan db:show &> /dev/null; then
+    echo -e "${GREEN}✓ Conexão com banco de dados OK!${NC}"
+else
+    echo -e "${YELLOW}⚠️  Aviso: Não foi possível verificar conexão com banco de dados!${NC}"
+    echo -e "${YELLOW}   Continuando mesmo assim...${NC}"
+fi
+
+# Executar migrações do banco de dados
+echo -e "\n${BLUE}🗄️  Executando migrações do banco de dados...${NC}"
+if php artisan migrate --force; then
+    echo -e "${GREEN}✓ Migrações executadas!${NC}"
+else
+    echo -e "${RED}❌ Erro ao executar migrações!${NC}"
+    restore_app
+fi
+
+# Otimizar caches do Laravel
+echo -e "\n${BLUE}⚡ Otimizando caches do Laravel...${NC}"
+if php artisan optimize; then
+    echo -e "${GREEN}✓ Caches otimizados!${NC}"
+else
+    echo -e "${RED}❌ Erro ao otimizar caches!${NC}"
+    restore_app
+fi
+
+# Definir permissões corretas
+echo -e "\n${BLUE}🔐 Definindo permissões corretas...${NC}"
+if chown -R www-data:www-data storage bootstrap/cache 2>/dev/null && \
+   chmod -R 775 storage bootstrap/cache 2>/dev/null; then
+    echo -e "${GREEN}✓ Permissões definidas!${NC}"
+else
+    echo -e "${YELLOW}⚠️  Aviso: Não foi possível definir algumas permissões!${NC}"
+    echo -e "${YELLOW}   Isso pode ser normal em alguns ambientes.${NC}"
+fi
+
+# Verificar permissões de escrita em diretórios críticos
+echo -e "\n${BLUE}🔍 Verificando permissões de escrita...${NC}"
+CRITICAL_DIRS=("storage/logs" "storage/framework/cache" "storage/framework/sessions" "storage/framework/views" "bootstrap/cache")
+for dir in "${CRITICAL_DIRS[@]}"; do
+    if [ ! -w "$dir" ]; then
+        echo -e "${YELLOW}⚠️  Aviso: Sem permissão de escrita em $dir${NC}"
+    fi
+done
+echo -e "${GREEN}✓ Verificação de permissões concluída!${NC}"
+
+# Retirar aplicação do modo de manutenção
+echo -e "\n${YELLOW}▶️  Retirando aplicação do modo de manutenção...${NC}"
+php artisan up
+echo -e "${GREEN}✓ Aplicação ativa!${NC}"
+
+# Verificar se a aplicação está funcionando
+echo -e "\n${BLUE}🔍 Verificando se a aplicação está respondendo...${NC}"
+sleep 2
+
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL/up" || echo "000")
+
+if [ "$HTTP_STATUS" = "200" ]; then
+    echo -e "${GREEN}✓ Aplicação está respondendo corretamente! (HTTP $HTTP_STATUS)${NC}"
+elif [ "$HTTP_STATUS" = "000" ]; then
+    echo -e "${YELLOW}⚠️  Não foi possível verificar a aplicação em $APP_URL/up${NC}"
+    echo -e "${YELLOW}   Verifique manualmente se a aplicação está funcionando.${NC}"
+else
+    echo -e "${YELLOW}⚠️  Aplicação retornou status HTTP $HTTP_STATUS${NC}"
+    echo -e "${YELLOW}   Verifique os logs para mais detalhes.${NC}"
+fi
+
+# Verificar se há erros nos logs
+echo -e "\n${BLUE}🔍 Verificando erros recentes nos logs...${NC}"
+if [ -f "storage/logs/laravel.log" ]; then
+    RECENT_ERRORS=$(tail -n 100 storage/logs/laravel.log | grep -i "error" | wc -l)
+    if [ "$RECENT_ERRORS" -gt 0 ]; then
+        echo -e "${YELLOW}⚠️  Encontrados $RECENT_ERRORS erros recentes no log!${NC}"
+        echo -e "${YELLOW}   Verifique storage/logs/laravel.log para mais detalhes.${NC}"
+    else
+        echo -e "${GREEN}✓ Nenhum erro recente detectado nos logs!${NC}"
+    fi
+else
+    echo -e "${BLUE}ℹ️  Arquivo de log ainda não foi criado.${NC}"
+fi
+
+echo -e "\n${GREEN}=========================================="
+echo "✅ Atualização concluída com sucesso!"
+echo -e "==========================================${NC}"
+
+# Resumo final
+echo -e "\n${BLUE}📊 Resumo da Atualização:${NC}"
+echo -e "   • Branch: ${GREEN}$CURRENT_BRANCH${NC}"
+echo -e "   • PHP: ${GREEN}$(php -r 'echo PHP_VERSION;')${NC}"
+echo -e "   • Laravel: ${GREEN}$(php artisan --version | cut -d' ' -f3)${NC}"
+echo -e "   • Composer: ${GREEN}$(composer --version | cut -d' ' -f3)${NC}"
+echo -e "   • Node.js: ${GREEN}$(node --version)${NC}"
+echo -e "   • NPM: ${GREEN}$(npm --version)${NC}"
+
+echo -e "\n${BLUE}Dica: Acesse $APP_URL para verificar a aplicação${NC}"
