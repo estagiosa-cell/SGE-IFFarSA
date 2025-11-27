@@ -157,6 +157,12 @@
                                             {{ $internship->start_date?->format('d/m/Y') ?? 'N/D' }} -
                                             {{ $internship->end_date?->format('d/m/Y') ?? 'N/D' }}
                                         </div>
+                                        @if ($internship->status->value === 'Concluído' && $internship->evaluation_grade)
+                                            <div class="mb-1">
+                                                <i class="bi bi-award-fill me-1 text-warning"></i>
+                                                <strong>Nota:</strong> {{ number_format($internship->evaluation_grade, 2, ',', '.') }}@if($internship->internship_type_weight)/{{ number_format($internship->internship_type_weight, 2, ',', '.') }}@endif
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-1">
