@@ -63,13 +63,26 @@
                             </div>
                         @endif
 
+                        {{-- Filtro de data de término --}}
+                        <div class="col-md-{{ auth()->user()->can('is-coordenador') ? '2' : '3' }}">
+                            <label for="end_date_from" class="form-label mb-0 small">Término de</label>
+                            <input type="date" class="form-control form-control-sm" id="end_date_from" name="end_date_from"
+                                value="{{ request('end_date_from') }}">
+                        </div>
+
+                        <div class="col-md-{{ auth()->user()->can('is-coordenador') ? '2' : '3' }}">
+                            <label for="end_date_to" class="form-label mb-0 small">Término até</label>
+                            <input type="date" class="form-control form-control-sm" id="end_date_to" name="end_date_to"
+                                value="{{ request('end_date_to') }}">
+                        </div>
+
                         {{-- Botões --}}
-                        <div class="col-md-2">
+                        <div class="col-md-{{ auth()->user()->can('is-coordenador') ? '1' : '2' }}">
                             <div class="d-flex gap-1">
                                 <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
                                     <i class="bi bi-funnel"></i> Filtrar
                                 </button>
-                                @if (request()->hasAny(['search', 'status', 'advisor', 'registration']))
+                                @if (request()->hasAny(['search', 'status', 'advisor', 'registration', 'end_date_from', 'end_date_to']))
                                     <a href="{{ route('internship-view.index') }}" class="btn btn-outline-secondary btn-sm"
                                         title="Limpar">
                                         <i class="bi bi-arrow-clockwise"></i>
@@ -95,7 +108,7 @@
                         </div>
                         <h4 class="text-muted mb-3">Nenhum estágio encontrado</h4>
                         <p class="text-muted mb-4">
-                            @if (request()->hasAny(['search', 'status', 'advisor', 'registration']))
+                            @if (request()->hasAny(['search', 'status', 'advisor', 'registration', 'end_date_from', 'end_date_to']))
                                 Não encontramos estágios com os filtros aplicados.
                                 <br>
                                 <a href="{{ route('internship-view.index') }}" class="btn btn-sm btn-outline-primary mt-2">

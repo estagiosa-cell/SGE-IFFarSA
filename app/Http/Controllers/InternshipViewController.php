@@ -124,6 +124,16 @@ class InternshipViewController extends Controller
             $query->where('student_registration_number', 'like', '%'.$request->registration.'%');
         }
 
+        // Filtro por data de término (de).
+        if ($request->filled('end_date_from')) {
+            $query->whereDate('end_date', '>=', $request->end_date_from);
+        }
+
+        // Filtro por data de término (até).
+        if ($request->filled('end_date_to')) {
+            $query->whereDate('end_date', '<=', $request->end_date_to);
+        }
+
         return $query;
     }
 
