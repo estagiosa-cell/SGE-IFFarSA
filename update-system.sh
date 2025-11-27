@@ -67,15 +67,10 @@ fi
 echo -e "${GREEN}✓ Conexão com repositório OK!${NC}"
 
 # Verificar se há mudanças não commitadas (como usuário normal)
+echo -e "\n${BLUE}🔍 Verificando estado do repositório...${NC}"
 if ! su - $REAL_USER -c "cd $PWD && git diff-index --quiet HEAD --" 2>/dev/null; then
-    echo -e "${YELLOW}⚠️  Aviso: Existem mudanças não commitadas no repositório!${NC}"
-    echo -e "${YELLOW}   As mudanças locais podem causar conflitos durante o git pull.${NC}"
-    read -p "Deseja continuar mesmo assim? (s/N): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Ss]$ ]]; then
-        echo -e "${BLUE}ℹ️  Atualização cancelada pelo usuário.${NC}"
-        exit 0
-    fi
+    echo -e "${YELLOW}⚠️  Detectadas mudanças locais não commitadas.${NC}"
+    echo -e "${YELLOW}   As mudanças locais serão descartadas durante a atualização.${NC}"
 fi
 
 # Colocar aplicação em modo de manutenção
@@ -97,7 +92,10 @@ echo -e "\n${BLUE}📥 Atualizando código do repositório...${NC}"
 su - $REAL_USER -c "cd $PWD && git fetch origin"
 CURRENT_BRANCH=$(su - $REAL_USER -c "cd $PWD && git rev-parse --abbrev-ref HEAD")
 echo -e "${BLUE}Branch atual: ${CURRENT_BRANCH}${NC}"
-su - $REAL_USER -c "cd $PWD && git pull origin $CURRENT_BRANCH"
+
+# Descartar mudanças locais e atualizar
+echo -e "${BLUE}Descartando mudanças locais...${NC}"
+su - $REAL_USER -c "cd $PWD && git reset --hard origin/$CURRENT_BRANCH"
 
 # Verificar se houve mudanças
 if [ $? -eq 0 ]; then
