@@ -104,27 +104,27 @@ else
     restore_app
 fi
 
-# Atualizar dependências do Composer (como usuário normal)
+# Atualizar dependências do Composer
 echo -e "\n${BLUE}📦 Instalando dependências do Composer...${NC}"
-if su - $REAL_USER -c "cd $PWD && composer install --no-interaction --optimize-autoloader --no-dev"; then
+if composer install --no-interaction --optimize-autoloader --no-dev --no-scripts; then
     echo -e "${GREEN}✓ Dependências do Composer instaladas!${NC}"
 else
     echo -e "${RED}❌ Erro ao instalar dependências do Composer!${NC}"
     restore_app
 fi
 
-# Atualizar dependências do NPM (como usuário normal)
+# Atualizar dependências do NPM
 echo -e "\n${BLUE}📦 Instalando dependências do NPM...${NC}"
-if su - $REAL_USER -c "cd $PWD && npm install"; then
+if npm install; then
     echo -e "${GREEN}✓ Dependências do NPM instaladas!${NC}"
 else
     echo -e "${RED}❌ Erro ao instalar dependências do NPM!${NC}"
     restore_app
 fi
 
-# Compilar assets (como usuário normal)
+# Compilar assets
 echo -e "\n${BLUE}🔨 Compilando assets...${NC}"
-if su - $REAL_USER -c "cd $PWD && npm run build"; then
+if npm run build; then
     echo -e "${GREEN}✓ Assets compilados!${NC}"
 else
     echo -e "${RED}❌ Erro ao compilar assets!${NC}"
