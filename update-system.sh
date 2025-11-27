@@ -105,9 +105,9 @@ else
     restore_app
 fi
 
-# Atualizar dependências do Composer
+# Atualizar dependências do Composer (como usuário normal)
 echo -e "\n${BLUE}📦 Atualizando dependências do Composer...${NC}"
-if composer install --optimize-autoloader --no-dev; then
+if su - $REAL_USER -c "cd $PWD && composer install --optimize-autoloader --no-dev"; then
     echo -e "${GREEN}✓ Dependências do Composer atualizadas!${NC}"
 else
     echo -e "${RED}❌ Erro ao atualizar dependências do Composer!${NC}"
@@ -120,9 +120,9 @@ if [ ! -f "vendor/autoload.php" ]; then
     restore_app
 fi
 
-# Atualizar dependências do NPM
+# Atualizar dependências do NPM (como usuário normal)
 echo -e "\n${BLUE}📦 Atualizando dependências do NPM...${NC}"
-if npm install; then
+if su - $REAL_USER -c "cd $PWD && npm install"; then
     echo -e "${GREEN}✓ Dependências do NPM atualizadas!${NC}"
 else
     echo -e "${RED}❌ Erro ao atualizar dependências do NPM!${NC}"
@@ -135,9 +135,9 @@ if [ ! -d "node_modules" ]; then
     restore_app
 fi
 
-# Compilar assets
+# Compilar assets (como usuário normal)
 echo -e "\n${BLUE}🔨 Compilando assets...${NC}"
-if npm run build; then
+if su - $REAL_USER -c "cd $PWD && npm run build"; then
     echo -e "${GREEN}✓ Assets compilados!${NC}"
 else
     echo -e "${RED}❌ Erro ao compilar assets!${NC}"
