@@ -207,14 +207,3 @@ fi
 echo -e "\n${GREEN}=========================================="
 echo "✅ Atualização concluída com sucesso!"
 echo -e "==========================================${NC}"
-
-# Resumo final
-echo -e "\n${BLUE}📊 Resumo da Atualização:${NC}"
-echo -e "   • Branch: ${GREEN}$CURRENT_BRANCH${NC}"
-echo -e "   • PHP: ${GREEN}$(php -r 'echo PHP_VERSION;')${NC}"
-echo -e "   • Laravel: ${GREEN}$(php artisan --version | cut -d' ' -f3)${NC}"
-echo -e "   • Composer: ${GREEN}$(composer --version | cut -d' ' -f3)${NC}"
-echo -e "   • Node.js: ${GREEN}$(node --version)${NC}"
-echo -e "   • NPM: ${GREEN}$(npm --version)${NC}"
-
-echo -e "\n${BLUE}Dica: Acesse $APP_URL para verificar a aplicação${NC}"
