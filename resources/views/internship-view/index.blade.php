@@ -76,6 +76,20 @@
                                 value="{{ request('end_date_to') }}">
                         </div>
 
+                        {{-- Filtro de ordenação --}}
+                        <div class="col-md-{{ auth()->user()->can('is-coordenador') ? '2' : '3' }}">
+                            <label for="order_by" class="form-label mb-0 small">Ordenar por</label>
+                            <select class="form-select form-select-sm" id="order_by" name="order_by">
+                                <option value="status_priority" {{ request('order_by', 'status_priority') == 'status_priority' ? 'selected' : '' }}>Status (Padrão)</option>
+                                <option value="name_asc" {{ request('order_by') == 'name_asc' ? 'selected' : '' }}>Nome (A-Z)</option>
+                                <option value="name_desc" {{ request('order_by') == 'name_desc' ? 'selected' : '' }}>Nome (Z-A)</option>
+                                <option value="start_date_desc" {{ request('order_by') == 'start_date_desc' ? 'selected' : '' }}>Início (Mais recente)</option>
+                                <option value="start_date_asc" {{ request('order_by') == 'start_date_asc' ? 'selected' : '' }}>Início (Mais antigo)</option>
+                                <option value="end_date_desc" {{ request('order_by') == 'end_date_desc' ? 'selected' : '' }}>Término (Mais recente)</option>
+                                <option value="end_date_asc" {{ request('order_by') == 'end_date_asc' ? 'selected' : '' }}>Término (Mais antigo)</option>
+                            </select>
+                        </div>
+
                         {{-- Botões --}}
                         <div class="col-md-{{ auth()->user()->can('is-coordenador') ? '1' : '2' }}">
                             <div class="d-flex gap-1">

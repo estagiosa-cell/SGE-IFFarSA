@@ -34,6 +34,7 @@ class InternshipViewController extends Controller
         $user = Auth::user();
         $advisors = collect();
         $statusOptions = InternshipStatus::options();
+        $orderBy = $request->get('order_by', 'status_priority'); // Padrão: ordenação por prioridade de status
 
         // Raw SQL para ordenação por prioridade de status.
         // Garante que estágios 'Pendente' e 'Aguardando Assinatura' apareçam primeiro.
@@ -55,10 +56,11 @@ class InternshipViewController extends Controller
             // Aplica os filtros da requisição na query.
             $this->applyFilters($query, $request);
 
-            $internships = $query->with(['course', 'advisor'])
-                ->orderByRaw($statusOrderSql)
-                ->orderBy('updated_at', 'desc')
-                ->paginate(100);
+            // Aplica ordenação
+            $query = $query->with(['course', 'advisor']);
+            $this->applyOrdering($query, $orderBy, $statusOrderSql);
+
+            $internships = $query->paginate(100);
         } elseif ($user->can('is-coordenador')) {
             // Coordenadores veem estágios dos cursos que coordenam ou que eles próprios orientam.
             $courseIds = $user->coordinatedCourses()->pluck('id');
@@ -71,11 +73,11 @@ class InternshipViewController extends Controller
             // Aplica os filtros da requisição na query.
             $this->applyFilters($query, $request);
 
-            $internships = $query->with(['course', 'advisor'])
-                ->orderByRaw($statusOrderSql)
-                ->latest('end_date')
-                ->latest('updated_at')
-                ->paginate(100);
+            // Aplica ordenação
+            $query = $query->with(['course', 'advisor']);
+            $this->applyOrdering($query, $orderBy, $statusOrderSql);
+
+            $internships = $query->paginate(100);
 
             // Busca orientadores que orientam estágios dos cursos coordenados para popular o filtro.
             $advisorIds = Internship::whereIn('course_id', $courseIds)
@@ -92,7 +94,7 @@ class InternshipViewController extends Controller
             $internships = Internship::query()->whereRaw('1 = 0')->paginate(100);
         }
 
-        return view('internship-view.index', compact('internships', 'advisors', 'statusOptions'));
+        return view('internship-view.index', compact('internships', 'advisors', 'statusOptions', 'orderBy'));
     }
 
     /**
@@ -132,6 +134,46 @@ class InternshipViewController extends Controller
         // Filtro por data de término (até).
         if ($request->filled('end_date_to')) {
             $query->whereDate('end_date', '<=', $request->end_date_to);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Aplica a ordenação na query de estágios.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query  A query de estágios a ser ordenada.
+     * @param  string  $orderBy  O tipo de ordenação a ser aplicada.
+     * @param  string  $statusOrderSql  SQL para ordenação por prioridade de status.
+     * @return \Illuminate\Database\Eloquent\Builder A query com a ordenação aplicada.
+     */
+    private function applyOrdering($query, $orderBy, $statusOrderSql)
+    {
+        switch ($orderBy) {
+            case 'name_asc':
+                $query->orderBy('student_name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('student_name', 'desc');
+                break;
+            case 'start_date_asc':
+                $query->orderBy('start_date', 'asc');
+                break;
+            case 'start_date_desc':
+                $query->orderBy('start_date', 'desc');
+                break;
+            case 'end_date_asc':
+                $query->orderBy('end_date', 'asc');
+                break;
+            case 'end_date_desc':
+                $query->orderBy('end_date', 'desc');
+                break;
+            case 'status_priority':
+            default:
+                $query->orderByRaw($statusOrderSql)
+                    ->latest('end_date')
+                    ->latest('updated_at');
+                break;
         }
 
         return $query;
