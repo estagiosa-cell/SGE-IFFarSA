@@ -93,9 +93,9 @@ su - $REAL_USER -c "cd $PWD && git fetch origin"
 CURRENT_BRANCH=$(su - $REAL_USER -c "cd $PWD && git rev-parse --abbrev-ref HEAD")
 echo -e "${BLUE}Branch atual: ${CURRENT_BRANCH}${NC}"
 
-# Descartar mudanças locais e atualizar
+# Descartar mudanças locais e atualizar (como root para ter permissão)
 echo -e "${BLUE}Descartando mudanças locais...${NC}"
-su - $REAL_USER -c "cd $PWD && git reset --hard origin/$CURRENT_BRANCH"
+git reset --hard origin/$CURRENT_BRANCH
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ Código atualizado com sucesso!${NC}"
