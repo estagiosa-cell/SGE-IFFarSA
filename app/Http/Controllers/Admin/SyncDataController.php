@@ -277,13 +277,39 @@ class SyncDataController extends Controller
             } elseif ($partesConcedentes->count() > 1) {
                 // Múltiplos resultados: deixa os campos em branco e adiciona um aviso.
                 $razaoSocialConcedente = null;
-                // ... (demais campos da empresa nulos)
+                $telefoneConcedente = null;
+                $emailConcedente = null;
+                $enderecoRuaConcedente = null;
+                $enderecoNumeroConcedente = null;
+                $enderecoBairroConcedente = null;
+                $cidadeConcedente = null;
+                $ufConcedente = null;
+                $cepConcedente = null;
+                $nomeRepresentanteConcedente = null;
+                $cargoRepresentanteConcedente = null;
+                $areaDeAtuacao = null;
+                $registroConselhoProfissional = null;
+                $numeroRegistroConselho = null;
+                $numeroProcesso = null;
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').
                     "ATENÇÃO: Múltiplas empresas encontradas com o CNPJ/CPF {$identificadorLegal}. Seleção manual necessária.";
             } else {
                 // Nenhum resultado: deixa os campos em branco e adiciona um aviso.
                 $razaoSocialConcedente = null;
-                // ... (demais campos da empresa nulos)
+                $telefoneConcedente = null;
+                $emailConcedente = null;
+                $enderecoRuaConcedente = null;
+                $enderecoNumeroConcedente = null;
+                $enderecoBairroConcedente = null;
+                $cidadeConcedente = null;
+                $ufConcedente = null;
+                $cepConcedente = null;
+                $nomeRepresentanteConcedente = null;
+                $cargoRepresentanteConcedente = null;
+                $areaDeAtuacao = null;
+                $registroConselhoProfissional = null;
+                $numeroRegistroConselho = null;
+                $numeroProcesso = null;
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').
                     "ATENÇÃO: Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário.";
             }
