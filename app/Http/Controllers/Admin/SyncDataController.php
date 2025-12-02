@@ -134,7 +134,7 @@ class SyncDataController extends Controller
             // $declaracaoCiente           = $row[1] ?? null;  // Coluna C
             $maiorDe18 = $row[2] ?? null;  // Coluna D
             $nomeResponsavelLegal = $row[3] ?? null;  // Coluna E
-            $cpfResponsavelLegal = $row[4] ?? null;  // Coluna F
+            $cpfResponsavelLegal = $this->formatDocument($row[4] ?? null, 11);  // Coluna F
             $parentescoResponsavelLegal = $row[5] ?? null;  // Coluna G
             $emailResponsavelLegal = $row[6] ?? null;  // Coluna H
             $nomeCurso = $row[7] ?? null;  // Coluna I
@@ -146,7 +146,7 @@ class SyncDataController extends Controller
             $rg = $row[13] ?? null; // Coluna O
             $rgOrgaoExpedidor = $row[14] ?? null; // Coluna P
             $rgDataExpedicao = $row[15] ?? null; // Coluna Q
-            $cpfEstagiario = $row[16] ?? null; // Coluna R
+            $cpfEstagiario = $this->formatDocument($row[16] ?? null, 11); // Coluna R
             $telefoneEstagiario = $row[17] ?? null; // Coluna S
             $enderecoRuaEstagiario = $row[18] ?? null; // Coluna T
             $enderecoNumeroEstagiario = $row[19] ?? null; // Coluna U
@@ -158,8 +158,8 @@ class SyncDataController extends Controller
 
             // Dados da Empresa (Parte Concedente)
             $tipoDocumentoConcedente = $row[25] ?? null; // Coluna AA
-            $cpfConcedente = $row[26] ?? null; // Coluna AB
-            $cnpjConcedente = $row[27] ?? null; // Coluna AC
+            $cpfConcedente = $this->formatDocument($row[26] ?? null, 11); // Coluna AB
+            $cnpjConcedente = $this->formatDocument($row[27] ?? null, 14); // Coluna AC
             $razaoSocialConcedente = $row[28] ?? null; // Coluna AD
             $telefoneConcedente = $row[29] ?? null; // Coluna AE
             $emailConcedente = $row[30] ?? null; // Coluna AF
@@ -601,6 +601,30 @@ class SyncDataController extends Controller
         }
 
         return $processedCount;
+    }
+
+    /**
+     * Formata um CPF ou CNPJ garantindo o número correto de dígitos.
+     *
+     * Este método auxiliar garante que CPFs tenham 11 dígitos e CNPJs tenham 14 dígitos,
+     * preenchendo com zeros à esquerda quando necessário. Isso é importante porque
+     * o Google Sheets pode remover zeros iniciais ao retornar valores numéricos.
+     *
+     * @param  string|null  $value  O valor a ser formatado.
+     * @param  int  $length  O tamanho esperado (11 para CPF, 14 para CNPJ).
+     * @return string|null O valor formatado ou null se vazio.
+     */
+    private function formatDocument(?string $value, int $length = 11): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        // Remove caracteres não numéricos
+        $cleaned = preg_replace('/[^0-9]/', '', $value);
+
+        // Preenche com zeros à esquerda até atingir o tamanho esperado
+        return str_pad($cleaned, $length, '0', STR_PAD_LEFT);
     }
 
     /**
