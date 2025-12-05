@@ -12,6 +12,7 @@ enum UserRole: string
     case ADMIN = 'admin';
     case COORDENADOR = 'coordenador';
     case ORIENTADOR = 'orientador';
+    case DIRECAO_ENSINO = 'direcao_ensino';
 
     /**
      * Retorna o label legível do papel do usuário.
@@ -24,6 +25,7 @@ enum UserRole: string
             self::ADMIN => 'Administrador',
             self::COORDENADOR => 'Coordenador',
             self::ORIENTADOR => 'Orientador',
+            self::DIRECAO_ENSINO => 'Direção de Ensino',
         };
     }
 

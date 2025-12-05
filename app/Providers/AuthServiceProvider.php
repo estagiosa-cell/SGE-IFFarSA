@@ -61,15 +61,25 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         /**
+         * Gate para verificar se o usuário é Direção de Ensino.
+         *
+         * @param  \App\Models\User  $user
+         * @return bool
+         */
+        Gate::define('is-direcao-ensino', function (User $user) {
+            return $user->role === UserRole::DIRECAO_ENSINO;
+        });
+
+        /**
          * Gate para verificar se o usuário pode visualizar estágios.
          *
-         * Permite acesso a coordenadores e orientadores.
+         * Permite acesso a coordenadores, orientadores e direção de ensino.
          *
          * @param  \App\Models\User  $user
          * @return bool
          */
         Gate::define('view-internships', function (User $user) {
-            return $user->can('is-coordenador') || $user->can('is-orientador');
+            return $user->can('is-coordenador') || $user->can('is-orientador') || $user->can('is-direcao-ensino');
         });
     }
 }

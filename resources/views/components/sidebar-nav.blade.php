@@ -1,5 +1,9 @@
 <ul class="nav nav-pills flex-column">
-    @can('view-internships')
+    @can('is-direcao-ensino')
+        <x-sidebar-nav-link route="teaching-director.index" icon="mortarboard">
+            Consulta de Estágios
+        </x-sidebar-nav-link>
+    @elsecan('view-internships')
         <x-sidebar-nav-link route="internship-view.index" icon="briefcase">
             Estágios
         </x-sidebar-nav-link>
@@ -19,10 +23,11 @@
         </x-sidebar-nav-link>
     @endcan
 
-    <x-sidebar-nav-link route="reports.internships" icon="filetype-csv">
-        Exportar Dados de Estágios
-
-    </x-sidebar-nav-link>
+    @cannot('is-direcao-ensino')
+        <x-sidebar-nav-link route="reports.internships" icon="filetype-csv">
+            Exportar Dados de Estágios
+        </x-sidebar-nav-link>
+    @endcannot
 
     @can('is-admin')
         <li class="nav-item">

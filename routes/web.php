@@ -15,6 +15,7 @@ use App\Http\Controllers\BackupController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\InternshipViewController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TeachingDirectorController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SessionController::class, 'create'])->name('login');
@@ -109,6 +110,12 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['can:view-internships'])->group(function () {
         Route::get('/estagios', [InternshipViewController::class, 'index'])->name('internship-view.index');
         Route::get('/estagios/{internship}', [InternshipViewController::class, 'show'])->name('internship-view.show');
+    });
+
+    // Rotas para Direção de Ensino
+    Route::middleware(['can:is-direcao-ensino'])->group(function () {
+        Route::get('/direcao-ensino', [TeachingDirectorController::class, 'index'])->name('teaching-director.index');
+        Route::get('/direcao-ensino/{internship}', [TeachingDirectorController::class, 'show'])->name('teaching-director.show');
     });
 
     Route::prefix('reports')->name('reports.')->group(function () {

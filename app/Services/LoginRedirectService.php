@@ -29,6 +29,7 @@ class LoginRedirectService
         // Adicione novos perfis aqui conforme necessário
         $routes = [
             'is-admin' => 'google.redirect',
+            'is-direcao-ensino' => 'teaching-director.index',
             'view-internships' => 'internship-view.index',
         ];
 

@@ -12,10 +12,11 @@ class InternshipPolicy
      */
     public function viewAny(User $user): bool
     {
-        // Admins, orientadores e coordenadores podem ver a lista de estágios
+        // Admins, orientadores, coordenadores e direção de ensino podem ver a lista de estágios
         return $user->can('is-admin')
             || $user->can('is-orientador')
-            || $user->can('is-coordenador');
+            || $user->can('is-coordenador')
+            || $user->can('is-direcao-ensino');
     }
 
     /**
@@ -25,6 +26,11 @@ class InternshipPolicy
     {
         // Admins podem ver qualquer estágio
         if ($user->can('is-admin')) {
+            return true;
+        }
+
+        // Direção de ensino pode ver qualquer estágio
+        if ($user->can('is-direcao-ensino')) {
             return true;
         }
 
