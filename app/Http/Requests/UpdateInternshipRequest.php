@@ -95,6 +95,15 @@ class UpdateInternshipRequest extends FormRequest
             'required_hours' => 'required|integer|min:1',
             'activities' => 'required|string',
 
+            // Carga Horária Semanal
+            'hours_sunday' => 'nullable|integer|min:0|max:6',
+            'hours_monday' => 'nullable|integer|min:0|max:6',
+            'hours_tuesday' => 'nullable|integer|min:0|max:6',
+            'hours_wednesday' => 'nullable|integer|min:0|max:6',
+            'hours_thursday' => 'nullable|integer|min:0|max:6',
+            'hours_friday' => 'nullable|integer|min:0|max:6',
+            'hours_saturday' => 'nullable|integer|min:0|max:6',
+
             // Remuneração
             'is_remunerated' => 'nullable|boolean',
             'grant_value' => 'nullable|numeric|min:0',

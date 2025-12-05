@@ -1087,6 +1087,112 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Carga Horária Semanal --}}
+                    <h6 class="mb-3 mt-4 border-bottom pb-2">Carga Horária Semanal</h6>
+                    <div class="row">
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="1" min="0" max="6"
+                                    class="form-control @error('hours_sunday') is-invalid @enderror"
+                                    id="hours_sunday" name="hours_sunday"
+                                    value="{{ old('hours_sunday', $internship->hours_sunday ?? '') }}"
+                                    placeholder="0">
+                                <label for="hours_sunday">Domingo</label>
+                                @error('hours_sunday')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="1" min="0" max="6"
+                                    class="form-control @error('hours_monday') is-invalid @enderror"
+                                    id="hours_monday" name="hours_monday"
+                                    value="{{ old('hours_monday', $internship->hours_monday ?? '') }}"
+                                    placeholder="0">
+                                <label for="hours_monday">Segunda</label>
+                                @error('hours_monday')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="1" min="0" max="6"
+                                    class="form-control @error('hours_tuesday') is-invalid @enderror"
+                                    id="hours_tuesday" name="hours_tuesday"
+                                    value="{{ old('hours_tuesday', $internship->hours_tuesday ?? '') }}"
+                                    placeholder="0">
+                                <label for="hours_tuesday">Terça</label>
+                                @error('hours_tuesday')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="1" min="0" max="6"
+                                    class="form-control @error('hours_wednesday') is-invalid @enderror"
+                                    id="hours_wednesday" name="hours_wednesday"
+                                    value="{{ old('hours_wednesday', $internship->hours_wednesday ?? '') }}"
+                                    placeholder="0">
+                                <label for="hours_wednesday">Quarta</label>
+                                @error('hours_wednesday')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="1" min="0" max="6"
+                                    class="form-control @error('hours_thursday') is-invalid @enderror"
+                                    id="hours_thursday" name="hours_thursday"
+                                    value="{{ old('hours_thursday', $internship->hours_thursday ?? '') }}"
+                                    placeholder="0">
+                                <label for="hours_thursday">Quinta</label>
+                                @error('hours_thursday')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="1" min="0" max="6"
+                                    class="form-control @error('hours_friday') is-invalid @enderror"
+                                    id="hours_friday" name="hours_friday"
+                                    value="{{ old('hours_friday', $internship->hours_friday ?? '') }}"
+                                    placeholder="0">
+                                <label for="hours_friday">Sexta</label>
+                                @error('hours_friday')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-floating">
+                                <input type="number" step="1" min="0" max="6"
+                                    class="form-control @error('hours_saturday') is-invalid @enderror"
+                                    id="hours_saturday" name="hours_saturday"
+                                    value="{{ old('hours_saturday', $internship->hours_saturday ?? '') }}"
+                                    placeholder="0">
+                                <label for="hours_saturday">Sábado</label>
+                                @error('hours_saturday')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control bg-light" id="total_weekly_hours"
+                                    value="{{ old('hours_sunday', $internship->hours_sunday ?? 0) + old('hours_monday', $internship->hours_monday ?? 0) + old('hours_tuesday', $internship->hours_tuesday ?? 0) + old('hours_wednesday', $internship->hours_wednesday ?? 0) + old('hours_thursday', $internship->hours_thursday ?? 0) + old('hours_friday', $internship->hours_friday ?? 0) + old('hours_saturday', $internship->hours_saturday ?? 0) }}h"
+                                    readonly>
+                                <label for="total_weekly_hours">Total Semanal (máx. 30h)</label>
+                            </div>
+                        </div>
+                    </div>
                         </div>
                     </div>
                 </div>
@@ -1457,11 +1563,52 @@
                 }
             }
 
+            // Calcula e atualiza o total de horas semanais
+            function calculateTotalWeeklyHours() {
+                const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                const maxWeeklyHours = 30;
+                let total = 0;
+                
+                days.forEach(day => {
+                    const input = document.getElementById('hours_' + day);
+                    if (input && input.value) {
+                        total += parseInt(input.value) || 0;
+                    }
+                });
+                
+                const totalField = document.getElementById('total_weekly_hours');
+                totalField.value = total + 'h';
+                
+                // Adiciona indicador visual se ultrapassar o limite
+                if (total > maxWeeklyHours) {
+                    totalField.classList.add('text-danger', 'fw-bold');
+                    totalField.classList.remove('bg-light');
+                    totalField.classList.add('bg-danger', 'bg-opacity-10');
+                } else {
+                    totalField.classList.remove('text-danger', 'fw-bold', 'bg-danger', 'bg-opacity-10');
+                    totalField.classList.add('bg-light');
+                }
+            }
+
+            // Adiciona listeners aos campos de horas
+            function setupWeeklyHoursListeners() {
+                const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                
+                days.forEach(day => {
+                    const input = document.getElementById('hours_' + day);
+                    if (input) {
+                        input.addEventListener('input', calculateTotalWeeklyHours);
+                    }
+                });
+            }
+
             // Inicializar os campos quando a página carregar
             document.addEventListener('DOMContentLoaded', function() {
                 toggleRemunerationFields();
                 toggleLegalGuardianFields();
                 setupEvaluationWorkloadSwitch();
+                setupWeeklyHoursListeners();
+                calculateTotalWeeklyHours();
             });
         </script>
 
