@@ -18,7 +18,7 @@
                     @csrf
                     @method('PUT')
 
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         {{-- Nome do Tipo de Estágio --}}
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
@@ -90,7 +90,7 @@
                     </div>
 
                     {{-- Informações adicionais --}}
-                    <div class="row mb-3">
+                    <div class="row m-0 mb-3">
                         <div class="col-md-6">
                             <div class="card bg-light">
                                 <div class="card-body py-2">
@@ -115,7 +115,7 @@
                     </div>
 
                     <h5 class="mb-3 pt-3 border-bottom pb-2">Valores das Avaliações</h5>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-2 mb-3">
                             <div class="form-floating">
                                 <input type="number" step="0.1"

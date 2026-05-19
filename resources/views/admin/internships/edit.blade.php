@@ -65,7 +65,7 @@
                     method="POST" class="needs-validation" novalidate>
                     @csrf
 
-                    <div class="row g-3">
+                    <div class="row m-0 g-3">
                         <div class="col-md-8">
                             <div class="form-floating">
                                 <select class="form-select" id="document_type" name="document_type" required>
@@ -119,7 +119,7 @@
                     </h2>
                     <div id="collapseSystem" class="accordion-collapse collapse show" aria-labelledby="headingSystem">
                         <div class="accordion-body">
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('advisor_id') is-invalid @enderror" id="advisor_id"
@@ -156,9 +156,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             @if ($internship->google_docs_id)
                                 <div class="form-floating">
@@ -183,7 +183,7 @@
                             @endif
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-12 mb-3">
                             <div class="form-floating">
                                 <textarea class="form-control" id="notes" name="notes" style="height: 100px" placeholder="Observações">{{ old('notes', $internship->notes) }}</textarea>
@@ -205,7 +205,7 @@
                     </h2>
                     <div id="collapseStudent" class="accordion-collapse collapse" aria-labelledby="headingStudent">
                         <div class="accordion-body">
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('student_name') is-invalid @enderror"
@@ -231,7 +231,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -272,7 +272,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-3 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('student_rg') is-invalid @enderror"
@@ -323,7 +323,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('student_phone') is-invalid @enderror"
@@ -340,7 +340,7 @@
 
                     {{-- Endereço do Aluno --}}
                     <h6 class="mb-3 mt-4 border-bottom pb-2">Endereço</h6>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -368,7 +368,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -396,7 +396,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('student_address_state') is-invalid @enderror"
@@ -445,7 +445,7 @@
                     <div id="collapseLegalGuardian" class="accordion-collapse collapse"
                         aria-labelledby="headingLegalGuardian">
                         <div class="accordion-body">
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-4 mb-3">
                             <div class="form-check form-switch">
                                 <input type="hidden" name="student_is_adult" value="0">
@@ -459,7 +459,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row" id="legal-guardian-fields">
+                    <div class="row m-0" id="legal-guardian-fields">
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -489,7 +489,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('legal_guardian_kinship') is-invalid @enderror"
@@ -544,7 +544,7 @@
                     </h2>
                     <div id="collapseCompany" class="accordion-collapse collapse" aria-labelledby="headingCompany">
                         <div class="accordion-body">
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -573,7 +573,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-12 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('company_name') is-invalid @enderror"
@@ -587,7 +587,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('company_phone') is-invalid @enderror"
@@ -612,7 +612,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -640,7 +640,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-12 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -658,7 +658,7 @@
 
                     {{-- Endereço da Empresa --}}
                     <h6 class="mb-3 mt-4 border-bottom pb-2">Endereço da Empresa</h6>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -686,7 +686,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -714,7 +714,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('company_address_state') is-invalid @enderror"
@@ -750,7 +750,7 @@
 
                     {{-- Informações Adicionais da Empresa --}}
                     <h6 class="mb-3 mt-4 border-bottom pb-2">Informações Adicionais</h6>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -778,7 +778,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('process_number') is-invalid @enderror"
@@ -810,7 +810,7 @@
                     </h2>
                     <div id="collapseSupervisor" class="accordion-collapse collapse" aria-labelledby="headingSupervisor">
                         <div class="accordion-body">
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('supervisor_name') is-invalid @enderror"
@@ -837,7 +837,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="email"
@@ -879,7 +879,7 @@
                     </h2>
                     <div id="collapseInternship" class="accordion-collapse collapse" aria-labelledby="headingInternship">
                         <div class="accordion-body">
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-5 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -924,7 +924,7 @@
 
                     {{-- Valores dos Conceitos --}}
                     <h6 class="mb-3 mt-3">Valores dos Conceitos</h6>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-2 mb-3">
                             <div class="form-floating">
                                 <input type="number" step="0.01" min="0"
@@ -992,7 +992,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <input type="date" class="form-control @error('start_date') is-invalid @enderror"
@@ -1031,7 +1031,7 @@
 
                     {{-- Remuneração --}}
                     <h6 class="mb-3 mt-4 border-bottom pb-2">Remuneração</h6>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-4 mb-3">
                             <div class="form-check form-switch">
                                 <input type="hidden" name="is_remunerated" value="0">
@@ -1045,7 +1045,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row" id="remuneration-fields" class="d-flex">
+                    <div class="row m-0" id="remuneration-fields" class="d-flex">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="number" class="form-control @error('grant_value') is-invalid @enderror"
@@ -1075,7 +1075,7 @@
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-9 mb-3">
                             <div class="form-floating">
                                 <textarea class="form-control @error('activities') is-invalid @enderror" id="activities" name="activities"
@@ -1090,7 +1090,7 @@
 
                     {{-- Carga Horária Semanal --}}
                     <h6 class="mb-3 mt-4 border-bottom pb-2">Carga Horária Semanal</h6>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-3 col-6 mb-3">
                             <div class="form-floating">
                                 <input type="number" step="1" min="0" max="6"
@@ -1144,7 +1144,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-3 col-6 mb-3">
                             <div class="form-floating">
                                 <input type="number" step="1" min="0" max="6"
@@ -1211,7 +1211,7 @@
 
                     {{-- Informações Gerais da Avaliação --}}
                     <h6 class="mb-3 mt-4 border-bottom pb-2">Informações Gerais</h6>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <select class="form-select" id="evaluation_has_academic_background"
@@ -1250,7 +1250,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control" id="evaluation_education_level"
@@ -1299,10 +1299,10 @@
                         $chunks = array_chunk($criteria, 5, true);
                     @endphp
 
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         @foreach ($chunks as $chunk)
                             <div class="col-md-6">
-                                <div class="row">
+                                <div class="row m-0 m-0">
                                     @foreach ($chunk as $field => $label)
                                         <div class="col-md-12 mb-3">
                                             <div class="form-floating">
@@ -1325,7 +1325,7 @@
                     </div>
 
                     {{-- Nota Final --}}
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-3 mb-3">
                             <div class="form-floating">
                                 <input type="number" class="form-control" id="evaluation_grade" name="evaluation_grade"
@@ -1339,7 +1339,7 @@
 
                     {{-- Campos de Texto --}}
                     <h6 class="mb-3 mt-4 border-bottom pb-2">Observações</h6>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-12 mb-3">
                             <div class="form-floating">
                                 <textarea class="form-control" id="evaluation_considerations" name="evaluation_considerations" style="height: 100px"
@@ -1348,7 +1348,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-12 mb-3">
                             <div class="form-floating">
                                 <textarea class="form-control" id="evaluation_suggestions_to_institution"
@@ -1357,7 +1357,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-12 mb-3">
                             <div class="form-floating">
                                 <textarea class="form-control" id="evaluation_performance_issues" name="evaluation_performance_issues"
@@ -1366,7 +1366,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-12 mb-3">
                             <div class="form-floating">
                                 <textarea class="form-control" id="evaluation_other_observations" name="evaluation_other_observations"

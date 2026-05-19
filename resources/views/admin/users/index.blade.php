@@ -22,7 +22,7 @@
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-body py-3">
                 <form method="GET" action="{{ route('admin.users.index') }}">
-                    <div class="row g-2 align-items-end">
+                    <div class="row m-0 g-2 align-items-end">
                         <div class="col-md-4 col-lg-4">
                             <label for="search" class="form-label mb-0 small">Buscar</label>
                             <input type="text" class="form-control form-control-sm" id="search" name="search"
@@ -116,7 +116,7 @@
             @foreach ($users as $user)
                 <div class="card mb-3 shadow-sm border-0">
                     <div class="card-body py-3 px-4">
-                        <div class="row align-items-center g-0">
+                        <div class="row m-0 align-items-center g-0">
                             <div class="col-md-3 fw-bold text-dark">{{ $user->name }}</div>
                             <div class="col-md-3 small text-muted">{{ $user->email }}</div>
                             <div class="col-md-2">

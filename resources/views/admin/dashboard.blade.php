@@ -15,12 +15,12 @@
         </div>
 
         {{-- Estatísticas Gerais --}}
-        <div class="row mb-4">
+        <div class="row m-0 mb-4">
             {{-- Total de Estágios --}}
             <div class="col-xl col-md-6 mb-4">
                 <div class="card border-start border-primary border-4 shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row m-0 no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs fw-bold text-primary text-uppercase mb-1">
                                     Total de Estágios
@@ -40,7 +40,7 @@
             <div class="col-xl col-md-6 mb-4">
                 <div class="card border-start border-success border-4 shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row m-0 no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs fw-bold text-success text-uppercase mb-1">
                                     Partes Concedentes
@@ -61,7 +61,7 @@
             <div class="col-xl col-md-6 mb-4">
                 <div class="card border-start border-info border-4 shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row m-0 no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs fw-bold text-info text-uppercase mb-1">
                                     Total de Usuários
@@ -81,7 +81,7 @@
             <div class="col-xl col-md-6 mb-4">
                 <div class="card border-start border-warning border-4 shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row m-0 no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs fw-bold text-warning text-uppercase mb-1">
                                     Total de Cursos
@@ -101,7 +101,7 @@
             <div class="col-xl col-md-6 mb-4">
                 <div class="card border-start border-secondary border-4 shadow h-100 py-2">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
+                        <div class="row m-0 no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs fw-bold text-secondary text-uppercase mb-1">
                                     Avaliações do Supervisor
@@ -119,7 +119,7 @@
         </div>
 
         {{-- Gráficos e estatísticas detalhadas --}}
-        <div class="row mb-4">
+        <div class="row m-0 mb-4">
             {{-- Estágios por Status --}}
             <div class="col-xl-8 col-lg-7">
                 <div class="card shadow mb-4">
@@ -127,7 +127,7 @@
                         <h6 class="m-0 fw-bold text-primary">Estágios por Status</h6>
                     </div>
                     <div class="card-body">
-                        <div class="row">
+                        <div class="row m-0 m-0">
                             <div class="col-md-6 mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="text-muted">Pendente</span>
@@ -239,7 +239,7 @@
         </div>
 
         {{-- Estágios Recentes --}}
-        <div class="row">
+        <div class="row m-0 m-0">
             <div class="col-12">
                 <div class="card shadow mb-4">
                     <div class="card-header bg-light py-2">
@@ -249,7 +249,7 @@
                         <div class="list-group list-group-flush">
                             {{-- Cabeçalho Desktop --}}
                             <div class="list-group-item bg-light d-none d-lg-block text-muted fw-bold">
-                                <div class="row">
+                                <div class="row m-0 m-0">
                                     <div class="col-lg-2">Aluno</div>
                                     <div class="col-lg-2">Empresa</div>
                                     <div class="col-lg-2">Curso</div>
@@ -262,7 +262,7 @@
                             @forelse($recentInternships as $internship)
                                 <a href="{{ route('admin.internships.edit', $internship) }}"
                                     class="list-group-item list-group-item-action py-3">
-                                    <div class="row align-items-center">
+                                    <div class="row m-0 align-items-center">
                                         <div class="col-12 col-lg-2 mb-2 mb-lg-0">
                                             <span class="d-lg-none fw-bold text-muted small text-uppercase">Aluno: </span>
                                             <span class="d-block text-truncate"

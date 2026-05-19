@@ -52,7 +52,7 @@
 
                             {{-- Seção de Identificação --}}
                             <h5 class="mb-3 border-bottom pb-2">Identificação</h5>
-                            <div class="row">
+                            <div class="row m-0 m-0">
                                 <div class="col-md-8 mb-3">
                                     <div class="form-floating">
                                         <input type="text" class="form-control @error('name') is-invalid @enderror"
@@ -85,7 +85,7 @@
 
                             {{-- Seção de Endereço --}}
                             <h5 class="mb-3 pt-3 border-bottom pb-2">Endereço</h5>
-                            <div class="row">
+                            <div class="row m-0 m-0">
                                 <div class="col-md-8 mb-3">
                                     <div class="form-floating">
                                         <input type="text"
@@ -115,7 +115,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row m-0 m-0">
                                 <div class="col-md-6 mb-3">
                                     <div class="form-floating">
                                         <input type="text"
@@ -145,7 +145,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row m-0 m-0">
                                 <div class="col-md-6 mb-3">
                                     <div class="form-floating">
                                         <select class="form-select @error('address_state') is-invalid @enderror"
@@ -183,7 +183,7 @@
 
                             {{-- Seção de Representante e Contato --}}
                             <h5 class="mb-3 pt-3 border-bottom pb-2">Representante e Contato</h5>
-                            <div class="row">
+                            <div class="row m-0 m-0">
                                 <div class="col-md-6 mb-3">
                                     <div class="form-floating">
                                         <input type="text"
@@ -215,7 +215,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row m-0 m-0">
                                 <div class="col-md-6 mb-3">
                                     <div class="form-floating">
                                         <input type="text" class="form-control @error('phone') is-invalid @enderror"
@@ -242,7 +242,7 @@
 
                             {{-- Seção de Informações Adicionais --}}
                             <h5 class="mb-3 pt-3 border-bottom pb-2">Informações Adicionais</h5>
-                            <div class="row">
+                            <div class="row m-0 m-0">
                                 <div class="col-md-12 mb-3">
                                     <div class="form-floating">
                                         <input type="text"
@@ -259,7 +259,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row m-0 m-0">
                                 <div class="col-md-6 mb-3">
                                     <div class="form-floating">
                                         <input type="text"
@@ -286,7 +286,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row m-0 m-0">
                                 <div class="col-md-6 mb-3">
                                     <div class="form-floating">
                                         <input type="text"
@@ -327,7 +327,7 @@
                             enctype="multipart/form-data">
                             @csrf
 
-                            <div class="row">
+                            <div class="row m-0 m-0">
                                 <div class="col-12">
                                     <h5 class="mb-3">Importação em Massa via CSV</h5>
 

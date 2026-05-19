@@ -87,7 +87,7 @@
 
                     {{-- Informações Básicas --}}
                     <h5 class="text-primary mb-3">Informações Básicas</h5>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <input type="text" name="student_name" id="student_name" class="form-control"
@@ -116,7 +116,7 @@
 
                     {{-- Dados do Supervisor --}}
                     <h5 class="text-primary mb-3 mt-4">Dados do Supervisor</h5>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-3 mb-3">
                             <div class="form-floating">
                                 <select name="has_academic_background" id="has_academic_background" class="form-select">
@@ -156,7 +156,7 @@
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" name="experience_time" id="experience_time" class="form-control"
@@ -221,14 +221,14 @@
                         $options = ['Ótimo', 'Muito Bom', 'Bom', 'Satisfatório', 'Insatisfatório'];
                     @endphp
 
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         @php
                             $chunks = array_chunk($criteria, 5, true);
                         @endphp
 
                         @foreach ($chunks as $chunk)
                             <div class="col-md-6">
-                                <div class="row">
+                                <div class="row m-0 m-0">
                                     @foreach ($chunk as $field => $label)
                                         <div class="col-md-12 mb-3">
                                             <div class="form-floating">

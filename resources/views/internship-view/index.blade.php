@@ -18,7 +18,7 @@
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-body py-3">
                 <form method="GET" action="{{ route('internship-view.index') }}">
-                    <div class="row g-2 align-items-end">
+                    <div class="row m-0 g-2 align-items-end">
                         {{-- Busca por nome do estudante --}}
                         <div class="col-md-3">
                             <label for="search" class="form-label mb-0 small">Nome do Estudante</label>
@@ -139,7 +139,7 @@
             @foreach ($internships as $internship)
                 <div class="card mb-3 shadow-sm border-0">
                     <div class="card-body py-3 px-4">
-                        <div class="row align-items-center g-0">
+                        <div class="row m-0 align-items-center g-0">
                             <div class="col-md-9">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <h6 class="fw-bold text-dark mb-0">{{ $internship->student_name }}</h6>
@@ -156,7 +156,7 @@
                                     @endif
                                 </div>
 
-                                <div class="row small text-muted">
+                                <div class="row m-0 small text-muted">
                                     <div class="col-md-6">
                                         <div class="mb-1">
                                             <i class="bi bi-envelope me-1"></i>

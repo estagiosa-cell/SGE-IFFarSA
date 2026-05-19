@@ -18,7 +18,7 @@
                     @csrf
                     @method('PUT')
 
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         {{-- Nome do Curso --}}
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
@@ -56,7 +56,7 @@
                     </div>
 
                     {{-- Informações adicionais --}}
-                    <div class="row mb-3">
+                    <div class="row m-0 mb-3">
                         <div class="col-md-6">
                             <div class="card bg-light">
                                 <div class="card-body py-2">

@@ -17,7 +17,7 @@
                     novalidate>
                     @csrf
                     @method('PUT')
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         {{-- Nome --}}
                         <div class="mb-3 col-md-6">
                             <div class="form-floating">
@@ -47,7 +47,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         {{-- Papel --}}
                         <div class="mb-3 col-md-6">
                             <div class="form-floating">
@@ -80,7 +80,7 @@
                     </div>
 
                     {{-- Informações adicionais --}}
-                    <div class="row mb-3">
+                    <div class="row m-0 mb-3">
                         <div class="col-md-6">
                             <div class="card bg-light">
                                 <div class="card-body py-2">

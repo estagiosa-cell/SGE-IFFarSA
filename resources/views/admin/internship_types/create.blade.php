@@ -16,7 +16,7 @@
                 <form class="needs-validation" action="{{ route('admin.internship-types.store') }}" method="POST" novalidate>
                     @csrf
 
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         {{-- Nome do Tipo de Estágio --}}
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
@@ -87,7 +87,7 @@
                     </div>
 
                     <h5 class="mb-3 pt-3 border-bottom pb-2">Valores das Avaliações</h5>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-2 mb-3">
                             <div class="form-floating">
                                 <input type="number" step="0.1"

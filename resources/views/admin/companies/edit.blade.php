@@ -20,7 +20,7 @@
 
                     {{-- Seção de Identificação --}}
                     <h5 class="mb-3 border-bottom pb-2">Identificação</h5>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
@@ -52,7 +52,7 @@
 
                     {{-- Seção de Endereço --}}
                     <h5 class="mb-3 pt-3 border-bottom pb-2">Endereço</h5>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('address_street') is-invalid @enderror"
@@ -82,7 +82,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -113,7 +113,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('address_state') is-invalid @enderror" id="address_state"
@@ -151,7 +151,7 @@
 
                     {{-- Seção de Representante e Contato --}}
                     <h5 class="mb-3 pt-3 border-bottom pb-2">Representante e Contato</h5>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -183,7 +183,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('phone') is-invalid @enderror"
@@ -210,7 +210,7 @@
 
                     {{-- Seção de Informações Adicionais --}}
                     <h5 class="mb-3 pt-3 border-bottom pb-2">Informações Adicionais</h5>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-12 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -227,7 +227,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text"
@@ -255,7 +255,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('process_number') is-invalid @enderror"

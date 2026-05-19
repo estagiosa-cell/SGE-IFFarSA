@@ -16,7 +16,7 @@
                 <form class="needs-validation" action="{{ route('admin.courses.store') }}" method="POST" novalidate>
                     @csrf
 
-                    <div class="row">
+                    <div class="row m-0 m-0">
                         {{-- Nome do Curso --}}
                         <div class="col-md-8 mb-3">
                             <div class="form-floating">

@@ -17,7 +17,7 @@
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-body py-3">
                 <form method="GET" action="{{ route('admin.internships.index') }}">
-                    <div class="row g-2 align-items-end">
+                    <div class="row m-0 g-2 align-items-end">
                         <div class="col-md-4 col-lg-3">
                             <label for="search" class="form-label mb-0 small">Buscar por nome</label>
                             <input type="text" class="form-control form-control-sm" id="search" name="search"
@@ -133,7 +133,7 @@
             @foreach ($internships as $internship)
                 <div class="card mb-3 shadow-sm border-0">
                     <div class="card-body py-3 px-4">
-                        <div class="row align-items-center g-0">
+                        <div class="row m-0 align-items-center g-0">
                             <div class="col-md-9">
                                 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                                     <h6 class="fw-bold text-dark mb-0">{{ $internship->student_name }}</h6>
@@ -141,7 +141,7 @@
                                         class="badge bg-{{ $internship->status->color() }}">{{ $internship->status->label() }}</span>
                                     <span class="badge bg-light text-dark">{{ $internship->course->name }}</span>
                                 </div>
-                                <div class="row small text-muted">
+                                <div class="row m-0 small text-muted">
                                     <div class="col-md-6">
                                         <div class="mb-1">
                                             <i class="bi bi-envelope me-1"></i>
