@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 class InternshipController extends Controller
 {
     use AuthorizesRequests;
+
     /**
      * Exibe uma lista de estágios com filtros e ordenação.
      *
@@ -77,9 +78,10 @@ class InternshipController extends Controller
             CASE status
                 WHEN 'Pendente' THEN 1
                 WHEN 'Aguardando Assinatura' THEN 2
-                WHEN 'Em Andamento' THEN 3
-                WHEN 'Concluído' THEN 4
-                WHEN 'Cancelado' THEN 5
+                WHEN 'Liberado' THEN 3
+                WHEN 'Em Andamento' THEN 4
+                WHEN 'Concluído' THEN 5
+                WHEN 'Cancelado' THEN 6
                 ELSE 99
             END
         ";
@@ -248,7 +250,7 @@ class InternshipController extends Controller
     {
         // Busca o estágio apenas na lixeira (onlyTrashed).
         $internship = Internship::onlyTrashed()->findOrFail($id);
-        
+
         $this->authorize('restore', $internship);
 
         $internship->restore();
