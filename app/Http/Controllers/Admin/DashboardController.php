@@ -69,11 +69,21 @@ class DashboardController extends Controller
         $totalEvaluations = SupervisorEvaluation::count();
         $deletedEvaluations = SupervisorEvaluation::onlyTrashed()->count();
 
-        // Busca os 10 estágios mais recentes com seus respectivos orientadores e cursos.
-        $recentInternships = Internship::with(['advisor', 'course'])
+        // Busca os estágios pendentes
+        $pendingInternships = Internship::with(['advisor', 'course'])
+            ->where('status', InternshipStatus::PENDING->value)
+            ->latest()
+            ->get();
+
+        // Busca até 10 estágios que não estão pendentes
+        $otherInternships = Internship::with(['advisor', 'course'])
+            ->where('status', '!=', InternshipStatus::PENDING->value)
             ->latest()
             ->take(10)
             ->get();
+
+        // Combina e ordena tudo pela data de criação
+        $recentInternships = $pendingInternships->merge($otherInternships)->sortByDesc('created_at');
 
         // Retorna a view do dashboard com todas as estatísticas coletadas.
         return view('admin.dashboard', compact(

@@ -245,45 +245,69 @@
                     <div class="card-header bg-light py-2">
                         <h6 class="m-0 fw-bold text-primary">Estágios Recentes</h6>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Aluno</th>
-                                        <th>Empresa</th>
-                                        <th>Curso</th>
-                                        <th>Orientador</th>
-                                        <th>Status</th>
-                                        <th>Data de Criação</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($recentInternships as $internship)
-                                        <tr>
-                                            <td>{{ $internship->student_name }}</td>
-                                            <td>{{ $internship->company_name }}</td>
-                                            <td>{{ $internship->course->name ?? 'N/A' }}</td>
-                                            <td>{{ $internship->advisor->name ?? 'N/A' }}</td>
-                                            <td>
-                                                @php
-                                                    $color = $internship->status
-                                                        ? $internship->status->color()
-                                                        : 'secondary';
-                                                    $label = $internship->status ? $internship->status->label() : 'N/A';
-                                                @endphp
-                                                <span class="badge bg-{{ $color }}">{{ $label }}</span>
-                                            </td>
-                                            <td>{{ $internship->created_at->format('d/m/Y H:i') }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="text-center text-muted">Nenhum estágio cadastrado
-                                                ainda</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            {{-- Cabeçalho Desktop --}}
+                            <div class="list-group-item bg-light d-none d-lg-block text-muted fw-bold">
+                                <div class="row">
+                                    <div class="col-lg-2">Aluno</div>
+                                    <div class="col-lg-2">Empresa</div>
+                                    <div class="col-lg-2">Curso</div>
+                                    <div class="col-lg-2">Orientador</div>
+                                    <div class="col-lg-2">Status</div>
+                                    <div class="col-lg-2">Data de Criação</div>
+                                </div>
+                            </div>
+
+                            @forelse($recentInternships as $internship)
+                                <a href="{{ route('admin.internships.edit', $internship) }}"
+                                    class="list-group-item list-group-item-action py-3">
+                                    <div class="row align-items-center">
+                                        <div class="col-12 col-lg-2 mb-2 mb-lg-0">
+                                            <span class="d-lg-none fw-bold text-muted small text-uppercase">Aluno: </span>
+                                            <span class="d-block text-truncate"
+                                                title="{{ $internship->student_name }}">{{ $internship->student_name }}</span>
+                                        </div>
+                                        <div class="col-12 col-lg-2 mb-2 mb-lg-0">
+                                            <span class="d-lg-none fw-bold text-muted small text-uppercase">Empresa:
+                                            </span>
+                                            <span class="d-block text-truncate"
+                                                title="{{ $internship->company_name }}">{{ $internship->company_name }}</span>
+                                        </div>
+                                        <div class="col-12 col-lg-2 mb-2 mb-lg-0">
+                                            <span class="d-lg-none fw-bold text-muted small text-uppercase">Curso: </span>
+                                            <span class="d-block text-truncate"
+                                                title="{{ $internship->course->name ?? 'N/A' }}">{{ $internship->course->name ?? 'N/A' }}</span>
+                                        </div>
+                                        <div class="col-12 col-lg-2 mb-2 mb-lg-0">
+                                            <span class="d-lg-none fw-bold text-muted small text-uppercase">Orientador:
+                                            </span>
+                                            <span class="d-block text-truncate"
+                                                title="{{ $internship->advisor->name ?? 'N/A' }}">{{ $internship->advisor->name ?? 'N/A' }}</span>
+                                        </div>
+                                        <div class="col-12 col-lg-2 mb-2 mb-lg-0">
+                                            <span class="d-lg-none fw-bold text-muted small text-uppercase me-1">Status:
+                                            </span>
+                                            @php
+                                                $color = $internship->status
+                                                    ? $internship->status->color()
+                                                    : 'secondary';
+                                                $label = $internship->status ? $internship->status->label() : 'N/A';
+                                            @endphp
+                                            <span class="badge bg-{{ $color }}">{{ $label }}</span>
+                                        </div>
+                                        <div class="col-12 col-lg-2 text-muted small">
+                                            <span class="d-lg-none fw-bold text-muted small text-uppercase me-1">Data:
+                                            </span>
+                                            {{ $internship->created_at->format('d/m/Y H:i') }}
+                                        </div>
+                                    </div>
+                                </a>
+                            @empty
+                                <div class="list-group-item text-center text-muted py-4">
+                                    Nenhum estágio cadastrado ainda
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
