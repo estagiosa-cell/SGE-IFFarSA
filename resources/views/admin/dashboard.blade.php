@@ -152,6 +152,17 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">Liberado</span>
+                                    <span class="badge bg-secondary">{{ $internshipsByStatus['released'] }}</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-secondary" role="progressbar"
+                                        style="width: {{ $totalInternships > 0 ? ($internshipsByStatus['released'] / $totalInternships) * 100 : 0 }}%">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="text-muted">Em Andamento</span>
                                     <span class="badge bg-primary">{{ $internshipsByStatus['in_progress'] }}</span>
                                 </div>

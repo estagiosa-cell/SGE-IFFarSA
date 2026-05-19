@@ -38,6 +38,7 @@ class DashboardController extends Controller
         $internshipsByStatus = [
             'pending' => Internship::where('status', InternshipStatus::PENDING->value)->count(),
             'awaiting_signature' => Internship::where('status', InternshipStatus::AWAITING_SIGNATURE->value)->count(),
+            'released' => Internship::where('status', InternshipStatus::RELEASED->value)->count(),
             'in_progress' => Internship::where('status', InternshipStatus::IN_PROGRESS->value)->count(),
             'completed' => Internship::where('status', InternshipStatus::COMPLETED->value)->count(),
             'cancelled' => Internship::where('status', InternshipStatus::CANCELLED->value)->count(),
@@ -46,8 +47,8 @@ class DashboardController extends Controller
         // Coleta estatísticas sobre as empresas (partes concedentes).
         $totalCompanies = Company::count();
         $deletedCompanies = Company::onlyTrashed()->count();
-        // Conta quantas empresas únicas possuem estágios em andamento.
-        $activeCompanies = Internship::where('status', InternshipStatus::IN_PROGRESS->value)
+        // Conta quantas empresas únicas possuem estágios em andamento ou liberados.
+        $activeCompanies = Internship::whereIn('status', [InternshipStatus::IN_PROGRESS->value, InternshipStatus::RELEASED->value])
             ->distinct('company_legal_identifier')
             ->count('company_legal_identifier');
 
