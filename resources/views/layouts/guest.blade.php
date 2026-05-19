@@ -2,11 +2,11 @@
 
 @section('content')
     <div class="container-fluid vh-100">
-        <div class="row m-0 h-100">
+        <div class="row h-100">
             {{-- Lado Esquerdo - Informações do Sistema --}}
             <div class="d-none d-lg-flex col-lg-8 align-items-center bg-primary text-white">
                 <div class="container">
-                    <div class="row m-0 justify-content-center">
+                    <div class="row justify-content-center">
                         <div class="col-md-8">
                             <div class="text-center mb-5">
                                 <img src="{{ Vite::asset('resources/images/logo_iffar_c.png') }}" alt="Logo IFFar"
@@ -23,7 +23,7 @@
             {{-- Lado Direito - Formulário de Login --}}
             <div class="col-12 col-lg-4 d-flex align-items-center">
                 <div class="container">
-                    <div class="row m-0 justify-content-center">
+                    <div class="row justify-content-center">
                         <div class="col-md-10 col-lg-12">
                             {{-- Logo para telas pequenas/médias --}}
                             <div class="text-center mb-4 d-lg-none">
