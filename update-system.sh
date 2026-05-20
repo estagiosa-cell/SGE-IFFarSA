@@ -75,12 +75,12 @@ fi
 
 # Colocar aplicação em modo de manutenção
 echo -e "\n${YELLOW}⏸️  Colocando aplicação em modo de manutenção...${NC}"
-php artisan down
+su - $REAL_USER -c "cd $PWD && php artisan down"
 
 # Função para restaurar a aplicação em caso de erro
 restore_app() {
     echo -e "\n${RED}❌ Erro detectado! Restaurando aplicação...${NC}"
-    php artisan up
+    su - $REAL_USER -c "cd $PWD && php artisan up"
     exit 1
 }
 
@@ -93,38 +93,36 @@ su - $REAL_USER -c "cd $PWD && git fetch origin"
 CURRENT_BRANCH=$(su - $REAL_USER -c "cd $PWD && git rev-parse --abbrev-ref HEAD")
 echo -e "${BLUE}Branch atual: ${CURRENT_BRANCH}${NC}"
 
-# Descartar mudanças locais e atualizar (como root para ter permissão)
+# Descartar mudanças locais e atualizar (como usuário normal)
 echo -e "${BLUE}Descartando mudanças locais...${NC}"
-git reset --hard origin/$CURRENT_BRANCH
-
-if [ $? -eq 0 ]; then
+if su - $REAL_USER -c "cd $PWD && git reset --hard origin/$CURRENT_BRANCH"; then
     echo -e "${GREEN}✓ Código atualizado com sucesso!${NC}"
 else
     echo -e "${RED}❌ Erro ao atualizar código!${NC}"
     restore_app
 fi
 
-# Atualizar dependências do Composer
+# Atualizar dependências do Composer (como usuário normal)
 echo -e "\n${BLUE}📦 Instalando dependências do Composer...${NC}"
-if composer install --no-interaction --optimize-autoloader --no-dev --no-scripts; then
+if su - $REAL_USER -c "cd $PWD && composer install --no-interaction --optimize-autoloader --no-dev --no-scripts"; then
     echo -e "${GREEN}✓ Dependências do Composer instaladas!${NC}"
 else
     echo -e "${RED}❌ Erro ao instalar dependências do Composer!${NC}"
     restore_app
 fi
 
-# Atualizar dependências do NPM
+# Atualizar dependências do NPM (como usuário normal)
 echo -e "\n${BLUE}📦 Instalando dependências do NPM...${NC}"
-if npm install; then
+if su - $REAL_USER -c "cd $PWD && npm install"; then
     echo -e "${GREEN}✓ Dependências do NPM instaladas!${NC}"
 else
     echo -e "${RED}❌ Erro ao instalar dependências do NPM!${NC}"
     restore_app
 fi
 
-# Compilar assets
+# Compilar assets (como usuário normal)
 echo -e "\n${BLUE}🔨 Compilando assets...${NC}"
-if npm run build; then
+if su - $REAL_USER -c "cd $PWD && npm run build"; then
     echo -e "${GREEN}✓ Assets compilados!${NC}"
 else
     echo -e "${RED}❌ Erro ao compilar assets!${NC}"
@@ -133,7 +131,7 @@ fi
 
 # Executar migrações do banco de dados
 echo -e "\n${BLUE}🗄️  Executando migrações do banco de dados...${NC}"
-if php artisan migrate --force; then
+if su - $REAL_USER -c "cd $PWD && php artisan migrate --force"; then
     echo -e "${GREEN}✓ Migrações executadas!${NC}"
 else
     echo -e "${RED}❌ Erro ao executar migrações!${NC}"
@@ -142,7 +140,8 @@ fi
 
 # Otimizar aplicação
 echo -e "\n${BLUE}⚡ Otimizando aplicação...${NC}"
-if php artisan optimize; then
+su - $REAL_USER -c "cd $PWD && php artisan optimize:clear"
+if su - $REAL_USER -c "cd $PWD && php artisan optimize"; then
     echo -e "${GREEN}✓ Aplicação otimizada!${NC}"
 else
     echo -e "${RED}❌ Erro ao otimizar aplicação!${NC}"
@@ -151,7 +150,7 @@ fi
 
 # Definir permissões corretas
 echo -e "\n${BLUE}🔐 Definindo permissões corretas...${NC}"
-if chown -R www-data:www-data storage bootstrap/cache 2>/dev/null && \
+if chown -R $REAL_USER:www-data storage bootstrap/cache 2>/dev/null && \
    chmod -R 775 storage bootstrap/cache 2>/dev/null; then
     echo -e "${GREEN}✓ Permissões definidas!${NC}"
 else
@@ -171,7 +170,7 @@ echo -e "${GREEN}✓ Verificação de permissões concluída!${NC}"
 
 # Retirar aplicação do modo de manutenção
 echo -e "\n${YELLOW}▶️  Retirando aplicação do modo de manutenção...${NC}"
-php artisan up
+su - $REAL_USER -c "cd $PWD && php artisan up"
 echo -e "${GREEN}✓ Aplicação ativa!${NC}"
 
 # Verificar se a aplicação está funcionando
