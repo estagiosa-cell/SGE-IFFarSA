@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Enums\InternshipStatus;
 use App\Models\Internship;
 use App\Models\User;
-use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,8 +43,8 @@ class InternshipViewController extends Controller
             // Orientadores veem apenas os estágios que eles orientam.
             $query = $user->advisedInternships();
 
-            // Aplica os filtros da requisição na query.
-            $this->applyFilters($query, $request);
+            // Aplica os filtros padrão da requisição na query.
+            $query->applyStandardFilters($request);
 
             // Aplica ordenação
             $query = $query->with(['course', 'advisor']);
@@ -61,8 +60,10 @@ class InternshipViewController extends Controller
                     ->orWhere('advisor_id', $user->id);
             });
 
-            // Aplica os filtros da requisição na query.
-            $this->applyFilters($query, $request);
+            // Aplica os filtros padrão da requisição na query.
+            $query->applyStandardFilters($request, [
+                'allow_advisor_filter' => true,
+            ]);
 
             // Aplica ordenação
             $query = $query->with(['course', 'advisor']);
@@ -86,48 +87,6 @@ class InternshipViewController extends Controller
         }
 
         return view('internship-view.index', compact('internships', 'advisors', 'statusOptions', 'orderBy'));
-    }
-
-    /**
-     * Aplica os filtros da requisição na query de estágios.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query  A query de estágios a ser filtrada.
-     * @param  \Illuminate\Http\Request  $request  A requisição HTTP com os parâmetros de filtro.
-     * @return \Illuminate\Database\Eloquent\Builder A query com os filtros aplicados.
-     */
-    private function applyFilters($query, Request $request)
-    {
-        // Filtro por nome do estudante.
-        if ($request->filled('search')) {
-            SearchHelper::searchInField($query, $request->search, 'student_name');
-        }
-
-        // Filtro por status do estágio.
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Filtro por orientador (disponível apenas para coordenadores).
-        if ($request->filled('advisor') && Auth::user()->can('is-coordenador')) {
-            $query->where('advisor_id', $request->advisor);
-        }
-
-        // Filtro por número de matrícula do estudante.
-        if ($request->filled('registration')) {
-            $query->where('student_registration_number', 'like', '%'.$request->registration.'%');
-        }
-
-        // Filtro por data de término (de).
-        if ($request->filled('end_date_from')) {
-            $query->whereDate('end_date', '>=', $request->end_date_from);
-        }
-
-        // Filtro por data de término (até).
-        if ($request->filled('end_date_to')) {
-            $query->whereDate('end_date', '<=', $request->end_date_to);
-        }
-
-        return $query;
     }
 
     /**

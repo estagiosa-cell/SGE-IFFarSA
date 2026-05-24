@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateInternshipRequest;
 use App\Models\Company;
 use App\Models\Internship;
-use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -33,6 +32,7 @@ class InternshipController extends Controller
 
         $search = $request->get('search');
         $status = $request->get('status');
+        $registration = $request->get('registration');
         $courseId = $request->get('course_id');
         $endDateFrom = $request->get('end_date_from');
         $endDateTo = $request->get('end_date_to');
@@ -47,30 +47,9 @@ class InternshipController extends Controller
             $query = $query->onlyTrashed();
         }
 
-        // Aplica o filtro de busca por nome do estudante, se presente.
-        if ($request->filled('search')) {
-            SearchHelper::searchInField($query, $search, 'student_name');
-        }
-
-        // Aplica o filtro por status do estágio, se presente.
-        if ($request->filled('status')) {
-            $query->where('status', $status);
-        }
-
-        // Aplica o filtro por curso, se presente.
-        if ($request->filled('course_id')) {
-            $query->where('course_id', $courseId);
-        }
-
-        // Aplica o filtro por data de término (de), se presente.
-        if ($request->filled('end_date_from')) {
-            $query->whereDate('end_date', '>=', $endDateFrom);
-        }
-
-        // Aplica o filtro por data de término (até), se presente.
-        if ($request->filled('end_date_to')) {
-            $query->whereDate('end_date', '<=', $endDateTo);
-        }
+        $query->applyStandardFilters($request, [
+            'allow_course_filter' => true,
+        ]);
 
         // Define uma ordem de prioridade para os status dos estágios a partir do Enum,
         // garantindo que os pendentes e em andamento apareçam primeiro.
@@ -113,7 +92,7 @@ class InternshipController extends Controller
         // Obtém todos os cursos para o filtro.
         $courses = \App\Models\Course::orderBy('name')->get(['id', 'name']);
 
-        return view('admin.internships.index', compact('internships', 'search', 'status', 'statusOptions', 'showDeleted', 'courses', 'courseId', 'endDateFrom', 'endDateTo', 'orderBy'));
+        return view('admin.internships.index', compact('internships', 'search', 'status', 'registration', 'statusOptions', 'showDeleted', 'courses', 'courseId', 'endDateFrom', 'endDateTo', 'orderBy'));
     }
 
     /**

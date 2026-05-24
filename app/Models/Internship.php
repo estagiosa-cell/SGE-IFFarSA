@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Enums\InternshipStatus;
+use App\Utils\SearchHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
 
 /**
  * Model que representa um estágio.
@@ -179,6 +181,49 @@ class Internship extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
+    }
+
+    /**
+     * Aplica filtros padrão de listagem de estágios na query.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  array<string, mixed>  $options
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeApplyStandardFilters($query, Request $request, array $options = [])
+    {
+        $allowAdvisorFilter = (bool) ($options['allow_advisor_filter'] ?? false);
+        $allowCourseFilter = (bool) ($options['allow_course_filter'] ?? false);
+
+        if ($request->filled('search')) {
+            SearchHelper::searchInField($query, $request->search, 'student_name');
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($allowAdvisorFilter && $request->filled('advisor')) {
+            $query->where('advisor_id', $request->advisor);
+        }
+
+        if ($allowCourseFilter && $request->filled('course_id')) {
+            $query->where('course_id', $request->course_id);
+        }
+
+        if ($request->filled('registration')) {
+            $query->where('student_registration_number', 'like', '%'.$request->registration.'%');
+        }
+
+        if ($request->filled('end_date_from')) {
+            $query->whereDate('end_date', '>=', $request->end_date_from);
+        }
+
+        if ($request->filled('end_date_to')) {
+            $query->whereDate('end_date', '<=', $request->end_date_to);
+        }
+
+        return $query;
     }
 
     /**

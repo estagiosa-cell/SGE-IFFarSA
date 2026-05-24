@@ -25,6 +25,12 @@
                         </div>
 
                         <div class="col-md-4 col-lg-2">
+                            <label for="registration" class="form-label mb-0 small">Matrícula</label>
+                            <input type="text" class="form-control form-control-sm" id="registration" name="registration"
+                                value="{{ request('registration') }}" placeholder="Nº da matrícula">
+                        </div>
+
+                        <div class="col-md-4 col-lg-2">
                             <label for="status" class="form-label mb-0 small">Status</label>
                             <select class="form-select form-select-sm" id="status" name="status">
                                 <option value="">Todos</option>
@@ -41,7 +47,8 @@
                             <select class="form-select form-select-sm" id="course_id" name="course_id">
                                 <option value="">Todos</option>
                                 @foreach ($courses as $course)
-                                    <option value="{{ $course->id }}" {{ request('course_id') == $course->id ? 'selected' : '' }}>
+                                    <option value="{{ $course->id }}"
+                                        {{ request('course_id') == $course->id ? 'selected' : '' }}>
                                         {{ $course->name }}
                                     </option>
                                 @endforeach
@@ -50,8 +57,8 @@
 
                         <div class="col-md-6 col-lg-2">
                             <label for="end_date_from" class="form-label mb-0 small">Término de</label>
-                            <input type="date" class="form-control form-control-sm" id="end_date_from" name="end_date_from"
-                                value="{{ request('end_date_from') }}">
+                            <input type="date" class="form-control form-control-sm" id="end_date_from"
+                                name="end_date_from" value="{{ request('end_date_from') }}">
                         </div>
 
                         <div class="col-md-6 col-lg-2">
@@ -63,13 +70,24 @@
                         <div class="col-md-4 col-lg-2">
                             <label for="order_by" class="form-label mb-0 small">Ordenar por</label>
                             <select class="form-select form-select-sm" id="order_by" name="order_by">
-                                <option value="status_priority" {{ request('order_by', 'status_priority') == 'status_priority' ? 'selected' : '' }}>Status (Padrão)</option>
-                                <option value="name_asc" {{ request('order_by') == 'name_asc' ? 'selected' : '' }}>Nome (A-Z)</option>
-                                <option value="name_desc" {{ request('order_by') == 'name_desc' ? 'selected' : '' }}>Nome (Z-A)</option>
-                                <option value="start_date_desc" {{ request('order_by') == 'start_date_desc' ? 'selected' : '' }}>Início (Mais recente)</option>
-                                <option value="start_date_asc" {{ request('order_by') == 'start_date_asc' ? 'selected' : '' }}>Início (Mais antigo)</option>
-                                <option value="end_date_desc" {{ request('order_by') == 'end_date_desc' ? 'selected' : '' }}>Término (Mais recente)</option>
-                                <option value="end_date_asc" {{ request('order_by') == 'end_date_asc' ? 'selected' : '' }}>Término (Mais antigo)</option>
+                                <option value="status_priority"
+                                    {{ request('order_by', 'status_priority') == 'status_priority' ? 'selected' : '' }}>
+                                    Status (Padrão)</option>
+                                <option value="name_asc" {{ request('order_by') == 'name_asc' ? 'selected' : '' }}>Nome
+                                    (A-Z)</option>
+                                <option value="name_desc" {{ request('order_by') == 'name_desc' ? 'selected' : '' }}>Nome
+                                    (Z-A)</option>
+                                <option value="start_date_desc"
+                                    {{ request('order_by') == 'start_date_desc' ? 'selected' : '' }}>Início (Mais recente)
+                                </option>
+                                <option value="start_date_asc"
+                                    {{ request('order_by') == 'start_date_asc' ? 'selected' : '' }}>Início (Mais antigo)
+                                </option>
+                                <option value="end_date_desc"
+                                    {{ request('order_by') == 'end_date_desc' ? 'selected' : '' }}>Término (Mais recente)
+                                </option>
+                                <option value="end_date_asc" {{ request('order_by') == 'end_date_asc' ? 'selected' : '' }}>
+                                    Término (Mais antigo)</option>
                             </select>
                         </div>
 
@@ -95,7 +113,7 @@
                         <div class="mb-4">
                             @if ($showDeleted)
                                 <i class="bi bi-trash text-muted" style="font-size: 4rem;"></i>
-                            @elseif (request()->hasAny(['search', 'status', 'course_id', 'end_date_from', 'end_date_to']))
+                            @elseif (request()->hasAny(['search', 'registration', 'status', 'course_id', 'end_date_from', 'end_date_to']))
                                 <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
                             @else
                                 <i class="bi bi-briefcase text-muted" style="font-size: 4rem;"></i>
@@ -111,7 +129,7 @@
                                 class="btn btn-outline-primary">
                                 <i class="bi bi-arrow-left me-2"></i>Ver Estágios Ativos
                             </a>
-                        @elseif (request()->hasAny(['search', 'status', 'course_id', 'end_date_from', 'end_date_to']))
+                        @elseif (request()->hasAny(['search', 'registration', 'status', 'course_id', 'end_date_from', 'end_date_to']))
                             <h4 class="text-muted mb-3">Nenhum estágio encontrado</h4>
                             <p class="text-muted mb-4">
                                 Não foram encontrados estágios com os filtros aplicados.<br>
@@ -160,7 +178,10 @@
                                         @if ($internship->status->value === 'Concluído' && $internship->evaluation_grade)
                                             <div class="mb-1">
                                                 <i class="bi bi-award-fill me-1 text-warning"></i>
-                                                <strong>Nota:</strong> {{ number_format($internship->evaluation_grade, 2, ',', '.') }}@if($internship->internship_type_weight)/{{ number_format($internship->internship_type_weight, 2, ',', '.') }}@endif
+                                                <strong>Nota:</strong>
+                                                {{ number_format($internship->evaluation_grade, 2, ',', '.') }}@if ($internship->internship_type_weight)
+                                                    /{{ number_format($internship->internship_type_weight, 2, ',', '.') }}
+                                                @endif
                                             </div>
                                         @endif
                                     </div>
@@ -183,8 +204,8 @@
                             </div>
                             <div class="col-md-3 text-end">
                                 @if ($showDeleted)
-                                    <form action="{{ route('admin.internships.restore', $internship->id) }}" method="POST"
-                                        class="d-inline">
+                                    <form action="{{ route('admin.internships.restore', $internship->id) }}"
+                                        method="POST" class="d-inline">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="btn btn-success btn-sm px-3 py-1">
