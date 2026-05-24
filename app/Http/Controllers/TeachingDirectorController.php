@@ -81,17 +81,8 @@ class TeachingDirectorController extends Controller
             $query->whereDate('end_date', '<=', $endDateTo);
         }
 
-        // Define ordenação por prioridade de status
-        $statusOrderSql = "
-            CASE status
-                WHEN 'Pendente' THEN 1
-                WHEN 'Aguardando Assinatura' THEN 2
-                WHEN 'Em Andamento' THEN 3
-                WHEN 'Concluído' THEN 4
-                WHEN 'Cancelado' THEN 5
-                ELSE 99
-            END
-        ";
+        // Define ordenação por prioridade de status gerado pelo Enum
+        $statusOrderSql = InternshipStatus::orderSql();
 
         // Aplica ordenação baseada no parâmetro
         switch ($orderBy) {

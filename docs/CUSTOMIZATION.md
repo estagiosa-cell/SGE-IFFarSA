@@ -113,6 +113,7 @@ public function label(): string
     return match ($this) {
         self::PENDING => 'Pendente',
         self::AWAITING_SIGNATURE => 'Aguardando Assinatura',
+        self::RELEASED => 'Liberado',
         self::IN_PROGRESS => 'Em Andamento',
         self::COMPLETED => 'Concluído',
         self::CANCELLED => 'Cancelado',
@@ -129,6 +130,7 @@ public function color(): string
     return match ($this) {
         self::PENDING => 'warning',
         self::AWAITING_SIGNATURE => 'info',
+        self::RELEASED => 'secondary',
         self::IN_PROGRESS => 'primary',
         self::COMPLETED => 'success',
         self::CANCELLED => 'danger',
@@ -139,21 +141,24 @@ public function color(): string
 
 ### Ajustar Ordem de Exibição
 
-Se você deseja que o novo status apareça em uma ordem específica na listagem, edite o arquivo `app/Http/Controllers/Admin/InternshipController.php`, método `index()`:
+A ordem de exibição na listagem agora é automaticamente determinada pela ordem de declaração dos casos (cases) dentro do Enum `App\Enums\InternshipStatus`.
+
+Se você deseja que o novo status apareça em uma ordem específica (ex: antes de *Concluído*), basta mover a linha com o caso `SEU_NOVO_STATUS` para a posição desejada dentro do arquivo `app/Enums/InternshipStatus.php`:
 
 ```php
-$statusOrderSql = "
-    CASE status
-        WHEN 'Pendente' THEN 1
-        WHEN 'Aguardando Assinatura' THEN 2
-        WHEN 'Em Andamento' THEN 3
-        WHEN 'Seu Novo Status' THEN 4
-        WHEN 'Concluído' THEN 5
-        WHEN 'Cancelado' THEN 6
-        ELSE 99
-    END
-";
+enum InternshipStatus: string
+{
+    case PENDING = 'Pendente';
+    case AWAITING_SIGNATURE = 'Aguardando Assinatura';
+    case RELEASED = 'Liberado';
+    case IN_PROGRESS = 'Em Andamento';
+    case 
+    case SEU_NOVO_STATUS = 'Seu Novo Status'; // Declarado antes do Concluído
+    case COMPLETED = 'Concluído';
+}
 ```
+
+O método `InternshipStatus::orderSql()` fará com que as queries nas *Controllers* (como `InternshipController`, `InternshipViewController` e `TeachingDirectorController`) gerem os valores corretos no `CASE SQL` dinamicamente com base nessa ordem definida no arquivo.
 
 ### Remover ou Renomear Status
 

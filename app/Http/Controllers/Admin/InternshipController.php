@@ -72,19 +72,9 @@ class InternshipController extends Controller
             $query->whereDate('end_date', '<=', $endDateTo);
         }
 
-        // Define uma ordem de prioridade para os status dos estágios,
+        // Define uma ordem de prioridade para os status dos estágios a partir do Enum,
         // garantindo que os pendentes e em andamento apareçam primeiro.
-        $statusOrderSql = "
-            CASE status
-                WHEN 'Pendente' THEN 1
-                WHEN 'Aguardando Assinatura' THEN 2
-                WHEN 'Liberado' THEN 3
-                WHEN 'Em Andamento' THEN 4
-                WHEN 'Concluído' THEN 5
-                WHEN 'Cancelado' THEN 6
-                ELSE 99
-            END
-        ";
+        $statusOrderSql = InternshipStatus::orderSql();
 
         // Aplica a ordenação baseada no parâmetro order_by
         switch ($orderBy) {

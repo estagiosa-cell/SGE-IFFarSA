@@ -36,18 +36,9 @@ class InternshipViewController extends Controller
         $statusOptions = InternshipStatus::options();
         $orderBy = $request->get('order_by', 'status_priority'); // Padrão: ordenação por prioridade de status
 
-        // Raw SQL para ordenação por prioridade de status.
+        // Raw SQL para ordenação por prioridade de status gerado pelo Enum.
         // Garante que estágios 'Pendente' e 'Aguardando Assinatura' apareçam primeiro.
-        $statusOrderSql = "
-            CASE status
-                WHEN 'Pendente' THEN 1
-                WHEN 'Aguardando Assinatura' THEN 2
-                WHEN 'Em Andamento' THEN 3
-                WHEN 'Concluído' THEN 4
-                WHEN 'Cancelado' THEN 5
-                ELSE 99
-            END
-        ";
+        $statusOrderSql = InternshipStatus::orderSql();
 
         if ($user->can('is-orientador')) {
             // Orientadores veem apenas os estágios que eles orientam.

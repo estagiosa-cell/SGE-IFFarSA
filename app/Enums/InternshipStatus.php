@@ -64,4 +64,21 @@ enum InternshipStatus: string
             ->mapWithKeys(fn ($status) => [$status->value => $status->label()])
             ->toArray();
     }
+
+    /**
+     * Retorna a query SQL raw para ordenação dos status com base na ordem definida neste enum.
+     *
+     * @return string A string de ordenação CASE para o banco de dados.
+     */
+    public static function orderSql(): string
+    {
+        $sql = 'CASE status ';
+        foreach (self::cases() as $index => $status) {
+            $order = $index + 1;
+            $sql .= "WHEN '{$status->value}' THEN {$order} ";
+        }
+        $sql .= 'ELSE 99 END';
+
+        return $sql;
+    }
 }

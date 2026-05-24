@@ -78,12 +78,13 @@ class DashboardController extends Controller
         // Busca até 10 estágios que não estão pendentes
         $otherInternships = Internship::with(['advisor', 'course'])
             ->where('status', '!=', InternshipStatus::PENDING->value)
+            ->orderByRaw(InternshipStatus::orderSql())
             ->latest()
             ->take(10)
             ->get();
 
-        // Combina e ordena tudo pela data de criação
-        $recentInternships = $pendingInternships->merge($otherInternships)->sortByDesc('created_at');
+        // Combina as listas garantindo que todos os pendentes fiquem no topo (primeiro) seguidos pelos demais
+        $recentInternships = $pendingInternships->concat($otherInternships);
 
         // Retorna a view do dashboard com todas as estatísticas coletadas.
         return view('admin.dashboard', compact(
