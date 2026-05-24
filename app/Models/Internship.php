@@ -167,8 +167,6 @@ class Internship extends Model
 
     /**
      * Relacionamento: retorna o orientador responsável pelo estágio.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function advisor(): BelongsTo
     {
@@ -177,8 +175,6 @@ class Internship extends Model
 
     /**
      * Relacionamento: retorna o curso ao qual o estágio pertence.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function course(): BelongsTo
     {
@@ -268,5 +264,79 @@ class Internship extends Model
             ($this->evaluation_q9_cooperation ?? 0) +
             ($this->evaluation_q10_responsibility ?? 0)
         );
+    }
+
+    /**
+     * Calcula a nota da avaliação baseando-se nos valores guardados nos atributos e
+     * eventuais dados atualizados (via form ou memória).
+     *
+     * @param  array  $data  Dados adicionais/sobrescritos (ex: do request)
+     * @return float A nota final calculada.
+     */
+    public function calculateEvaluationGrade(array $data = []): float
+    {
+        $criteria = [
+            'evaluation_performance',
+            'evaluation_comprehension',
+            'evaluation_technical_knowledge',
+            'evaluation_organization',
+            'evaluation_initiative',
+            'evaluation_attendance',
+            'evaluation_discipline',
+            'evaluation_sociability',
+            'evaluation_cooperation',
+            'evaluation_responsibility',
+        ];
+
+        $totalScore = 0.0;
+        $count = 0;
+
+        foreach ($criteria as $criterion) {
+            $text = $data[$criterion] ?? $this->{$criterion};
+            if (! empty($text)) {
+                $totalScore += $this->getEvaluationNumericValue($text, $data);
+                $count++;
+            }
+        }
+
+        return $count > 0 ? $totalScore / $count : 0.0;
+    }
+
+    /**
+     * Retorna o valor de uma nota textual (Ótimo, Bom...) respeitando os pesos do estágio.
+     */
+    public function getEvaluationNumericValue(?string $value, array $data = []): float
+    {
+        $defaults = [
+            'Ótimo' => 2.0,
+            'Muito Bom' => 1.5,
+            'Bom' => 1.0,
+            'Satisfatório' => 0.5,
+            'Insatisfatório' => 0.0,
+        ];
+
+        if (empty($value)) {
+            return 0.0;
+        }
+
+        $map = [
+            'Ótimo' => 'great_value',
+            'Muito Bom' => 'very_good_value',
+            'Bom' => 'good_value',
+            'Satisfatório' => 'satisfactory_value',
+            'Insatisfatório' => 'unsatisfactory_value',
+        ];
+
+        $key = $map[$value] ?? null;
+
+        if ($key && isset($data[$key]) && is_numeric($data[$key])) {
+            return (float) $data[$key];
+        }
+
+        if ($key && isset($this->{$key})) {
+            return (float) $this->{$key};
+        }
+
+        return $defaults[$value] ?? 0.0;
     }
 }

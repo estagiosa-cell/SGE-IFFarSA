@@ -133,11 +133,7 @@ class SupervisorEvaluationController extends Controller
         // Inicia uma transação para garantir a integridade dos dados.
         DB::beginTransaction();
         try {
-            // Calcula a nota final da avaliação (a nota vem em uma escala de 0-100 e é convertida para 0-10).
-            $evaluationGrade = $evaluation->calculateGrade() / 10.0;
-
-            // Copia todos os dados da avaliação para os campos correspondentes no estágio.
-            $internship->update([
+            $evaluationData = [
                 'evaluation_has_academic_background' => $evaluation->has_academic_background,
                 'evaluation_completed_workload' => $evaluation->completed_workload,
                 'evaluation_training_course' => $evaluation->training_course,
@@ -158,8 +154,13 @@ class SupervisorEvaluationController extends Controller
                 'evaluation_suggestions_to_institution' => $evaluation->suggestions_to_institution,
                 'evaluation_performance_issues' => $evaluation->performance_issues,
                 'evaluation_other_observations' => $evaluation->other_observations,
-                'evaluation_grade' => $evaluationGrade,
-            ]);
+            ];
+
+            // Calcula a nota final da avaliação usando as lógicas de peso próprias do estágio
+            $evaluationData['evaluation_grade'] = $internship->calculateEvaluationGrade($evaluationData);
+
+            // Copia todos os dados da avaliação para os campos correspondentes no estágio.
+            $internship->update($evaluationData);
 
             // Se o supervisor confirmou que a carga horária foi cumprida, o estágio é finalizado.
             if ($evaluation->hasCompletedWorkload()) {

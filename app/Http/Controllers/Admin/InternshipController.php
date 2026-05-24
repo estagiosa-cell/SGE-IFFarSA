@@ -162,7 +162,7 @@ class InternshipController extends Controller
 
         try {
             // Recalcula a nota final da avaliação com base nos critérios preenchidos.
-            $validatedData['evaluation_grade'] = $this->calculateEvaluationGrade($validatedData, $internship);
+            $validatedData['evaluation_grade'] = $internship->calculateEvaluationGrade($validatedData);
 
             // Atualiza o estágio com os dados validados e a nota calculada.
             $internship->update($validatedData);
@@ -259,98 +259,5 @@ class InternshipController extends Controller
         return redirect()->route('admin.internships.index', ['show_deleted' => 1])
             ->with('message', 'Estágio restaurado com sucesso!')
             ->with('messageType', 'success');
-    }
-
-    /**
-     * Calcula a nota final da avaliação com base nos 10 critérios de desempenho.
-     *
-     * @param  array  $data  Os dados validados da requisição.
-     * @param  \App\Models\Internship  $internship  A instância do estágio.
-     * @return float A média das notas dos critérios preenchidos.
-     */
-    private function calculateEvaluationGrade(array $data, Internship $internship): float
-    {
-        // Lista dos campos que representam os critérios de avaliação.
-        $criteria = [
-            'evaluation_performance',
-            'evaluation_comprehension',
-            'evaluation_technical_knowledge',
-            'evaluation_organization',
-            'evaluation_initiative',
-            'evaluation_attendance',
-            'evaluation_discipline',
-            'evaluation_sociability',
-            'evaluation_cooperation',
-            'evaluation_responsibility',
-        ];
-
-        $totalScore = 0.0;
-        $count = 0;
-
-        // Itera sobre cada critério para somar as notas.
-        foreach ($criteria as $criterion) {
-            $text = $data[$criterion] ?? null;
-            if (! empty($text)) {
-                // Converte o conceito textual (ex: "Bom") para um valor numérico.
-                $totalScore += $this->getNumericValue($text, $data, $internship);
-                $count++;
-            }
-        }
-
-        // Retorna a média ou 0.0 se nenhum critério foi preenchido.
-        return $count > 0 ? $totalScore / $count : 0.0;
-    }
-
-    /**
-     * Converte um conceito textual de avaliação (ex: "Ótimo") para seu valor numérico correspondente.
-     *
-     * A ordem de prioridade para obter o valor é:
-     * 1. Valores customizados enviados na requisição atual (ex: `great_value` no formulário).
-     * 2. Valores customizados já salvos no registro do estágio.
-     * 3. Valores padrão definidos no código.
-     *
-     * @param  string|null  $value  O conceito textual (ex: "Ótimo", "Bom").
-     * @param  array  $data  Os dados da requisição atual, que podem conter overrides.
-     * @param  \App\Models\Internship|null  $internship  O estágio, para buscar valores salvos.
-     * @return float O valor numérico correspondente.
-     */
-    private function getNumericValue(?string $value, array $data = [], ?Internship $internship = null): float
-    {
-        // Valores padrão caso nenhuma customização seja encontrada.
-        $defaults = [
-            'Ótimo' => 2.0,
-            'Muito Bom' => 1.5,
-            'Bom' => 1.0,
-            'Satisfatório' => 0.5,
-            'Insatisfatório' => 0.0,
-        ];
-
-        if (empty($value)) {
-            return 0.0;
-        }
-
-        // Mapeia o conceito textual para a chave do campo no banco/requisição.
-        $map = [
-            'Ótimo' => 'great_value',
-            'Muito Bom' => 'very_good_value',
-            'Bom' => 'good_value',
-            'Satisfatório' => 'satisfactory_value',
-            'Insatisfatório' => 'unsatisfactory_value',
-        ];
-
-        $key = $map[$value] ?? null;
-
-        // Prioridade 1: Verifica se há um valor customizado na requisição atual.
-        if ($key && isset($data[$key]) && is_numeric($data[$key])) {
-            return (float) $data[$key];
-        }
-
-        // Prioridade 2: Verifica se há um valor customizado salvo no estágio.
-        if ($key && $internship && isset($internship->{$key})) {
-            return (float) $internship->{$key};
-        }
-
-        // Prioridade 3: Usa o valor padrão.
-        return $defaults[$value] ?? 0.0;
     }
 }
