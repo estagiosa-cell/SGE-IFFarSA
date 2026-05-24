@@ -34,6 +34,15 @@ class CompanyController extends Controller
         // Pega os valores dos filtros da requisição.
         $searchName = $request->get('name');
         $searchLegalIdentifier = $request->get('legal_identifier');
+        $searchCity = $request->get('address_city');
+
+        // Obtém as cidades únicas para o filtro, ignorando nulas e vazias.
+        $cities = Company::select('address_city')
+            ->whereNotNull('address_city')
+            ->where('address_city', '!=', '')
+            ->distinct()
+            ->orderBy('address_city')
+            ->pluck('address_city');
 
         // Inicia a construção da consulta ao banco de dados.
         $query = Company::query();
@@ -55,14 +64,21 @@ class CompanyController extends Controller
             $query->where('legal_identifier', 'like', '%'.$searchLegalIdentifier.'%');
         }
 
+        // Aplica o filtro de busca por cidade, se ele existir.
+        if ($searchCity) {
+            $query->where('address_city', $searchCity);
+        }
+
         // Executa a consulta, ordena os resultados pelo nome e pagina.
         $companies = $query->orderBy('name')->paginate(100);
 
         // Retorna a view, passando a lista de empresas e os valores dos filtros para preenchimento.
         return view('admin.companies.index', [
             'companies' => $companies,
+            'cities' => $cities,
             'searchName' => $searchName,
             'searchLegalIdentifier' => $searchLegalIdentifier,
+            'searchCity' => $searchCity,
             'showDeleted' => $showDeleted,
         ]);
     }
