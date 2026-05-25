@@ -11,6 +11,7 @@ use App\Utils\SearchHelper;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Controlador para gerenciar os Cursos no painel administrativo.
@@ -41,13 +42,23 @@ class CourseController extends Controller
             $query = $query->onlyTrashed();
         }
 
-        // Aplica o filtro de busca por nome, se presente na requisição.
-        if ($request->filled('search')) {
-            SearchHelper::searchInField($query, $request->search, 'name');
-        }
+        $perPage = 100;
+        $orderedQuery = $query->orderBy('name');
+        $hasSearch = $request->filled('search');
+        $useUnaccent = DB::getDriverName() === 'pgsql';
 
-        // Ordena os cursos por nome e pagina os resultados.
-        $courses = $query->orderBy('name')->paginate(100);
+        if ($hasSearch && $useUnaccent) {
+            $search = $request->input('search');
+            SearchHelper::applyUnaccentSearch($orderedQuery, $search, 'name');
+            $courses = $orderedQuery->paginate($perPage);
+        } elseif ($hasSearch) {
+            $search = $request->input('search');
+            $courses = $orderedQuery->get();
+            $courses = SearchHelper::filterCollectionByNormalizedWords($courses, $search, 'name');
+            $courses = SearchHelper::paginateCollection($courses, $perPage, $request);
+        } else {
+            $courses = $orderedQuery->paginate($perPage);
+        }
 
         // Retorna a view com a lista de cursos e o estado do filtro de excluídos.
         return view('admin.courses.index', compact('courses', 'showDeleted'));

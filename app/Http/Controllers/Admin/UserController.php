@@ -11,6 +11,7 @@ use App\Utils\SearchHelper;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -41,12 +42,6 @@ class UserController extends Controller
             $query = $query->onlyTrashed();
         }
 
-        // Aplica o filtro de busca por nome ou e-mail, se presente.
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            SearchHelper::searchInFields($query, $search, ['name', 'email']);
-        }
-
         // Filtra os usuários por papel (role), se especificado.
         if ($request->filled('role')) {
             $query->where('role', $request->role);
@@ -61,8 +56,27 @@ class UserController extends Controller
             }
         }
 
+        $perPage = 100;
+        $orderedQuery = $query->latest();
+        $hasSearch = $request->filled('search');
+        $useUnaccent = DB::getDriverName() === 'pgsql';
+
+        if ($hasSearch && $useUnaccent) {
+            $search = $request->input('search');
+            SearchHelper::applyUnaccentSearch($orderedQuery, $search, ['name', 'email']);
+            $users = $orderedQuery->paginate($perPage);
+        } elseif ($hasSearch) {
+            $search = $request->input('search');
+            $users = $orderedQuery->get();
+            $users = SearchHelper::filterCollectionByNormalizedWords($users, $search, static function ($user) {
+                return trim(($user->name ?? '').' '.($user->email ?? ''));
+            });
+            $users = SearchHelper::paginateCollection($users, $perPage, $request);
+        } else {
+            $users = $orderedQuery->paginate($perPage);
+        }
+
         // Pagina os resultados e busca todos os papéis para o formulário de filtro.
-        $users = $query->latest()->paginate(100);
         $roles = UserRole::cases();
 
         // Retorna a view com os dados.

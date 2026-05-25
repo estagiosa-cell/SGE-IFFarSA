@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 class SupervisorEvaluationController extends Controller
 {
     use AuthorizesRequests;
+
     /**
      * Exibe a lista de avaliações de supervisores com filtros e paginação.
      *
@@ -42,14 +43,6 @@ class SupervisorEvaluationController extends Controller
             $query->onlyTrashed();
         }
 
-        // Filtro de busca por nome do estudante.
-        if ($request->filled('search')) {
-            $search = $request->search;
-            SearchHelper::searchInFields($query, $search, [
-                'student_name',
-            ]);
-        }
-
         // Filtro para verificar se a carga horária foi cumprida.
         if ($request->filled('workload')) {
             if ($request->workload === 'completed') {
@@ -64,8 +57,23 @@ class SupervisorEvaluationController extends Controller
             }
         }
 
-        // Ordena as avaliações pela data de criação e pagina os resultados.
-        $evaluations = $query->orderBy('created_at', 'desc')->paginate(100);
+        $perPage = 100;
+        $orderedQuery = $query->orderBy('created_at', 'desc');
+        $hasSearch = $request->filled('search');
+        $useUnaccent = DB::getDriverName() === 'pgsql';
+
+        if ($hasSearch && $useUnaccent) {
+            $search = $request->input('search');
+            SearchHelper::applyUnaccentSearch($orderedQuery, $search, 'student_name');
+            $evaluations = $orderedQuery->paginate($perPage);
+        } elseif ($hasSearch) {
+            $search = $request->input('search');
+            $evaluations = $orderedQuery->get();
+            $evaluations = SearchHelper::filterCollectionByNormalizedWords($evaluations, $search, 'student_name');
+            $evaluations = SearchHelper::paginateCollection($evaluations, $perPage, $request);
+        } else {
+            $evaluations = $orderedQuery->paginate($perPage);
+        }
 
         return view('admin.supervisor-evaluations.index', compact('evaluations'));
     }
@@ -119,7 +127,7 @@ class SupervisorEvaluationController extends Controller
     public function associate(AssociateSupervisorEvaluationRequest $request, SupervisorEvaluation $evaluation)
     {
         $validated = $request->validated();
-        
+
         $internship = Internship::findOrFail($validated['internship_id']);
 
         // Garante que a associação só ocorra para estágios em andamento.
