@@ -51,8 +51,8 @@
                     class="form-control @error('password') is-invalid @enderror" placeholder="Nova Senha" maxlength="64"
                     required>
                 <label for="password"><i class="bi bi-lock me-2"></i>Nova Senha</label>
-                <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted" 
-                    style="z-index: 10; padding: 0.375rem 0.75rem; margin-right: 0.5rem;"
+                <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted z-3 me-2" 
+                   
                     onclick="togglePasswordVisibility('password', this)">
                     <i class="bi bi-eye"></i>
                 </button>
@@ -72,8 +72,8 @@
                     class="form-control @error('password_confirmation') is-invalid @enderror"
                     placeholder="Confirmar Nova Senha" maxlength="64" required>
                 <label for="password_confirmation"><i class="bi bi-lock-fill me-2"></i>Confirmar Nova Senha</label>
-                <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted" 
-                    style="z-index: 10; padding: 0.375rem 0.75rem; margin-right: 0.5rem;"
+                <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted z-3 me-2" 
+                   
                     onclick="togglePasswordVisibility('password_confirmation', this)">
                     <i class="bi bi-eye"></i>
                 </button>

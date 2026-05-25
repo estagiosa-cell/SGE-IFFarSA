@@ -122,9 +122,9 @@
                     <div class="text-center py-5">
                         <div class="mb-4">
                             @if (request()->hasAny(['search', 'status', 'course_id', 'advisor_id', 'registration', 'end_date_from', 'end_date_to']))
-                                <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+                                <i class="bi bi-search text-muted display-3"></i>
                             @else
-                                <i class="bi bi-briefcase text-muted" style="font-size: 4rem;"></i>
+                                <i class="bi bi-briefcase text-muted display-3"></i>
                             @endif
                         </div>
                         <h4 class="text-muted mb-3">Nenhum estágio encontrado</h4>

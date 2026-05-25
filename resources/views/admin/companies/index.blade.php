@@ -69,11 +69,11 @@
                     <div class="text-center py-5">
                         <div class="mb-4">
                             @if ($showDeleted)
-                                <i class="bi bi-trash text-muted" style="font-size: 4rem;"></i>
+                                <i class="bi bi-trash text-muted display-3"></i>
                             @elseif (request()->hasAny(['name', 'legal_identifier', 'address_city']))
-                                <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+                                <i class="bi bi-search text-muted display-3"></i>
                             @else
-                                <i class="bi bi-building-gear text-muted" style="font-size: 4rem;"></i>
+                                <i class="bi bi-building-gear text-muted display-3"></i>
                             @endif
                         </div>
                         @if ($showDeleted)

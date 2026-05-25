@@ -57,11 +57,11 @@
                     <div class="text-center py-5">
                         <div class="mb-4">
                             @if (request('show_deleted') == '1')
-                                <i class="bi bi-trash text-muted" style="font-size: 4rem;"></i>
+                                <i class="bi bi-trash text-muted display-3"></i>
                             @elseif (request()->hasAny(['search', 'workload']))
-                                <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+                                <i class="bi bi-search text-muted display-3"></i>
                             @else
-                                <i class="bi bi-clipboard-check text-muted" style="font-size: 4rem;"></i>
+                                <i class="bi bi-clipboard-check text-muted display-3"></i>
                             @endif
                         </div>
                         @if (request('show_deleted') == '1')

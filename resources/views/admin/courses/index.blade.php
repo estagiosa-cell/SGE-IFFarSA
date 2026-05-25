@@ -50,11 +50,11 @@
                     <div class="text-center py-5">
                         <div class="mb-4">
                             @if ($showDeleted)
-                                <i class="bi bi-trash text-muted" style="font-size: 4rem;"></i>
+                                <i class="bi bi-trash text-muted display-3"></i>
                             @elseif (request()->filled('search'))
-                                <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+                                <i class="bi bi-search text-muted display-3"></i>
                             @else
-                                <i class="bi bi-book text-muted" style="font-size: 4rem;"></i>
+                                <i class="bi bi-book text-muted display-3"></i>
                             @endif
                         </div>
                         @if ($showDeleted)

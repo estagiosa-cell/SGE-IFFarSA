@@ -41,7 +41,7 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <button type="submit" id="generateDocBtn" class="btn btn-primary w-100" style="height: 58px;">
+                            <button type="submit" id="generateDocBtn" class="btn btn-primary w-100 h-100">
                                 <i class="bi bi-file-earmark-plus me-2"></i>
                                 Gerar Documento
                             </button>
@@ -144,7 +144,7 @@
                             <div class="row m-0 m-0">
                                 <div class="col-md-12 mb-3">
                                     <div class="form-floating">
-                                        <textarea class="form-control" id="notes" name="notes" style="height: 100px" placeholder="Observações">{{ old('notes', $internship->notes) }}</textarea>
+                                        <textarea class="form-control" id="notes" name="notes" style="height: 200px" placeholder="Observações">{{ old('notes', $internship->notes) }}</textarea>
                                         <label for="notes">Observações</label>
                                     </div>
                                 </div>
@@ -1054,7 +1054,7 @@
                             </div>
 
                             <div class="row m-0 m-0">
-                                <div class="col-md-9 mb-3">
+                                <div class="col-12 mb-3">
                                     <div class="form-floating">
                                         <textarea class="form-control @error('activities') is-invalid @enderror" id="activities" name="activities"
                                             style="height: 120px" placeholder="Descrição das atividades" required>{{ old('activities', $internship->activities) }}</textarea>
@@ -1205,15 +1205,16 @@
                                         <label for="evaluation_has_academic_background">Formação Acadêmica</label>
                                     </div>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="form-check form-switch" style="padding-top: 1.2rem;">
-                                        <input class="form-check-input" type="checkbox" role="switch"
+                                <div class="col-md-4 mb-3 d-flex align-items-center">
+                                    <div class="form-check form-switch d-flex align-items-center m-0">
+                                        <input class="form-check-input form-switch-lg" type="checkbox" role="switch"
                                             id="evaluation_completed_workload_switch"
                                             {{ old('evaluation_completed_workload', $internship->evaluation_completed_workload) == 'Sim' ? 'checked' : '' }}>
                                         <input type="hidden" name="evaluation_completed_workload"
                                             id="evaluation_completed_workload"
                                             value="{{ old('evaluation_completed_workload', $internship->evaluation_completed_workload) }}">
-                                        <label class="form-check-label" for="evaluation_completed_workload_switch">
+                                        <label class="form-check-label mb-0 ms-2"
+                                            for="evaluation_completed_workload_switch">
                                             <strong>Carga Horária Cumprida</strong>
                                         </label>
                                     </div>
