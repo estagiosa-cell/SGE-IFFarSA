@@ -7,8 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateInternshipRequest;
 use App\Models\Company;
 use App\Models\Internship;
+use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Controlador para gerenciar os Estágios no painel administrativo.
@@ -49,6 +51,7 @@ class InternshipController extends Controller
 
         $query->applyStandardFilters($request, [
             'allow_course_filter' => true,
+            'skip_name_search' => true,
         ]);
 
         // Define uma ordem de prioridade para os status dos estágios a partir do Enum,
@@ -83,8 +86,20 @@ class InternshipController extends Controller
                 break;
         }
 
-        // Executa a query e pagina os resultados.
-        $internships = $query->paginate(100);
+        $perPage = 100;
+        $hasSearch = $request->filled('search');
+        $useUnaccent = DB::getDriverName() === 'pgsql';
+
+        if ($hasSearch && $useUnaccent) {
+            SearchHelper::applyUnaccentSearch($query, $search, 'student_name');
+            $internships = $query->paginate($perPage);
+        } elseif ($hasSearch) {
+            $internships = $query->get();
+            $internships = SearchHelper::filterCollectionByNormalizedWords($internships, $search, 'student_name');
+            $internships = SearchHelper::paginateCollection($internships, $perPage, $request);
+        } else {
+            $internships = $query->paginate($perPage);
+        }
 
         // Obtém as opções de status para o dropdown de filtro.
         $statusOptions = InternshipStatus::options();

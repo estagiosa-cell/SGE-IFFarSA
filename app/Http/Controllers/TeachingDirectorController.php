@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Controlador para visualização de estágios pela Direção de Ensino.
@@ -46,11 +47,6 @@ class TeachingDirectorController extends Controller
         // Inicia a query com os relacionamentos necessários
         $query = Internship::with(['advisor', 'course']);
 
-        // Aplica filtro de busca por nome do estudante
-        if ($request->filled('search')) {
-            SearchHelper::searchInField($query, $search, 'student_name');
-        }
-
         // Aplica filtro por status do estágio
         if ($request->filled('status')) {
             $query->where('status', $status);
@@ -68,7 +64,7 @@ class TeachingDirectorController extends Controller
 
         // Aplica filtro por matrícula
         if ($request->filled('registration')) {
-            $query->where('student_registration_number', 'like', '%' . $registration . '%');
+            $query->where('student_registration_number', 'like', '%'.$registration.'%');
         }
 
         // Aplica filtro por data de término (de)
@@ -112,8 +108,20 @@ class TeachingDirectorController extends Controller
                 break;
         }
 
-        // Pagina os resultados
-        $internships = $query->paginate(100);
+        $perPage = 100;
+        $hasSearch = $request->filled('search');
+        $useUnaccent = DB::getDriverName() === 'pgsql';
+
+        if ($hasSearch && $useUnaccent) {
+            SearchHelper::applyUnaccentSearch($query, $search, 'student_name');
+            $internships = $query->paginate($perPage);
+        } elseif ($hasSearch) {
+            $internships = $query->get();
+            $internships = SearchHelper::filterCollectionByNormalizedWords($internships, $search, 'student_name');
+            $internships = SearchHelper::paginateCollection($internships, $perPage, $request);
+        } else {
+            $internships = $query->paginate($perPage);
+        }
 
         // Obtém opções para os filtros
         $statusOptions = InternshipStatus::options();
