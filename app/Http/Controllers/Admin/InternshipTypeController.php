@@ -42,18 +42,18 @@ class InternshipTypeController extends Controller
             $query = $query->onlyTrashed();
         }
 
-        // Aplica o filtro de busca por nome, se presente na requisição.
-        if ($request->filled('search')) {
-            SearchHelper::searchInField($query, $request->search, 'name');
-        }
-
         // Aplica o filtro por curso, se presente na requisição.
         if ($request->filled('course_id')) {
             $query->where('course_id', $request->course_id);
         }
 
-        // Ordena os resultados por nome e pagina o resultado.
-        $internshipTypes = $query->orderBy('name')->paginate(100);
+        $orderedQuery = $query->orderBy('name');
+        $internshipTypes = SearchHelper::searchAndPaginate(
+            $orderedQuery,
+            $request,
+            $request->input('search'),
+            'name'
+        );
 
         // Carrega os cursos para preencher o dropdown de filtro.
         $courses = Course::orderBy('name')->get();

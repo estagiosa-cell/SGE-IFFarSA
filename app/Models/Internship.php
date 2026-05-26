@@ -194,9 +194,10 @@ class Internship extends Model
     {
         $allowAdvisorFilter = (bool) ($options['allow_advisor_filter'] ?? false);
         $allowCourseFilter = (bool) ($options['allow_course_filter'] ?? false);
+        $skipNameSearch = (bool) ($options['skip_name_search'] ?? false);
 
-        if ($request->filled('search')) {
-            SearchHelper::searchInField($query, $request->search, 'student_name');
+        if (! $skipNameSearch && $request->filled('search')) {
+            SearchHelper::applyUnaccentSearchIfSupported($query, $request->search, 'student_name');
         }
 
         if ($request->filled('status')) {

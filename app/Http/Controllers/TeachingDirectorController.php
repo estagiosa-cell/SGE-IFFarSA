@@ -46,11 +46,6 @@ class TeachingDirectorController extends Controller
         // Inicia a query com os relacionamentos necessários
         $query = Internship::with(['advisor', 'course']);
 
-        // Aplica filtro de busca por nome do estudante
-        if ($request->filled('search')) {
-            SearchHelper::searchInField($query, $search, 'student_name');
-        }
-
         // Aplica filtro por status do estágio
         if ($request->filled('status')) {
             $query->where('status', $status);
@@ -68,7 +63,7 @@ class TeachingDirectorController extends Controller
 
         // Aplica filtro por matrícula
         if ($request->filled('registration')) {
-            $query->where('student_registration_number', 'like', '%' . $registration . '%');
+            $query->where('student_registration_number', 'like', '%'.$registration.'%');
         }
 
         // Aplica filtro por data de término (de)
@@ -112,8 +107,12 @@ class TeachingDirectorController extends Controller
                 break;
         }
 
-        // Pagina os resultados
-        $internships = $query->paginate(100);
+        $internships = SearchHelper::searchAndPaginate(
+            $query,
+            $request,
+            $search,
+            'student_name'
+        );
 
         // Obtém opções para os filtros
         $statusOptions = InternshipStatus::options();

@@ -41,12 +41,6 @@ class UserController extends Controller
             $query = $query->onlyTrashed();
         }
 
-        // Aplica o filtro de busca por nome ou e-mail, se presente.
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            SearchHelper::searchInFields($query, $search, ['name', 'email']);
-        }
-
         // Filtra os usuários por papel (role), se especificado.
         if ($request->filled('role')) {
             $query->where('role', $request->role);
@@ -61,8 +55,15 @@ class UserController extends Controller
             }
         }
 
+        $orderedQuery = $query->latest();
+        $users = SearchHelper::searchAndPaginate(
+            $orderedQuery,
+            $request,
+            $request->input('search'),
+            ['name', 'email']
+        );
+
         // Pagina os resultados e busca todos os papéis para o formulário de filtro.
-        $users = $query->latest()->paginate(100);
         $roles = UserRole::cases();
 
         // Retorna a view com os dados.

@@ -41,13 +41,13 @@ class CourseController extends Controller
             $query = $query->onlyTrashed();
         }
 
-        // Aplica o filtro de busca por nome, se presente na requisição.
-        if ($request->filled('search')) {
-            SearchHelper::searchInField($query, $request->search, 'name');
-        }
-
-        // Ordena os cursos por nome e pagina os resultados.
-        $courses = $query->orderBy('name')->paginate(100);
+        $orderedQuery = $query->orderBy('name');
+        $courses = SearchHelper::searchAndPaginate(
+            $orderedQuery,
+            $request,
+            $request->input('search'),
+            'name'
+        );
 
         // Retorna a view com a lista de cursos e o estado do filtro de excluídos.
         return view('admin.courses.index', compact('courses', 'showDeleted'));

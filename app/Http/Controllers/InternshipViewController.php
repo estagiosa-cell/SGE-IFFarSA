@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\InternshipStatus;
 use App\Models\Internship;
 use App\Models\User;
+use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,13 +45,20 @@ class InternshipViewController extends Controller
             $query = $user->advisedInternships();
 
             // Aplica os filtros padrão da requisição na query.
-            $query->applyStandardFilters($request);
+            $query->applyStandardFilters($request, [
+                'skip_name_search' => true,
+            ]);
 
             // Aplica ordenação
             $query = $query->with(['course', 'advisor']);
             $this->applyOrdering($query, $orderBy, $statusOrderSql);
 
-            $internships = $query->paginate(100);
+            $internships = SearchHelper::searchAndPaginate(
+                $query,
+                $request,
+                $request->input('search'),
+                'student_name'
+            );
         } elseif ($user->can('is-coordenador')) {
             // Coordenadores veem estágios dos cursos que coordenam ou que eles próprios orientam.
             $courseIds = $user->coordinatedCourses()->pluck('id');
@@ -63,13 +71,19 @@ class InternshipViewController extends Controller
             // Aplica os filtros padrão da requisição na query.
             $query->applyStandardFilters($request, [
                 'allow_advisor_filter' => true,
+                'skip_name_search' => true,
             ]);
 
             // Aplica ordenação
             $query = $query->with(['course', 'advisor']);
             $this->applyOrdering($query, $orderBy, $statusOrderSql);
 
-            $internships = $query->paginate(100);
+            $internships = SearchHelper::searchAndPaginate(
+                $query,
+                $request,
+                $request->input('search'),
+                'student_name'
+            );
 
             // Busca orientadores que orientam estágios dos cursos coordenados para popular o filtro.
             $advisorIds = Internship::whereIn('course_id', $courseIds)

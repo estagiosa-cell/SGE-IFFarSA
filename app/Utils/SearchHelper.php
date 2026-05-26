@@ -2,6 +2,11 @@
 
 namespace App\Utils;
 
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+
 /**
  * Utilitário para realizar buscas avançadas em queries do Laravel.
  *
@@ -36,42 +41,36 @@ class SearchHelper
     }
 
     /**
-     * Aplica busca avançada em uma query do Laravel.
+     * Aplica busca por unaccent no Postgres para um ou mais campos.
      *
-     * Características da busca:
-     * - Ignora acentos
-     * - Divide o termo em palavras e busca todas elas
-     * - Pode buscar em múltiplos campos simultaneamente
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query A query do Eloquent.
-     * @param string $searchTerm O termo a ser buscado.
-     * @param array|string $fields Campo(s) onde buscar.
-     * @return \Illuminate\Database\Eloquent\Builder A query com os filtros de busca aplicados.
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string $searchTerm
+     * @param array|string $fields
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public static function applySearch($query, string $searchTerm, $fields)
+    public static function applyUnaccentSearch($query, string $searchTerm, $fields)
     {
         if (empty($searchTerm)) {
             return $query;
         }
 
-        // Garante que $fields seja um array.
         $fields = is_array($fields) ? $fields : [$fields];
+        $words = array_filter(preg_split('/\s+/', trim($searchTerm)));
 
-        // Divide o termo de busca em palavras.
-        $words = array_filter(explode(' ', trim($searchTerm)));
+        if (empty($words)) {
+            return $query;
+        }
 
         return $query->where(function ($q) use ($words, $fields) {
-            // Para cada palavra, aplica a busca.
             foreach ($words as $word) {
-                // Normaliza a palavra (remove acentos, minúsculo, trim).
-                $normalizedWord = self::normalize($word);
-
-                $q->where(function ($subQuery) use ($normalizedWord, $fields, $word) {
-                    foreach ($fields as $field) {
-                        // Busca tanto a palavra original quanto a normalizada.
-                        // Isso garante compatibilidade enquanto mantém performance.
-                        $subQuery->where($field, 'like', '%'.$word.'%')
-                            ->orWhere($field, 'like', '%'.$normalizedWord.'%');
+                $q->where(function ($subQuery) use ($fields, $word) {
+                    foreach (array_values($fields) as $index => $field) {
+                        $wrappedField = $subQuery->getQuery()->getGrammar()->wrap($field);
+                        $method = $index === 0 ? 'whereRaw' : 'orWhereRaw';
+                        $subQuery->{$method}(
+                            "unaccent({$wrappedField}) ILIKE unaccent(?)",
+                            ['%'.$word.'%']
+                        );
                     }
                 });
             }
@@ -79,28 +78,135 @@ class SearchHelper
     }
 
     /**
-     * Versão simplificada da busca para um único campo.
+     * Filtra uma Collection comparando palavras normalizadas contra um campo.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query A query do Eloquent.
-     * @param string $searchTerm O termo a ser buscado.
-     * @param string $field O campo onde buscar.
-     * @return \Illuminate\Database\Eloquent\Builder A query com os filtros de busca aplicados.
+     * @param \Illuminate\Support\Collection $items
+     * @param string $searchTerm
+     * @param callable|array|string $field
+     * @return \Illuminate\Support\Collection
      */
-    public static function searchInField($query, string $searchTerm, string $field)
+    public static function filterCollectionByNormalizedWords(Collection $items, string $searchTerm, $field): Collection
     {
-        return self::applySearch($query, $searchTerm, $field);
+        if (trim($searchTerm) === '') {
+            return $items;
+        }
+
+        $words = array_filter(preg_split('/\s+/', trim($searchTerm)));
+        if (empty($words)) {
+            return $items;
+        }
+
+        $normalizedWords = array_map([self::class, 'normalize'], $words);
+        $fieldAccessor = is_callable($field) ? $field : null;
+        $fields = is_array($field) ? $field : [$field];
+
+        return $items->filter(function ($item) use ($fieldAccessor, $fields, $normalizedWords) {
+            $values = [];
+            if ($fieldAccessor) {
+                $values[] = (string) $fieldAccessor($item);
+            } else {
+                foreach ($fields as $fieldName) {
+                    $values[] = (string) data_get($item, $fieldName);
+                }
+            }
+
+            $normalizedValues = array_map([self::class, 'normalize'], $values);
+
+            foreach ($normalizedWords as $word) {
+                if ($word === '') {
+                    continue;
+                }
+
+                $found = false;
+                foreach ($normalizedValues as $value) {
+                    if ($value !== '' && str_contains($value, $word)) {
+                        $found = true;
+                        break;
+                    }
+                }
+
+                if (! $found) {
+                    return false;
+                }
+            }
+
+            return true;
+        })->values();
     }
 
     /**
-     * Versão simplificada da busca para múltiplos campos.
+     * Aplica a busca e pagina, usando unaccent no Postgres ou fallback em Collection.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query A query do Eloquent.
-     * @param string $searchTerm O termo a ser buscado.
-     * @param array $fields Os campos onde buscar.
-     * @return \Illuminate\Database\Eloquent\Builder A query com os filtros de busca aplicados.
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \Illuminate\Http\Request $request
+     * @param string|null $searchTerm
+     * @param callable|array|string $fields
+     * @param int $perPage
+     * @param string $pageName
+     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public static function searchInFields($query, string $searchTerm, array $fields)
+    public static function searchAndPaginate($query, Request $request, ?string $searchTerm, $fields, int $perPage = 100, string $pageName = 'page'): LengthAwarePaginator
     {
-        return self::applySearch($query, $searchTerm, $fields);
+        $searchTerm = (string) $searchTerm;
+        if (trim($searchTerm) === '') {
+            return $query->paginate($perPage, ['*'], $pageName);
+        }
+
+        if (self::isPostgres()) {
+            self::applyUnaccentSearch($query, $searchTerm, $fields);
+
+            return $query->paginate($perPage, ['*'], $pageName);
+        }
+
+        $items = $query->get();
+        $items = self::filterCollectionByNormalizedWords($items, $searchTerm, $fields);
+
+        return self::paginateCollection($items, $perPage, $request, $pageName);
+    }
+
+    /**
+     * Aplica unaccent quando o driver suporta.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string $searchTerm
+     * @param array|string $fields
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public static function applyUnaccentSearchIfSupported($query, string $searchTerm, $fields)
+    {
+        if (! self::isPostgres()) {
+            return $query;
+        }
+
+        return self::applyUnaccentSearch($query, $searchTerm, $fields);
+    }
+
+    /**
+     * Verifica se o driver atual e Postgres.
+     */
+    private static function isPostgres(): bool
+    {
+        return DB::getDriverName() === 'pgsql';
+    }
+
+    /**
+     * Cria um paginador para uma Collection preservando a pagina atual.
+     *
+     * @param \Illuminate\Support\Collection $items
+     * @param int $perPage
+     * @param \Illuminate\Http\Request $request
+     * @param string $pageName
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    public static function paginateCollection(Collection $items, int $perPage, Request $request, string $pageName = 'page'): LengthAwarePaginator
+    {
+        $page = LengthAwarePaginator::resolveCurrentPage($pageName);
+        $items = $items->values();
+        $results = $items->forPage($page, $perPage)->values();
+
+        return new LengthAwarePaginator($results, $items->count(), $perPage, $page, [
+            'path' => $request->url(),
+            'pageName' => $pageName,
+        ]);
     }
 }

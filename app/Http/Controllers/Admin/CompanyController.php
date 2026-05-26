@@ -53,11 +53,6 @@ class CompanyController extends Controller
             $query = $query->onlyTrashed();
         }
 
-        // Aplica o filtro de busca por nome, se ele existir.
-        if ($searchName) {
-            SearchHelper::searchInField($query, $searchName, 'name');
-        }
-
         // Aplica o filtro de busca por CPF/CNPJ, se ele existir.
         if ($searchLegalIdentifier) {
             // Usa 'like' para permitir a busca mesmo que o usuário não digite a máscara completa.
@@ -69,8 +64,13 @@ class CompanyController extends Controller
             $query->where('address_city', $searchCity);
         }
 
-        // Executa a consulta, ordena os resultados pelo nome e pagina.
-        $companies = $query->orderBy('name')->paginate(100);
+        $orderedQuery = $query->orderBy('name');
+        $companies = SearchHelper::searchAndPaginate(
+            $orderedQuery,
+            $request,
+            $searchName,
+            'name'
+        );
 
         // Retorna a view, passando a lista de empresas e os valores dos filtros para preenchimento.
         return view('admin.companies.index', [

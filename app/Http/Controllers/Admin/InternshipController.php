@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateInternshipRequest;
 use App\Models\Company;
 use App\Models\Internship;
+use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -49,6 +50,7 @@ class InternshipController extends Controller
 
         $query->applyStandardFilters($request, [
             'allow_course_filter' => true,
+            'skip_name_search' => true,
         ]);
 
         // Define uma ordem de prioridade para os status dos estágios a partir do Enum,
@@ -83,8 +85,12 @@ class InternshipController extends Controller
                 break;
         }
 
-        // Executa a query e pagina os resultados.
-        $internships = $query->paginate(100);
+        $internships = SearchHelper::searchAndPaginate(
+            $query,
+            $request,
+            $search,
+            'student_name'
+        );
 
         // Obtém as opções de status para o dropdown de filtro.
         $statusOptions = InternshipStatus::options();
