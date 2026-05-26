@@ -5,6 +5,7 @@ namespace App\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Utilitário para realizar buscas avançadas em queries do Laravel.
@@ -81,7 +82,7 @@ class SearchHelper
      *
      * @param \Illuminate\Support\Collection $items
      * @param string $searchTerm
-     * @param callable|string $field
+     * @param callable|array|string $field
      * @return \Illuminate\Support\Collection
      */
     public static function filterCollectionByNormalizedWords(Collection $items, string $searchTerm, $field): Collection
@@ -96,26 +97,96 @@ class SearchHelper
         }
 
         $normalizedWords = array_map([self::class, 'normalize'], $words);
-        $fieldAccessor = is_callable($field)
-            ? $field
-            : static fn ($item) => data_get($item, $field);
+        $fieldAccessor = is_callable($field) ? $field : null;
+        $fields = is_array($field) ? $field : [$field];
 
-        return $items->filter(function ($item) use ($fieldAccessor, $normalizedWords) {
-            $value = (string) $fieldAccessor($item);
-            $normalizedValue = self::normalize($value);
+        return $items->filter(function ($item) use ($fieldAccessor, $fields, $normalizedWords) {
+            $values = [];
+            if ($fieldAccessor) {
+                $values[] = (string) $fieldAccessor($item);
+            } else {
+                foreach ($fields as $fieldName) {
+                    $values[] = (string) data_get($item, $fieldName);
+                }
+            }
+
+            $normalizedValues = array_map([self::class, 'normalize'], $values);
 
             foreach ($normalizedWords as $word) {
                 if ($word === '') {
                     continue;
                 }
 
-                if (! str_contains($normalizedValue, $word)) {
+                $found = false;
+                foreach ($normalizedValues as $value) {
+                    if ($value !== '' && str_contains($value, $word)) {
+                        $found = true;
+                        break;
+                    }
+                }
+
+                if (! $found) {
                     return false;
                 }
             }
 
             return true;
         })->values();
+    }
+
+    /**
+     * Aplica a busca e pagina, usando unaccent no Postgres ou fallback em Collection.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \Illuminate\Http\Request $request
+     * @param string|null $searchTerm
+     * @param callable|array|string $fields
+     * @param int $perPage
+     * @param string $pageName
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    public static function searchAndPaginate($query, Request $request, ?string $searchTerm, $fields, int $perPage = 100, string $pageName = 'page'): LengthAwarePaginator
+    {
+        $searchTerm = (string) $searchTerm;
+        if (trim($searchTerm) === '') {
+            return $query->paginate($perPage, ['*'], $pageName);
+        }
+
+        if (self::isPostgres()) {
+            self::applyUnaccentSearch($query, $searchTerm, $fields);
+
+            return $query->paginate($perPage, ['*'], $pageName);
+        }
+
+        $items = $query->get();
+        $items = self::filterCollectionByNormalizedWords($items, $searchTerm, $fields);
+
+        return self::paginateCollection($items, $perPage, $request, $pageName);
+    }
+
+    /**
+     * Aplica unaccent quando o driver suporta.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string $searchTerm
+     * @param array|string $fields
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public static function applyUnaccentSearchIfSupported($query, string $searchTerm, $fields)
+    {
+        if (! self::isPostgres()) {
+            return $query;
+        }
+
+        return self::applyUnaccentSearch($query, $searchTerm, $fields);
+    }
+
+    /**
+     * Verifica se o driver atual e Postgres.
+     */
+    private static function isPostgres(): bool
+    {
+        return DB::getDriverName() === 'pgsql';
     }
 
     /**

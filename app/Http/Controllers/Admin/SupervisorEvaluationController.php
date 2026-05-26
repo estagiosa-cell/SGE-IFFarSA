@@ -57,23 +57,13 @@ class SupervisorEvaluationController extends Controller
             }
         }
 
-        $perPage = 100;
         $orderedQuery = $query->orderBy('created_at', 'desc');
-        $hasSearch = $request->filled('search');
-        $useUnaccent = DB::getDriverName() === 'pgsql';
-
-        if ($hasSearch && $useUnaccent) {
-            $search = $request->input('search');
-            SearchHelper::applyUnaccentSearch($orderedQuery, $search, 'student_name');
-            $evaluations = $orderedQuery->paginate($perPage);
-        } elseif ($hasSearch) {
-            $search = $request->input('search');
-            $evaluations = $orderedQuery->get();
-            $evaluations = SearchHelper::filterCollectionByNormalizedWords($evaluations, $search, 'student_name');
-            $evaluations = SearchHelper::paginateCollection($evaluations, $perPage, $request);
-        } else {
-            $evaluations = $orderedQuery->paginate($perPage);
-        }
+        $evaluations = SearchHelper::searchAndPaginate(
+            $orderedQuery,
+            $request,
+            $request->input('search'),
+            'student_name'
+        );
 
         return view('admin.supervisor-evaluations.index', compact('evaluations'));
     }

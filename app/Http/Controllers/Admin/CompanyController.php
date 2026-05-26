@@ -10,7 +10,6 @@ use App\Utils\SearchHelper;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Controlador para gerenciar as Partes Concedentes (empresas) no painel administrativo.
@@ -65,21 +64,13 @@ class CompanyController extends Controller
             $query->where('address_city', $searchCity);
         }
 
-        $perPage = 100;
         $orderedQuery = $query->orderBy('name');
-        $hasSearch = $request->filled('name');
-        $useUnaccent = DB::getDriverName() === 'pgsql';
-
-        if ($hasSearch && $useUnaccent) {
-            SearchHelper::applyUnaccentSearch($orderedQuery, $searchName, 'name');
-            $companies = $orderedQuery->paginate($perPage);
-        } elseif ($hasSearch) {
-            $companies = $orderedQuery->get();
-            $companies = SearchHelper::filterCollectionByNormalizedWords($companies, $searchName, 'name');
-            $companies = SearchHelper::paginateCollection($companies, $perPage, $request);
-        } else {
-            $companies = $orderedQuery->paginate($perPage);
-        }
+        $companies = SearchHelper::searchAndPaginate(
+            $orderedQuery,
+            $request,
+            $searchName,
+            'name'
+        );
 
         // Retorna a view, passando a lista de empresas e os valores dos filtros para preenchimento.
         return view('admin.companies.index', [

@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Model que representa um estágio.
@@ -197,8 +196,8 @@ class Internship extends Model
         $allowCourseFilter = (bool) ($options['allow_course_filter'] ?? false);
         $skipNameSearch = (bool) ($options['skip_name_search'] ?? false);
 
-        if (! $skipNameSearch && $request->filled('search') && DB::getDriverName() === 'pgsql') {
-            SearchHelper::applyUnaccentSearch($query, $request->search, 'student_name');
+        if (! $skipNameSearch && $request->filled('search')) {
+            SearchHelper::applyUnaccentSearchIfSupported($query, $request->search, 'student_name');
         }
 
         if ($request->filled('status')) {

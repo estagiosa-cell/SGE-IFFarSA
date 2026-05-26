@@ -10,7 +10,6 @@ use App\Models\Internship;
 use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Controlador para gerenciar os Estágios no painel administrativo.
@@ -86,20 +85,12 @@ class InternshipController extends Controller
                 break;
         }
 
-        $perPage = 100;
-        $hasSearch = $request->filled('search');
-        $useUnaccent = DB::getDriverName() === 'pgsql';
-
-        if ($hasSearch && $useUnaccent) {
-            SearchHelper::applyUnaccentSearch($query, $search, 'student_name');
-            $internships = $query->paginate($perPage);
-        } elseif ($hasSearch) {
-            $internships = $query->get();
-            $internships = SearchHelper::filterCollectionByNormalizedWords($internships, $search, 'student_name');
-            $internships = SearchHelper::paginateCollection($internships, $perPage, $request);
-        } else {
-            $internships = $query->paginate($perPage);
-        }
+        $internships = SearchHelper::searchAndPaginate(
+            $query,
+            $request,
+            $search,
+            'student_name'
+        );
 
         // Obtém as opções de status para o dropdown de filtro.
         $statusOptions = InternshipStatus::options();

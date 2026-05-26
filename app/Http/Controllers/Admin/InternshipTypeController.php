@@ -11,7 +11,6 @@ use App\Utils\SearchHelper;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Controlador para gerenciar os tipos de estágio.
@@ -48,23 +47,13 @@ class InternshipTypeController extends Controller
             $query->where('course_id', $request->course_id);
         }
 
-        $perPage = 100;
         $orderedQuery = $query->orderBy('name');
-        $hasSearch = $request->filled('search');
-        $useUnaccent = DB::getDriverName() === 'pgsql';
-
-        if ($hasSearch && $useUnaccent) {
-            $search = $request->input('search');
-            SearchHelper::applyUnaccentSearch($orderedQuery, $search, 'name');
-            $internshipTypes = $orderedQuery->paginate($perPage);
-        } elseif ($hasSearch) {
-            $search = $request->input('search');
-            $internshipTypes = $orderedQuery->get();
-            $internshipTypes = SearchHelper::filterCollectionByNormalizedWords($internshipTypes, $search, 'name');
-            $internshipTypes = SearchHelper::paginateCollection($internshipTypes, $perPage, $request);
-        } else {
-            $internshipTypes = $orderedQuery->paginate($perPage);
-        }
+        $internshipTypes = SearchHelper::searchAndPaginate(
+            $orderedQuery,
+            $request,
+            $request->input('search'),
+            'name'
+        );
 
         // Carrega os cursos para preencher o dropdown de filtro.
         $courses = Course::orderBy('name')->get();

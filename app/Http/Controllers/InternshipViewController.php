@@ -9,7 +9,6 @@ use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Controlador para visualização de estágios por parte de orientadores e coordenadores.
@@ -54,7 +53,12 @@ class InternshipViewController extends Controller
             $query = $query->with(['course', 'advisor']);
             $this->applyOrdering($query, $orderBy, $statusOrderSql);
 
-            $internships = $this->paginateWithNameSearch($query, $request, 'student_name');
+            $internships = SearchHelper::searchAndPaginate(
+                $query,
+                $request,
+                $request->input('search'),
+                'student_name'
+            );
         } elseif ($user->can('is-coordenador')) {
             // Coordenadores veem estágios dos cursos que coordenam ou que eles próprios orientam.
             $courseIds = $user->coordinatedCourses()->pluck('id');
@@ -74,7 +78,12 @@ class InternshipViewController extends Controller
             $query = $query->with(['course', 'advisor']);
             $this->applyOrdering($query, $orderBy, $statusOrderSql);
 
-            $internships = $this->paginateWithNameSearch($query, $request, 'student_name');
+            $internships = SearchHelper::searchAndPaginate(
+                $query,
+                $request,
+                $request->input('search'),
+                'student_name'
+            );
 
             // Busca orientadores que orientam estágios dos cursos coordenados para popular o filtro.
             $advisorIds = Internship::whereIn('course_id', $courseIds)
@@ -92,35 +101,6 @@ class InternshipViewController extends Controller
         }
 
         return view('internship-view.index', compact('internships', 'advisors', 'statusOptions', 'orderBy'));
-    }
-
-    /**
-     * Aplica busca por nome e pagina respeitando o driver atual.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $field
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
-    private function paginateWithNameSearch($query, Request $request, string $field)
-    {
-        $perPage = 100;
-
-        if (! $request->filled('search')) {
-            return $query->paginate($perPage);
-        }
-
-        $search = $request->input('search');
-        if (DB::getDriverName() === 'pgsql') {
-            SearchHelper::applyUnaccentSearch($query, $search, $field);
-
-            return $query->paginate($perPage);
-        }
-
-        $internships = $query->get();
-        $internships = SearchHelper::filterCollectionByNormalizedWords($internships, $search, $field);
-
-        return SearchHelper::paginateCollection($internships, $perPage, $request);
     }
 
     /**

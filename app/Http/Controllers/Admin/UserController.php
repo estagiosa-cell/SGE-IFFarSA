@@ -11,7 +11,6 @@ use App\Utils\SearchHelper;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -56,25 +55,13 @@ class UserController extends Controller
             }
         }
 
-        $perPage = 100;
         $orderedQuery = $query->latest();
-        $hasSearch = $request->filled('search');
-        $useUnaccent = DB::getDriverName() === 'pgsql';
-
-        if ($hasSearch && $useUnaccent) {
-            $search = $request->input('search');
-            SearchHelper::applyUnaccentSearch($orderedQuery, $search, ['name', 'email']);
-            $users = $orderedQuery->paginate($perPage);
-        } elseif ($hasSearch) {
-            $search = $request->input('search');
-            $users = $orderedQuery->get();
-            $users = SearchHelper::filterCollectionByNormalizedWords($users, $search, static function ($user) {
-                return trim(($user->name ?? '').' '.($user->email ?? ''));
-            });
-            $users = SearchHelper::paginateCollection($users, $perPage, $request);
-        } else {
-            $users = $orderedQuery->paginate($perPage);
-        }
+        $users = SearchHelper::searchAndPaginate(
+            $orderedQuery,
+            $request,
+            $request->input('search'),
+            ['name', 'email']
+        );
 
         // Pagina os resultados e busca todos os papéis para o formulário de filtro.
         $roles = UserRole::cases();
