@@ -14,40 +14,54 @@
         </div>
 
         {{-- Filtros de Pesquisa --}}
-        <div class="card border-0 shadow-sm mb-3">
-            <div class="card-body py-3">
-                <form method="GET" action="{{ route('admin.supervisor-evaluations.index') }}">
-                    <div class="row m-0 g-2 align-items-end">
-                        <div class="col-md-6 col-lg-6">
-                            <label for="search" class="form-label mb-0 small">Buscar por nome</label>
-                            <input type="text" class="form-control form-control-sm" id="search" name="search"
-                                value="{{ request('search') }}" placeholder="Nome do estagiário">
-                        </div>
+        <div class="d-md-none mb-2">
+            <button class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2"
+                type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse" aria-expanded="false"
+                aria-controls="filtersCollapse">
+                <i class="bi bi-funnel"></i>
+                <span>Filtrar Avaliações</span>
+                @if ($activeFiltersCount > 0)
+                    <span class="badge text-bg-primary">{{ $activeFiltersCount }}</span>
+                @endif
+            </button>
+        </div>
 
-                        <div class="col-md-3 col-lg-3">
-                            <label for="workload" class="form-label mb-0 small">Carga Horária</label>
-                            <select class="form-select form-select-sm" id="workload" name="workload">
-                                <option value="">Todos</option>
-                                <option value="completed" {{ request('workload') == 'completed' ? 'selected' : '' }}>
-                                    Cumprida</option>
-                                <option value="not_completed"
-                                    {{ request('workload') == 'not_completed' ? 'selected' : '' }}>Não Cumprida</option>
-                            </select>
-                        </div>
+        <div class="collapse d-md-block" id="filtersCollapse">
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body py-3">
+                    <form method="GET" action="{{ route('admin.supervisor-evaluations.index') }}">
+                        <div class="row m-0 g-2 align-items-end">
+                            <div class="col-md-6 col-lg-6">
+                                <label for="search" class="form-label mb-0 small">Buscar por nome</label>
+                                <input type="text" class="form-control form-control-sm" id="search" name="search"
+                                    value="{{ request('search') }}" placeholder="Nome do estagiário">
+                            </div>
 
-                        <div class="col-md-3 col-lg-3">
-                            <div class="d-flex gap-1">
-                                <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
-                                    <i class="bi bi-funnel"></i> Filtrar
-                                </button>
-                                <a href="{{ route('admin.supervisor-evaluations.index') }}"
-                                    class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-clockwise"></i>
-                                </a>
+                            <div class="col-md-3 col-lg-3">
+                                <label for="workload" class="form-label mb-0 small">Carga Horária</label>
+                                <select class="form-select form-select-sm" id="workload" name="workload">
+                                    <option value="">Todos</option>
+                                    <option value="completed" {{ request('workload') == 'completed' ? 'selected' : '' }}>
+                                        Cumprida</option>
+                                    <option value="not_completed"
+                                        {{ request('workload') == 'not_completed' ? 'selected' : '' }}>Não Cumprida</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 col-lg-3">
+                                <div class="d-flex gap-1">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
+                                        <i class="bi bi-funnel"></i> Filtrar
+                                    </button>
+                                    <a href="{{ route('admin.supervisor-evaluations.index') }}"
+                                        class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
 

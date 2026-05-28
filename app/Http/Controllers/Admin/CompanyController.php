@@ -72,6 +72,12 @@ class CompanyController extends Controller
             'name'
         );
 
+        $activeFiltersCount = collect([
+            $searchName,
+            $searchLegalIdentifier,
+            $searchCity,
+        ])->filter(fn ($v) => filled($v))->count();
+
         // Retorna a view, passando a lista de empresas e os valores dos filtros para preenchimento.
         return view('admin.companies.index', [
             'companies' => $companies,
@@ -80,6 +86,7 @@ class CompanyController extends Controller
             'searchLegalIdentifier' => $searchLegalIdentifier,
             'searchCity' => $searchCity,
             'showDeleted' => $showDeleted,
+            'activeFiltersCount' => $activeFiltersCount,
         ]);
     }
 

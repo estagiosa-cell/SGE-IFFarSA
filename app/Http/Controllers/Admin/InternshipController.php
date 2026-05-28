@@ -98,7 +98,20 @@ class InternshipController extends Controller
         // Obtém todos os cursos para o filtro.
         $courses = \App\Models\Course::orderBy('name')->get(['id', 'name']);
 
-        return view('admin.internships.index', compact('internships', 'search', 'status', 'registration', 'statusOptions', 'showDeleted', 'courses', 'courseId', 'endDateFrom', 'endDateTo', 'orderBy'));
+        $activeFilters = collect([
+            $search,
+            $registration,
+            $status,
+            $courseId,
+            $endDateFrom,
+            $endDateTo,
+        ]);
+        if ($orderBy && $orderBy !== 'status_priority') {
+            $activeFilters->push($orderBy);
+        }
+        $activeFiltersCount = $activeFilters->filter(fn ($v) => filled($v))->count();
+
+        return view('admin.internships.index', compact('internships', 'search', 'status', 'registration', 'statusOptions', 'showDeleted', 'courses', 'courseId', 'endDateFrom', 'endDateTo', 'orderBy', 'activeFiltersCount'));
     }
 
     /**

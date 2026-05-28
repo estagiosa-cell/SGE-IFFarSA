@@ -122,6 +122,20 @@ class TeachingDirectorController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
+        $activeFilters = collect([
+            $search,
+            $status,
+            $courseId,
+            $advisorId,
+            $registration,
+            $endDateFrom,
+            $endDateTo,
+        ]);
+        if ($orderBy && $orderBy !== 'status_priority') {
+            $activeFilters->push($orderBy);
+        }
+        $activeFiltersCount = $activeFilters->filter(fn ($v) => filled($v))->count();
+
         return view('teaching-director.index', compact(
             'internships',
             'statusOptions',
@@ -134,8 +148,10 @@ class TeachingDirectorController extends Controller
             'registration',
             'endDateFrom',
             'endDateTo',
-            'orderBy'
+            'orderBy',
+            'activeFiltersCount'
         ));
+
     }
 
     /**

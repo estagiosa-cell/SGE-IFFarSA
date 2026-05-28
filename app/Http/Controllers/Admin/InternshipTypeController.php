@@ -58,8 +58,13 @@ class InternshipTypeController extends Controller
         // Carrega os cursos para preencher o dropdown de filtro.
         $courses = Course::orderBy('name')->get();
 
+        $activeFiltersCount = collect([
+            $request->input('search'),
+            $request->input('course_id'),
+        ])->filter(fn ($v) => filled($v))->count();
+
         // Retorna a view com os dados necessários.
-        return view('admin.internship_types.index', compact('internshipTypes', 'courses', 'showDeleted'));
+        return view('admin.internship_types.index', compact('internshipTypes', 'courses', 'showDeleted', 'activeFiltersCount'));
     }
 
     /**

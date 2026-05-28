@@ -66,8 +66,15 @@ class UserController extends Controller
         // Pagina os resultados e busca todos os papéis para o formulário de filtro.
         $roles = UserRole::cases();
 
+        // Computa contagem de filtros ativos para a view
+        $activeFiltersCount = collect([
+            $request->input('search'),
+            $request->input('role'),
+            $request->input('status'),
+        ])->filter(fn ($v) => filled($v))->count();
+
         // Retorna a view com os dados.
-        return view('admin.users.index', compact('users', 'roles', 'showDeleted'));
+        return view('admin.users.index', compact('users', 'roles', 'showDeleted', 'activeFiltersCount'));
     }
 
     /**

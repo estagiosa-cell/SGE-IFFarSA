@@ -19,51 +19,67 @@
         </div>
 
         {{-- Filtros de Pesquisa --}}
-        <div class="card border-0 shadow-sm mb-3">
-            <div class="card-body py-3">
-                <form method="GET" action="{{ route('admin.users.index') }}">
-                    <div class="row m-0 g-2 align-items-end">
-                        <div class="col-md-4 col-lg-4">
-                            <label for="search" class="form-label mb-0 small">Buscar</label>
-                            <input type="text" class="form-control form-control-sm" id="search" name="search"
-                                value="{{ request('search') }}" placeholder="Nome ou e-mail">
-                        </div>
+        <div class="d-md-none mb-2">
+            <button class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2"
+                type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse" aria-expanded="false"
+                aria-controls="filtersCollapse">
+                <i class="bi bi-funnel"></i>
+                <span>Filtrar Usuários</span>
+                @if ($activeFiltersCount > 0)
+                    <span class="badge text-bg-primary">{{ $activeFiltersCount }}</span>
+                @endif
+            </button>
+        </div>
 
-                        <div class="col-md-2 col-lg-2">
-                            <label for="role" class="form-label mb-0 small">Papel</label>
-                            <select class="form-select form-select-sm" id="role" name="role">
-                                <option value="">Todos</option>
-                                @foreach ($roles as $role)
-                                    <option value="{{ $role->value }}"
-                                        {{ request('role') == $role->value ? 'selected' : '' }}>
-                                        {{ $role->label() ?? $role->value }}
+        <div class="collapse d-md-block" id="filtersCollapse">
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body py-3">
+                    <form method="GET" action="{{ route('admin.users.index') }}">
+                        <div class="row m-0 g-2 align-items-end">
+                            <div class="col-md-4 col-lg-4">
+                                <label for="search" class="form-label mb-0 small">Buscar</label>
+                                <input type="text" class="form-control form-control-sm" id="search" name="search"
+                                    value="{{ request('search') }}" placeholder="Nome ou e-mail">
+                            </div>
+
+                            <div class="col-md-2 col-lg-2">
+                                <label for="role" class="form-label mb-0 small">Papel</label>
+                                <select class="form-select form-select-sm" id="role" name="role">
+                                    <option value="">Todos</option>
+                                    @foreach ($roles as $role)
+                                        <option value="{{ $role->value }}"
+                                            {{ request('role') == $role->value ? 'selected' : '' }}>
+                                            {{ $role->label() ?? $role->value }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 col-lg-3">
+                                <label for="status" class="form-label mb-0 small">Status</label>
+                                <select class="form-select form-select-sm" id="status" name="status">
+                                    <option value="">Todos</option>
+                                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Ativo
                                     </option>
-                                @endforeach
-                            </select>
-                        </div>
+                                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>
+                                        Desativado
+                                    </option>
+                                </select>
+                            </div>
 
-                        <div class="col-md-3 col-lg-3">
-                            <label for="status" class="form-label mb-0 small">Status</label>
-                            <select class="form-select form-select-sm" id="status" name="status">
-                                <option value="">Todos</option>
-                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Ativo</option>
-                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Desativado
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-3 col-lg-3">
-                            <div class="d-flex gap-1">
-                                <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
-                                    <i class="bi bi-funnel"></i> Filtrar
-                                </button>
-                                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-clockwise"></i>
-                                </a>
+                            <div class="col-md-3 col-lg-3">
+                                <div class="d-flex gap-1">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
+                                        <i class="bi bi-funnel"></i> Filtrar
+                                    </button>
+                                    <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
 

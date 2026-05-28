@@ -65,7 +65,12 @@ class SupervisorEvaluationController extends Controller
             'student_name'
         );
 
-        return view('admin.supervisor-evaluations.index', compact('evaluations'));
+        $activeFiltersCount = collect([
+            $request->input('search'),
+            $request->input('workload'),
+        ])->filter(fn ($v) => filled($v))->count();
+
+        return view('admin.supervisor-evaluations.index', compact('evaluations', 'activeFiltersCount'));
     }
 
     /**

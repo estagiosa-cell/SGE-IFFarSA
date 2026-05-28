@@ -49,8 +49,12 @@ class CourseController extends Controller
             'name'
         );
 
+        $activeFiltersCount = collect([
+            $request->input('search'),
+        ])->filter(fn ($v) => filled($v))->count();
+
         // Retorna a view com a lista de cursos e o estado do filtro de excluídos.
-        return view('admin.courses.index', compact('courses', 'showDeleted'));
+        return view('admin.courses.index', compact('courses', 'showDeleted', 'activeFiltersCount'));
     }
 
     /**

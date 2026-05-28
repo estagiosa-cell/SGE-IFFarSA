@@ -19,47 +19,62 @@
         </div>
 
         {{-- Filtros de Pesquisa --}}
-        <div class="card border-0 shadow-sm mb-3">
-            <div class="card-body py-3">
-                <form method="GET" action="{{ route('admin.companies.index') }}">
-                    <div class="row m-0 g-2 align-items-end">
-                        <div class="col-md-4 col-lg-4">
-                            <label for="name" class="form-label mb-0 small">Nome / Razão Social</label>
-                            <input type="text" class="form-control form-control-sm" id="name" name="name"
-                                value="{{ $searchName }}" placeholder="Nome ou parte do nome">
-                        </div>
+        <div class="d-md-none mb-2">
+            <button class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2"
+                type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse" aria-expanded="false"
+                aria-controls="filtersCollapse">
+                <i class="bi bi-funnel"></i>
+                <span>Filtrar Partes Concedentes</span>
+                @if ($activeFiltersCount > 0)
+                    <span class="badge text-bg-primary">{{ $activeFiltersCount }}</span>
+                @endif
+            </button>
+        </div>
 
-                        <div class="col-md-3 col-lg-3">
-                            <label for="legal_identifier" class="form-label mb-0 small">CPF / CNPJ</label>
-                            <input type="text" class="form-control form-control-sm" id="legal_identifier"
-                                name="legal_identifier" value="{{ $searchLegalIdentifier }}"
-                                placeholder="Número do documento">
-                        </div>
+        <div class="collapse d-md-block" id="filtersCollapse">
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body py-3">
+                    <form method="GET" action="{{ route('admin.companies.index') }}">
+                        <div class="row m-0 g-2 align-items-end">
+                            <div class="col-md-4 col-lg-4">
+                                <label for="name" class="form-label mb-0 small">Nome / Razão Social</label>
+                                <input type="text" class="form-control form-control-sm" id="name" name="name"
+                                    value="{{ $searchName }}" placeholder="Nome ou parte do nome">
+                            </div>
 
-                        <div class="col-md-3 col-lg-3">
-                            <label for="address_city" class="form-label mb-0 small">Cidade</label>
-                            <select class="form-select form-select-sm" id="address_city" name="address_city">
-                                <option value="">Todas as cidades</option>
-                                @foreach ($cities as $city)
-                                    <option value="{{ $city }}" {{ $searchCity == $city ? 'selected' : '' }}>
-                                        {{ $city }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                            <div class="col-md-3 col-lg-3">
+                                <label for="legal_identifier" class="form-label mb-0 small">CPF / CNPJ</label>
+                                <input type="text" class="form-control form-control-sm" id="legal_identifier"
+                                    name="legal_identifier" value="{{ $searchLegalIdentifier }}"
+                                    placeholder="Número do documento">
+                            </div>
 
-                        <div class="col-md-2 col-lg-2">
-                            <div class="d-flex gap-1">
-                                <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
-                                    <i class="bi bi-funnel"></i> Filtrar
-                                </button>
-                                <a href="{{ route('admin.companies.index') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-clockwise"></i>
-                                </a>
+                            <div class="col-md-3 col-lg-3">
+                                <label for="address_city" class="form-label mb-0 small">Cidade</label>
+                                <select class="form-select form-select-sm" id="address_city" name="address_city">
+                                    <option value="">Todas as cidades</option>
+                                    @foreach ($cities as $city)
+                                        <option value="{{ $city }}" {{ $searchCity == $city ? 'selected' : '' }}>
+                                            {{ $city }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-2 col-lg-2">
+                                <div class="d-flex gap-1">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
+                                        <i class="bi bi-funnel"></i> Filtrar
+                                    </button>
+                                    <a href="{{ route('admin.companies.index') }}"
+                                        class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
 

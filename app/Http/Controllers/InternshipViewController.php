@@ -100,7 +100,22 @@ class InternshipViewController extends Controller
             $internships = Internship::query()->whereRaw('1 = 0')->paginate(100);
         }
 
-        return view('internship-view.index', compact('internships', 'advisors', 'statusOptions', 'orderBy'));
+        $activeFilters = collect([
+            request('search'),
+            request('registration'),
+            request('status'),
+            request('end_date_from'),
+            request('end_date_to'),
+        ]);
+        if (auth()->user()->can('is-coordenador')) {
+            $activeFilters->push(request('advisor'));
+        }
+        if ($orderBy && $orderBy !== 'status_priority') {
+            $activeFilters->push($orderBy);
+        }
+        $activeFiltersCount = $activeFilters->filter(fn ($v) => filled($v))->count();
+
+        return view('internship-view.index', compact('internships', 'advisors', 'statusOptions', 'orderBy', 'activeFiltersCount'));
     }
 
     /**
