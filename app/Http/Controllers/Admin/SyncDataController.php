@@ -142,10 +142,10 @@ class SyncDataController extends Controller
             $nomeCompletoEstagiario = $row[9] ?? null;  // Coluna K
             $matricula = $row[10] ?? null; // Coluna L
             $anoSemestre = $row[11] ?? null; // Coluna M
-            $dataNascimento = $row[12] ?? null; // Coluna N
+            //$dataNascimento = $row[12] ?? null; // Coluna N
             $rg = $row[13] ?? null; // Coluna O
             $rgOrgaoExpedidor = $row[14] ?? null; // Coluna P
-            $rgDataExpedicao = $row[15] ?? null; // Coluna Q
+            //$rgDataExpedicao = $row[15] ?? null; // Coluna Q
             $cpfEstagiario = $this->formatDocument($row[16] ?? null, 11); // Coluna R
             $telefoneEstagiario = $row[17] ?? null; // Coluna S
             $enderecoRuaEstagiario = $row[18] ?? null; // Coluna T
@@ -193,7 +193,7 @@ class SyncDataController extends Controller
             $horasSabado = $row[54] ?? null; // Coluna BD
 
             // Detalhes Finais
-            $dataInicioEstagio = $row[55] ?? null; // Coluna BE
+            //$dataInicioEstagio = $row[55] ?? null; // Coluna BE
             $estagioRemunerado = $row[56] ?? null; // Coluna BF
             $valorBolsa = $row[57] ?? null; // Coluna BG
             $valorAuxilioTransporte = $row[58] ?? null; // Coluna BH
@@ -313,11 +313,6 @@ class SyncDataController extends Controller
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').
                     "ATENÇÃO: Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário.";
             }
-
-            // Formata as datas, validando o formato 'd/m/Y'.
-            $dataNascimento = null;
-            $rgDataExpedicao = null;
-            $dataInicioEstagio = null;
 
             if ($row[12]) {
                 try {
