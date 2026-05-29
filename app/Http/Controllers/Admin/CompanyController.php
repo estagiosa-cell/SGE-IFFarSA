@@ -59,17 +59,20 @@ class CompanyController extends Controller
             $query->where('legal_identifier', 'like', '%'.$searchLegalIdentifier.'%');
         }
 
-        // Aplica o filtro de busca por cidade, se ele existir.
-        if ($searchCity) {
-            $query->where('address_city', $searchCity);
-        }
+        // Nota: busca por cidade será aplicada mais abaixo usando SearchHelper
 
         $orderedQuery = $query->orderBy('name');
+
+        // Combine name and city into a single search term so SearchHelper
+        // can search both `name` and `address_city` at once. Empty term falls
+        // back to normal pagination inside SearchHelper.
+        $combinedSearch = trim((string) $searchName.' '.(string) $searchCity);
+
         $companies = SearchHelper::searchAndPaginate(
             $orderedQuery,
             $request,
-            $searchName,
-            'name'
+            $combinedSearch === '' ? null : $combinedSearch,
+            ['name', 'address_city']
         );
 
         $activeFiltersCount = collect([

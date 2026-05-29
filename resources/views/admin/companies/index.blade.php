@@ -51,14 +51,7 @@
 
                             <div class="col-md-3 col-lg-3">
                                 <label for="address_city" class="form-label mb-0 small">Cidade</label>
-                                <select class="form-select form-select-sm" id="address_city" name="address_city">
-                                    <option value="">Todas as cidades</option>
-                                    @foreach ($cities as $city)
-                                        <option value="{{ $city }}" {{ $searchCity == $city ? 'selected' : '' }}>
-                                            {{ $city }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <input type="text" class="form-control form-control-sm" id="address_city" name="address_city" value="{{ $searchCity }}" placeholder="Cidade">
                             </div>
 
                             <div class="col-md-2 col-lg-2">
