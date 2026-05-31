@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Utils\SearchHelper;
+use Illuminate\Support\Facades\DB;
+
 /**
  * Serviço para realizar buscas tolerantes a erros de digitação.
  *
@@ -18,11 +21,11 @@ class FuzzySearchService
      * 2. Busca por partes do termo (divide palavras)
      * 3. Calcula similaridade e retorna a melhor correspondência
      *
-     * @param string $model Classe do modelo (ex: User::class)
-     * @param string $searchField Campo no qual buscar (ex: 'name')
-     * @param string $searchTerm Texto digitado para buscar
-     * @param float $minSimilarity Mínimo de similaridade (0.6 = 60%)
-     * @param array $additionalWhere Filtros extras no formato ['campo' => 'valor']
+     * @param  string  $model  Classe do modelo (ex: User::class)
+     * @param  string  $searchField  Campo no qual buscar (ex: 'name')
+     * @param  string  $searchTerm  Texto digitado para buscar
+     * @param  float  $minSimilarity  Mínimo de similaridade (0.6 = 60%)
+     * @param  array  $additionalWhere  Filtros extras no formato ['campo' => 'valor']
      * @return array|null Array com ['entity', 'warning', 'exact_match', 'similarity'] ou null se não encontrar
      */
     public function fuzzyFind(string $model, string $searchField, string $searchTerm, float $minSimilarity = 0.6, array $additionalWhere = [])
@@ -31,7 +34,7 @@ class FuzzySearchService
             return null;
         }
 
-        // Etapa 1: busca exata (mais rápido).
+        // Etapa 1: busca exata (ou por ILIKE/unaccent quando suportado).
         $query = $model::query();
 
         // Aplica filtros adicionais à query.
@@ -39,9 +42,16 @@ class FuzzySearchService
             $query->where($field, $value);
         }
 
-        $exactMatch = $query->where($searchField, 'LIKE', $searchTerm)->first();
+        // Tenta correspondência mais próxima no banco (usando unaccent/ILIKE se disponível).
+        $exactQuery = clone $query;
+        if (DB::getDriverName() === 'pgsql') {
+            $exactQuery = SearchHelper::applyUnaccentSearchIfSupported($exactQuery, $searchTerm, $searchField);
+            $exactMatch = $exactQuery->first();
+        } else {
+            $exactMatch = $exactQuery->where($searchField, 'LIKE', "%{$searchTerm}%")->first();
+        }
 
-        // Se encontrou uma correspondência exata, retorna imediatamente.
+        // Se encontrou uma correspondência direta no banco, retorna imediatamente.
         if ($exactMatch) {
             return [
                 'entity' => $exactMatch,
@@ -51,27 +61,38 @@ class FuzzySearchService
         }
 
         // Etapa 2: busca por pedaços do termo (ex: "João Silva" vira ["João", "Silva"]).
-        $nameParts = preg_split('/\s+/', $searchTerm);
+        $nameParts = array_filter(preg_split('/\s+/', $searchTerm));
         $possibleEntities = collect();
 
         foreach ($nameParts as $part) {
             // Ignora palavras muito curtas (preposições como "de", "da", etc.).
-            if (strlen($part) > 3) {
-                $query = $model::query();
+            if (mb_strlen($part) > 2) {
+                $q = $model::query();
 
-                // Aplica filtros adicionais à query.
                 foreach ($additionalWhere as $field => $value) {
-                    $query->where($field, $value);
+                    $q->where($field, $value);
                 }
 
-                // Busca entidades que contenham a parte do termo.
-                $entities = $query->where($searchField, 'LIKE', "%{$part}%")->get();
+                // Use applyUnaccentSearchIfSupported para aproveitar unaccent/ILIKE no Postgres,
+                // e em bancos sem suporte usa um LIKE simples.
+                if (DB::getDriverName() === 'pgsql') {
+                    $q = SearchHelper::applyUnaccentSearchIfSupported($q, $part, $searchField);
+                } else {
+                    $q->where($searchField, 'LIKE', "%{$part}%");
+                }
+
+                $entities = $q->get();
 
                 foreach ($entities as $entity) {
                     $possibleEntities->push($entity);
                 }
             }
         }
+
+        // Remove duplicados (mesma entidade retornada por diferentes partes).
+        $possibleEntities = $possibleEntities->unique(function ($e) {
+            return get_class($e).':'.$e->getKey();
+        })->values();
 
         // Etapa 3: escolhe o candidato mais parecido com o termo original.
         if ($possibleEntities->count() > 0) {
@@ -112,15 +133,15 @@ class FuzzySearchService
      * Usa o algoritmo de distância de Levenshtein, que conta quantas operações
      * (inserção, remoção ou substituição) são necessárias para transformar uma string em outra.
      *
-     * @param string $str1 Primeira string para comparação.
-     * @param string $str2 Segunda string para comparação.
+     * @param  string  $str1  Primeira string para comparação.
+     * @param  string  $str2  Segunda string para comparação.
      * @return float Valor entre 0 e 1 representando a similaridade.
      */
     public function calculateSimilarity($str1, $str2)
     {
-        // Normaliza as strings: converte para minúsculo e remove espaços nas extremidades.
-        $str1 = mb_strtolower(trim($str1));
-        $str2 = mb_strtolower(trim($str2));
+        // Normaliza as strings usando SearchHelper (remove acentos, lower, trim).
+        $str1 = SearchHelper::normalize((string) $str1);
+        $str2 = SearchHelper::normalize((string) $str2);
 
         // Calcula a distância de Levenshtein entre as strings.
         $levenshtein = levenshtein($str1, $str2);
