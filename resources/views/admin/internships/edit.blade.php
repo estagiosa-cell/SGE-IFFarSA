@@ -1005,64 +1005,11 @@
                                     </div>
                                 </div>
                             </div>
-
-                            {{-- Remuneração --}}
-                            <h6 class="mb-3 mt-4 border-bottom pb-2">Remuneração</h6>
                             <div class="row m-0 m-0">
-                                <div class="col-md-4 mb-3">
-                                    <div class="form-check form-switch">
-                                        <input type="hidden" name="is_remunerated" value="0">
-                                        <input class="form-check-input" type="checkbox" id="is_remunerated"
-                                            name="is_remunerated" value="1"
-                                            {{ old('is_remunerated', $internship->is_remunerated) == '1' || old('is_remunerated', $internship->is_remunerated) === true ? 'checked' : '' }}
-                                            onchange="toggleRemunerationFields()">
-                                        <label class="form-check-label" for="is_remunerated">
-                                            <strong>Estágio Remunerado</strong>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row m-0" id="remuneration-fields" class="d-flex">
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-floating">
-                                        <input type="number"
-                                            class="form-control @error('grant_value') is-invalid @enderror"
-                                            id="grant_value" name="grant_value"
-                                            value="{{ old('grant_value', $internship->grant_value ?? '') }}"
-                                            placeholder="0,00" min="0" step="0.01"
-                                            {{ !(old('is_remunerated', $internship->is_remunerated) == '1' || old('is_remunerated', $internship->is_remunerated) === true) ? 'readonly' : '' }}>
-                                        <label for="grant_value">Valor da Bolsa Auxílio (R$)</label>
-                                        @error('grant_value')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-floating">
-                                        <input type="number"
-                                            class="form-control @error('transportation_allowance') is-invalid @enderror"
-                                            id="transportation_allowance" name="transportation_allowance"
-                                            value="{{ old('transportation_allowance', $internship->transportation_allowance ?? '') }}"
-                                            placeholder="0,00" min="0" step="0.01"
-                                            {{ !(old('is_remunerated', $internship->is_remunerated) == '1' || old('is_remunerated', $internship->is_remunerated) === true) ? 'readonly' : '' }}>
-                                        <label for="transportation_allowance">Auxílio Transporte (R$)</label>
-                                        @error('transportation_allowance')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row m-0 m-0">
-                                <div class="col-12 mb-3">
-                                    <div class="form-floating">
-                                        <textarea class="form-control @error('activities') is-invalid @enderror" id="activities" name="activities"
-                                            style="height: 120px" placeholder="Descrição das atividades" required>{{ old('activities', $internship->activities) }}</textarea>
-                                        <label for="activities">Atividades *</label>
-                                        @error('activities')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                <div class="col-md-12 mb-3">
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#recalculateEndDateModal">
+                                        <i class="bi bi-calculator me-2"></i>Recalcular Data de Término
+                                    </button>
                                 </div>
                             </div>
 
@@ -1171,6 +1118,67 @@
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- Remuneração --}}
+                            <h6 class="mb-3 mt-4 border-bottom pb-2">Remuneração</h6>
+                            <div class="row m-0 m-0">
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-check form-switch">
+                                        <input type="hidden" name="is_remunerated" value="0">
+                                        <input class="form-check-input" type="checkbox" id="is_remunerated"
+                                            name="is_remunerated" value="1"
+                                            {{ old('is_remunerated', $internship->is_remunerated) == '1' || old('is_remunerated', $internship->is_remunerated) === true ? 'checked' : '' }}
+                                            onchange="toggleRemunerationFields()">
+                                        <label class="form-check-label" for="is_remunerated">
+                                            <strong>Estágio Remunerado</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row m-0" id="remuneration-fields" class="d-flex">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-floating">
+                                        <input type="number"
+                                            class="form-control @error('grant_value') is-invalid @enderror"
+                                            id="grant_value" name="grant_value"
+                                            value="{{ old('grant_value', $internship->grant_value ?? '') }}"
+                                            placeholder="0,00" min="0" step="0.01"
+                                            {{ !(old('is_remunerated', $internship->is_remunerated) == '1' || old('is_remunerated', $internship->is_remunerated) === true) ? 'readonly' : '' }}>
+                                        <label for="grant_value">Valor da Bolsa Auxílio (R$)</label>
+                                        @error('grant_value')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-floating">
+                                        <input type="number"
+                                            class="form-control @error('transportation_allowance') is-invalid @enderror"
+                                            id="transportation_allowance" name="transportation_allowance"
+                                            value="{{ old('transportation_allowance', $internship->transportation_allowance ?? '') }}"
+                                            placeholder="0,00" min="0" step="0.01"
+                                            {{ !(old('is_remunerated', $internship->is_remunerated) == '1' || old('is_remunerated', $internship->is_remunerated) === true) ? 'readonly' : '' }}>
+                                        <label for="transportation_allowance">Auxílio Transporte (R$)</label>
+                                        @error('transportation_allowance')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row m-0 m-0">
+                                <div class="col-12 mb-3">
+                                    <div class="form-floating">
+                                        <textarea class="form-control @error('activities') is-invalid @enderror" id="activities" name="activities"
+                                            style="height: 120px" placeholder="Descrição das atividades" required>{{ old('activities', $internship->activities) }}</textarea>
+                                        <label for="activities">Atividades *</label>
+                                        @error('activities')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -1590,6 +1598,60 @@
                 calculateTotalWeeklyHours();
             });
         </script>
+
+        {{-- Modal Recalcular Data de Término --}}
+        <div class="modal fade" id="recalculateEndDateModal" tabindex="-1" aria-labelledby="recalculateEndDateModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form action="{{ route('admin.internships.recalculate-end-date', $internship->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="recalculateEndDateModalLabel">
+                                <i class="bi bi-calculator me-2"></i>Recalcular Data de Término
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <input type="date" class="form-control" id="calc_start_date" name="calc_start_date"
+                                        value="{{ old('calc_start_date', now()->format('Y-m-d')) }}" required>
+                                    <label for="calc_start_date">Data de referência para o cálculo *</label>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Esta data é usada apenas para o cálculo. A data de início real do estágio não será alterada.
+                                </small>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="remaining_hours" name="remaining_hours"
+                                        min="1" max="{{ $internship->required_hours }}" value="{{ old('remaining_hours') }}" placeholder="Horas restantes" required>
+                                    <label for="remaining_hours">Horas restantes a cumprir *</label>
+                                </div>
+                            </div>
+                            <div class="alert alert-warning mb-0" role="alert">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-exclamation-triangle-fill me-2 mt-1"></i>
+                                    <small>
+                                        O cálculo utilizará a carga horária semanal atualmente salva. Caso precise
+                                        alterá-la, salve o formulário primeiro e então recalcule.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-calculator me-2"></i>Recalcular
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
         {{-- Modal Excluir --}}
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"

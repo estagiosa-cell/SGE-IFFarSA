@@ -219,4 +219,55 @@ class InternshipController extends Controller
             ->with('message', 'Estágio restaurado com sucesso!')
             ->with('messageType', 'success');
     }
+
+    /**
+     * Recalcula a data de término do estágio com base nas horas restantes.
+     *
+     * @param  \Illuminate\Http\Request  $request  A requisição com calc_start_date e remaining_hours.
+     * @param  \App\Models\Internship  $internship  A instância do estágio.
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function recalculateEndDate(Request $request, Internship $internship)
+    {
+        $this->authorize('update', $internship);
+
+        $request->validate([
+            'calc_start_date' => 'required|date',
+            'remaining_hours' => 'required|integer|min:1|max:'.$internship->required_hours,
+        ]);
+
+        try {
+            $weeklyHours = [
+                0 => (int) $internship->hours_sunday,
+                1 => (int) $internship->hours_monday,
+                2 => (int) $internship->hours_tuesday,
+                3 => (int) $internship->hours_wednesday,
+                4 => (int) $internship->hours_thursday,
+                5 => (int) $internship->hours_friday,
+                6 => (int) $internship->hours_saturday,
+            ];
+
+            $startDate = \Carbon\Carbon::parse($request->calc_start_date);
+            $newEndDate = \App\Utils\InternshipEndDate::calculateInternshipEndDate(
+                $startDate,
+                $weeklyHours,
+                (int) $request->remaining_hours
+            );
+
+            $internship->end_date = $newEndDate;
+            $internship->save();
+
+            return redirect()
+                ->route('admin.internships.edit', $internship->id)
+                ->with('message', 'Data de término recalculada com sucesso! Nova data: '.$newEndDate->format('d/m/Y'))
+                ->with('messageType', 'success');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('message', 'Erro ao recalcular data de término: '.$e->getMessage())
+                ->with('messageType', 'error');
+        }
+    }
 }
+
