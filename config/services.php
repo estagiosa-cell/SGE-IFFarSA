@@ -67,6 +67,7 @@ return [
                 'termo_seduc' => env('GOOGLE_DOCS_TEMPLATE_ID_TERMO_SEDUC'),
                 'rescisao' => env('GOOGLE_DOCS_TEMPLATE_ID_RESCISAO'),
                 'credenciamento' => env('GOOGLE_DOCS_TEMPLATE_ID_CREDENCIAMENTO'),
+                'termo_aditivo_terceira_clausula' => env('GOOGLE_DOCS_TEMPLATE_TERMO_ADITIVO_TERCEIRA_CLAUSULA'),
             ],
         ],
     ],

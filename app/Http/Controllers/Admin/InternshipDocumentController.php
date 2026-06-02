@@ -55,6 +55,10 @@ class InternshipDocumentController extends Controller
                     'template_id' => config('services.google.docs.templates.credenciamento'),
                     'title' => "Termo de Compromisso de Estágio | Credenciamento - {$internship->student_name} - {$currentDateTime}",
                 ],
+                'termo-aditivo-terceira-clausula' => [
+                    'template_id' => config('services.google.docs.templates.termo_aditivo_terceira_clausula'),
+                    'title' => "Termo Aditivo - Cláusula Terceira - {$internship->student_name} - {$currentDateTime}",
+                ],
                 default => throw new \InvalidArgumentException("Tipo de documento '{$documentType}' não suportado.")
             };
 
@@ -227,6 +231,7 @@ class InternshipDocumentController extends Controller
             '{{CAMPO_RESPONSAVEL_LEGAL}}' => $this->formatarCampoResponsavelLegal($internship),
             '{{ATIVIDADES}}' => $internship->activities ?? '',
             '{{CREDENCIAMENTO}}' => $internship->process_number ?? '',
+            '{{DATA_ATUAL}}' => now()->locale('pt_BR')->translatedFormat('d \d\e F \d\e Y'),
         ];
     }
 

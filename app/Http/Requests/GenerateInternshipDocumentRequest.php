@@ -34,6 +34,7 @@ class GenerateInternshipDocumentRequest extends FormRequest
                     'termo-seduc',
                     'rescisao',
                     'credenciamento',
+                    'termo-aditivo-terceira-clausula',
                 ]),
             ],
         ];

@@ -33,6 +33,7 @@
                                     <option value="termo-seduc">Termo de Compromisso SEDUC</option>
                                     <option value="rescisao">Termo de Rescisão de Estágio</option>
                                     <option value="credenciamento">Termo de Credenciamento</option>
+                                    <option value="termo-aditivo-terceira-clausula">Termo Aditivo - Cláusula Terceira</option>
                                 </select>
                                 <label for="document_type">
                                     <i class="bi bi-file-earmark-text me-2"></i>Tipo de Documento *
