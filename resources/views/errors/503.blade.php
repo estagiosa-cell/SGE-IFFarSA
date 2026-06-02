@@ -9,14 +9,14 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-5 text-center">
                         <div class="display-4 fw-bold text-primary mb-3">503</div>
-                        <h1 class="h5 mb-3">Servico indisponivel</h1>
+                        <h1 class="h5 mb-3">Serviço indisponível</h1>
                         <p class="text-muted mb-4">
-                            Estamos em manutencao ou com indisponibilidade temporaria.
+                            Estamos em manutenção ou com indisponibilidade temporária.
                             Tente novamente em alguns instantes.
                         </p>
                         <div class="d-flex gap-2 justify-content-center">
                             <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">Voltar</a>
-                            <a href="{{ url('/') }}" class="btn btn-primary">Ir para inicio</a>
+                            <a href="{{ url('/') }}" class="btn btn-primary">Ir para início</a>
                         </div>
                     </div>
                 </div>

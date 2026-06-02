@@ -15,7 +15,7 @@
                         </p>
                         <div class="d-flex gap-2 justify-content-center">
                             <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">Voltar</a>
-                            <a href="{{ url('/') }}" class="btn btn-primary">Ir para inicio</a>
+                            <a href="{{ url('/') }}" class="btn btn-primary">Ir para início</a>
                         </div>
                     </div>
                 </div>
