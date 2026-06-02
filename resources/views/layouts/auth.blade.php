@@ -14,7 +14,7 @@
         </div>
     </nav>
 
-    <div class="container-fluid px-0 px-md-3">
+    <div class="container-fluid px-0 pe-lg-1">
         <div class="row g-0">
             <div class="col-lg-2 p-0">
                 <x-sidebar />
