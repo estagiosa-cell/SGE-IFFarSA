@@ -46,6 +46,7 @@ class GoogleAuthController extends Controller
             'https://www.googleapis.com/auth/drive',
             'https://www.googleapis.com/auth/spreadsheets',
             'https://www.googleapis.com/auth/documents',
+            'https://www.googleapis.com/auth/forms.body',
             'https://www.googleapis.com/auth/userinfo.email',
         ]);
 

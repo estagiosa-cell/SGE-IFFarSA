@@ -71,6 +71,16 @@ class SyncDataController extends Controller
             $messages[] = 'Avaliações: '.$e->getMessage();
         }
 
+        // Tenta sincronizar a lista de orientadores no formulário.
+        try {
+            if ($this->syncAdvisorsToForm($googleService)) {
+                $messages[] = 'Lista de orientadores atualizada no formulário';
+                $hasSuccess = true;
+            }
+        } catch (\Exception $e) {
+            $messages[] = 'Formulário: '.$e->getMessage();
+        }
+
         // Monta a mensagem final para o usuário.
         $finalMessage = empty($messages)
             ? 'Nenhum dado novo para sincronizar.'
@@ -143,10 +153,10 @@ class SyncDataController extends Controller
             $nomeCompletoEstagiario = $row[9] ?? null;  // Coluna K
             $matricula = $row[10] ?? null; // Coluna L
             $anoSemestre = $row[11] ?? null; // Coluna M
-            //$dataNascimento = $row[12] ?? null; // Coluna N
+            // $dataNascimento = $row[12] ?? null; // Coluna N
             $rg = $row[13] ?? null; // Coluna O
             $rgOrgaoExpedidor = $row[14] ?? null; // Coluna P
-            //$rgDataExpedicao = $row[15] ?? null; // Coluna Q
+            // $rgDataExpedicao = $row[15] ?? null; // Coluna Q
             $cpfEstagiario = $this->formatDocument($row[16] ?? null, 11); // Coluna R
             $telefoneEstagiario = $row[17] ?? null; // Coluna S
             $enderecoRuaEstagiario = $row[18] ?? null; // Coluna T
@@ -194,7 +204,7 @@ class SyncDataController extends Controller
             $horasSabado = $row[54] ?? null; // Coluna BD
 
             // Detalhes Finais
-            //$dataInicioEstagio = $row[55] ?? null; // Coluna BE
+            // $dataInicioEstagio = $row[55] ?? null; // Coluna BE
             $estagioRemunerado = $row[56] ?? null; // Coluna BF
             $valorBolsa = $row[57] ?? null; // Coluna BG
             $valorAuxilioTransporte = $row[58] ?? null; // Coluna BH
@@ -462,15 +472,15 @@ class SyncDataController extends Controller
             $updateRange = "'Respostas ao formulário 1'!BJ".$rowNumber;
             $updateData[] = new \Google_Service_Sheets_ValueRange([
                 'range' => $updateRange,
-                'values' => [[1]]
+                'values' => [[1]],
             ]);
         }
 
         // Executa todas as atualizações na planilha em uma única requisição (Batch Update)
-        if (!empty($updateData)) {
+        if (! empty($updateData)) {
             $batchUpdateRequest = new \Google_Service_Sheets_BatchUpdateValuesRequest([
                 'valueInputOption' => 'RAW',
-                'data' => $updateData
+                'data' => $updateData,
             ]);
             $service->spreadsheets_values->batchUpdate($spreadsheetId, $batchUpdateRequest);
         }
@@ -584,22 +594,101 @@ class SyncDataController extends Controller
             $updateRange = "'Respostas ao formulário 1'!Z{$rowNumber}";
             $updateData[] = new \Google_Service_Sheets_ValueRange([
                 'range' => $updateRange,
-                'values' => [[1]]
+                'values' => [[1]],
             ]);
 
             $processedCount++;
         }
 
         // Executa todas as atualizações na planilha em uma única requisição (Batch Update)
-        if (!empty($updateData)) {
+        if (! empty($updateData)) {
             $batchUpdateRequest = new \Google_Service_Sheets_BatchUpdateValuesRequest([
                 'valueInputOption' => 'RAW',
-                'data' => $updateData
+                'data' => $updateData,
             ]);
             $service->spreadsheets_values->batchUpdate($spreadsheetId, $batchUpdateRequest);
         }
 
         return $processedCount;
+    }
+
+    /**
+     * Sincroniza a lista de orientadores/coordenadores com o formulário do Google.
+     *
+     * @param  \App\Services\GoogleApiService  $googleService  Serviço para interagir com a API do Google.
+     * @return bool True se a atualização foi bem-sucedida, false se as configs não existirem.
+     *
+     * @throws \Exception Se a pergunta não for encontrada no formulário ou houver falha na API.
+     */
+    private function syncAdvisorsToForm(GoogleApiService $googleService): bool
+    {
+        $formId = config('services.google.forms.data_collection_id');
+        $questionId = config('services.google.forms.advisors_question_id');
+
+        if (! $formId || ! $questionId) {
+            return false;
+        }
+
+        $client = $googleService->getClient();
+        $service = new \Google_Service_Forms($client);
+
+        // Busca o formulário para obter o index do item
+        $form = $service->forms->get($formId);
+        $itemIndex = null;
+
+        foreach ($form->getItems() as $index => $item) {
+            if ($item->getItemId() == $questionId) {
+                $itemIndex = $index;
+                break;
+            }
+        }
+
+        if ($itemIndex === null) {
+            throw new \Exception('Pergunta de orientadores não encontrada no formulário.');
+        }
+
+        // Busca os orientadores/coordenadores ativos
+        $advisors = User::whereNull('deactivated_at')
+            ->whereIn('role', [\App\Enums\UserRole::ORIENTADOR, \App\Enums\UserRole::COORDENADOR])
+            ->orderBy('name')
+            ->pluck('name')
+            ->toArray();
+
+        if (empty($advisors)) {
+            return false;
+        }
+
+        $options = array_map(function ($name) {
+            return ['value' => $name];
+        }, $advisors);
+
+        $updateItemRequest = new \Google_Service_Forms_Request([
+            'updateItem' => new \Google_Service_Forms_UpdateItemRequest([
+                'item' => new \Google_Service_Forms_Item([
+                    'itemId' => $questionId,
+                    'questionItem' => new \Google_Service_Forms_QuestionItem([
+                        'question' => new \Google_Service_Forms_Question([
+                            'choiceQuestion' => new \Google_Service_Forms_ChoiceQuestion([
+                                'type' => 'DROP_DOWN',
+                                'options' => $options,
+                            ]),
+                        ]),
+                    ]),
+                ]),
+                'updateMask' => 'questionItem.question.choiceQuestion.options',
+                'location' => new \Google_Service_Forms_Location([
+                    'index' => $itemIndex,
+                ]),
+            ]),
+        ]);
+
+        $batchUpdateRequest = new \Google_Service_Forms_BatchUpdateFormRequest([
+            'requests' => [$updateItemRequest],
+        ]);
+
+        $service->forms->batchUpdate($formId, $batchUpdateRequest);
+
+        return true;
     }
 
     /**

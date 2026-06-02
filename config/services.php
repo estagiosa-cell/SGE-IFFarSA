@@ -53,6 +53,12 @@ return [
             'supervisor_evaluation_id' => env('GOOGLE_SHEET_ID_SUPERVISOR_EVALUATION'),
         ],
 
+        // Configurações do Google Forms
+        'forms' => [
+            'data_collection_id' => env('GOOGLE_FORM_ID_DATA_COLLECTION'),
+            'advisors_question_id' => env('GOOGLE_FORM_QUESTION_ID_ADVISORS'),
+        ],
+
         // Configurações do Google Docs
         'docs' => [
             'templates' => [
