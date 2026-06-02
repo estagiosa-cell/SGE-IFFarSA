@@ -53,37 +53,8 @@ class InternshipController extends Controller
             'skip_name_search' => true,
         ]);
 
-        // Define uma ordem de prioridade para os status dos estágios a partir do Enum,
-        // garantindo que os pendentes e em andamento apareçam primeiro.
-        $statusOrderSql = InternshipStatus::orderSql();
-
-        // Aplica a ordenação baseada no parâmetro order_by
-        switch ($orderBy) {
-            case 'name_asc':
-                $query->orderBy('student_name', 'asc');
-                break;
-            case 'name_desc':
-                $query->orderBy('student_name', 'desc');
-                break;
-            case 'start_date_asc':
-                $query->orderBy('start_date', 'asc');
-                break;
-            case 'start_date_desc':
-                $query->orderBy('start_date', 'desc');
-                break;
-            case 'end_date_asc':
-                $query->orderBy('end_date', 'asc');
-                break;
-            case 'end_date_desc':
-                $query->orderBy('end_date', 'desc');
-                break;
-            case 'status_priority':
-            default:
-                $query->orderByRaw($statusOrderSql)
-                    ->latest('end_date')
-                    ->latest('updated_at');
-                break;
-        }
+        // Aplica a ordenação baseada no parâmetro order_by usando o scope do model
+        $query->applyStandardOrdering($orderBy);
 
         $internships = SearchHelper::searchAndPaginate(
             $query,

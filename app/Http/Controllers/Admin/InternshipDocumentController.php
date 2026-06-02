@@ -158,13 +158,13 @@ class InternshipDocumentController extends Controller
     {
         // Calcula a carga horária diária (maior valor entre os dias da semana).
         $dailyHours = max(
-            (int) $internship->hours_sunday ?? 0,
-            (int) $internship->hours_monday ?? 0,
-            (int) $internship->hours_tuesday ?? 0,
-            (int) $internship->hours_wednesday ?? 0,
-            (int) $internship->hours_thursday ?? 0,
-            (int) $internship->hours_friday ?? 0,
-            (int) $internship->hours_saturday ?? 0
+            (int) ($internship->hours_sunday ?? 0),
+            (int) ($internship->hours_monday ?? 0),
+            (int) ($internship->hours_tuesday ?? 0),
+            (int) ($internship->hours_wednesday ?? 0),
+            (int) ($internship->hours_thursday ?? 0),
+            (int) ($internship->hours_friday ?? 0),
+            (int) ($internship->hours_saturday ?? 0)
         );
 
         // Calcula a carga horária semanal total.

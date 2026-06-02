@@ -39,9 +39,7 @@ class InternshipViewController extends Controller
         $statusOptions = InternshipStatus::options();
         $orderBy = $request->get('order_by', 'status_priority'); // Padrão: ordenação por prioridade de status
 
-        // Raw SQL para ordenação por prioridade de status gerado pelo Enum.
-        // Garante que estágios 'Pendente' e 'Aguardando Assinatura' apareçam primeiro.
-        $statusOrderSql = InternshipStatus::orderSql();
+
 
         if ($user->can('is-orientador')) {
             // Orientadores veem apenas os estágios que eles orientam.
@@ -54,7 +52,7 @@ class InternshipViewController extends Controller
 
             // Aplica ordenação
             $query = $query->with(['course', 'advisor']);
-            $this->applyOrdering($query, $orderBy, $statusOrderSql);
+            $query->applyStandardOrdering($orderBy);
 
             $internships = SearchHelper::searchAndPaginate(
                 $query,
@@ -84,7 +82,7 @@ class InternshipViewController extends Controller
 
             // Aplica ordenação
             $query = $query->with(['course', 'advisor']);
-            $this->applyOrdering($query, $orderBy, $statusOrderSql);
+            $query->applyStandardOrdering($orderBy);
 
             $internships = SearchHelper::searchAndPaginate(
                 $query,
@@ -127,45 +125,7 @@ class InternshipViewController extends Controller
         return view('internship-view.index', compact('internships', 'advisors', 'courses', 'statusOptions', 'orderBy', 'activeFiltersCount'));
     }
 
-    /**
-     * Aplica a ordenação na query de estágios.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query  A query de estágios a ser ordenada.
-     * @param  string  $orderBy  O tipo de ordenação a ser aplicada.
-     * @param  string  $statusOrderSql  SQL para ordenação por prioridade de status.
-     * @return \Illuminate\Database\Eloquent\Builder A query com a ordenação aplicada.
-     */
-    private function applyOrdering($query, $orderBy, $statusOrderSql)
-    {
-        switch ($orderBy) {
-            case 'name_asc':
-                $query->orderBy('student_name', 'asc');
-                break;
-            case 'name_desc':
-                $query->orderBy('student_name', 'desc');
-                break;
-            case 'start_date_asc':
-                $query->orderBy('start_date', 'asc');
-                break;
-            case 'start_date_desc':
-                $query->orderBy('start_date', 'desc');
-                break;
-            case 'end_date_asc':
-                $query->orderBy('end_date', 'asc');
-                break;
-            case 'end_date_desc':
-                $query->orderBy('end_date', 'desc');
-                break;
-            case 'status_priority':
-            default:
-                $query->orderByRaw($statusOrderSql)
-                    ->latest('end_date')
-                    ->latest('updated_at');
-                break;
-        }
 
-        return $query;
-    }
 
     /**
      * Exibe os detalhes de um estágio específico.

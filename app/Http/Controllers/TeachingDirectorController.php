@@ -46,66 +46,15 @@ class TeachingDirectorController extends Controller
         // Inicia a query com os relacionamentos necessários
         $query = Internship::with(['advisor', 'course']);
 
-        // Aplica filtro por status do estágio
-        if ($request->filled('status')) {
-            $query->where('status', $status);
-        }
-
-        // Aplica filtro por curso
-        if ($request->filled('course_id')) {
-            $query->where('course_id', $courseId);
-        }
-
-        // Aplica filtro por orientador
-        if ($request->filled('advisor_id')) {
-            $query->where('advisor_id', $advisorId);
-        }
-
-        // Aplica filtro por matrícula
-        if ($request->filled('registration')) {
-            $query->where('student_registration_number', 'like', '%'.$registration.'%');
-        }
-
-        // Aplica filtro por data de término (de)
-        if ($request->filled('end_date_from')) {
-            $query->whereDate('end_date', '>=', $endDateFrom);
-        }
-
-        // Aplica filtro por data de término (até)
-        if ($request->filled('end_date_to')) {
-            $query->whereDate('end_date', '<=', $endDateTo);
-        }
-
-        // Define ordenação por prioridade de status gerado pelo Enum
-        $statusOrderSql = InternshipStatus::orderSql();
+        // Aplica os filtros padrão da requisição
+        $query->applyStandardFilters($request, [
+            'allow_advisor_filter' => true,
+            'allow_course_filter' => true,
+            'skip_name_search' => true,
+        ]);
 
         // Aplica ordenação baseada no parâmetro
-        switch ($orderBy) {
-            case 'name_asc':
-                $query->orderBy('student_name', 'asc');
-                break;
-            case 'name_desc':
-                $query->orderBy('student_name', 'desc');
-                break;
-            case 'start_date_asc':
-                $query->orderBy('start_date', 'asc');
-                break;
-            case 'start_date_desc':
-                $query->orderBy('start_date', 'desc');
-                break;
-            case 'end_date_asc':
-                $query->orderBy('end_date', 'asc');
-                break;
-            case 'end_date_desc':
-                $query->orderBy('end_date', 'desc');
-                break;
-            case 'status_priority':
-            default:
-                $query->orderByRaw($statusOrderSql)
-                    ->latest('end_date')
-                    ->latest('updated_at');
-                break;
-        }
+        $query->applyStandardOrdering($orderBy);
 
         $internships = SearchHelper::searchAndPaginate(
             $query,

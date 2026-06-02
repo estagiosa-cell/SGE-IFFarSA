@@ -228,6 +228,46 @@ class Internship extends Model
     }
 
     /**
+     * Aplica ordenação padrão na query.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  string|null  $orderBy
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeApplyStandardOrdering($query, ?string $orderBy = 'status_priority')
+    {
+        switch ($orderBy) {
+            case 'name_asc':
+                $query->orderBy('student_name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('student_name', 'desc');
+                break;
+            case 'start_date_asc':
+                $query->orderBy('start_date', 'asc');
+                break;
+            case 'start_date_desc':
+                $query->orderBy('start_date', 'desc');
+                break;
+            case 'end_date_asc':
+                $query->orderBy('end_date', 'asc');
+                break;
+            case 'end_date_desc':
+                $query->orderBy('end_date', 'desc');
+                break;
+            case 'status_priority':
+            default:
+                $statusOrderSql = InternshipStatus::orderSql();
+                $query->orderByRaw($statusOrderSql)
+                    ->latest('end_date')
+                    ->latest('updated_at');
+                break;
+        }
+
+        return $query;
+    }
+
+    /**
      * Calcula o total de horas semanais do estágio.
      *
      * @return int Total de horas semanais.

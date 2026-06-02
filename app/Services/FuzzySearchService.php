@@ -64,28 +64,32 @@ class FuzzySearchService
         $nameParts = array_filter(preg_split('/\s+/', $searchTerm));
         $possibleEntities = collect();
 
-        foreach ($nameParts as $part) {
-            // Ignora palavras muito curtas (preposições como "de", "da", etc.).
-            if (mb_strlen($part) > 2) {
-                $q = $model::query();
+        $validParts = array_filter($nameParts, fn($part) => mb_strlen($part) > 2);
 
-                foreach ($additionalWhere as $field => $value) {
-                    $q->where($field, $value);
+        if (!empty($validParts)) {
+            $q = $model::query();
+
+            foreach ($additionalWhere as $field => $value) {
+                $q->where($field, $value);
+            }
+
+            $q->where(function ($query) use ($validParts, $searchField) {
+                foreach ($validParts as $index => $part) {
+                    $method = $index === 0 ? 'where' : 'orWhere';
+                    
+                    if (DB::getDriverName() === 'pgsql') {
+                        $query->{$method}(function ($sub) use ($part, $searchField) {
+                            SearchHelper::applyUnaccentSearchIfSupported($sub, $part, $searchField);
+                        });
+                    } else {
+                        $query->{$method}($searchField, 'LIKE', "%{$part}%");
+                    }
                 }
+            });
 
-                // Use applyUnaccentSearchIfSupported para aproveitar unaccent/ILIKE no Postgres,
-                // e em bancos sem suporte usa um LIKE simples.
-                if (DB::getDriverName() === 'pgsql') {
-                    $q = SearchHelper::applyUnaccentSearchIfSupported($q, $part, $searchField);
-                } else {
-                    $q->where($searchField, 'LIKE', "%{$part}%");
-                }
-
-                $entities = $q->get();
-
-                foreach ($entities as $entity) {
-                    $possibleEntities->push($entity);
-                }
+            $entities = $q->get();
+            foreach ($entities as $entity) {
+                $possibleEntities->push($entity);
             }
         }
 

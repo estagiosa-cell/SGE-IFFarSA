@@ -202,14 +202,22 @@ class UserController extends Controller
             return back()->with('importStatus', 'Os seguintes e-mails já existem no sistema: <br>'.implode('<br>', $existingEmails));
         }
 
-        // Itera sobre as linhas e cria os novos usuários.
+        // Prepara os dados para inserir de uma vez só (Batch Insert)
+        $now = now();
+        $usersToInsert = [];
         foreach ($rows as $row) {
-            User::create([
+            $usersToInsert[] = [
                 'name' => $row[0],
                 'email' => $row[1],
-                'role' => UserRole::ORIENTADOR, // Papel padrão para usuários importados.
-                'password' => bcrypt(Str::random(40)), // Senha aleatória, já que o login é via SSO.
-            ]);
+                'role' => UserRole::ORIENTADOR->value, // Pegando o valor explícito do enum
+                'password' => bcrypt(Str::random(40)),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        if (!empty($usersToInsert)) {
+            User::insert($usersToInsert);
         }
 
         return redirect()->route('admin.users.index')

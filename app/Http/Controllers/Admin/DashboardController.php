@@ -32,16 +32,20 @@ class DashboardController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        // Coleta estatísticas gerais sobre os estágios.
-        $totalInternships = Internship::count();
+        // Coleta estatísticas de estágios com uma única query agrupada por status.
+        $statusCounts = Internship::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        $totalInternships = $statusCounts->sum();
         $deletedInternships = Internship::onlyTrashed()->count();
         $internshipsByStatus = [
-            'pending' => Internship::where('status', InternshipStatus::PENDING->value)->count(),
-            'awaiting_signature' => Internship::where('status', InternshipStatus::AWAITING_SIGNATURE->value)->count(),
-            'released' => Internship::where('status', InternshipStatus::RELEASED->value)->count(),
-            'in_progress' => Internship::where('status', InternshipStatus::IN_PROGRESS->value)->count(),
-            'completed' => Internship::where('status', InternshipStatus::COMPLETED->value)->count(),
-            'cancelled' => Internship::where('status', InternshipStatus::CANCELLED->value)->count(),
+            'pending' => $statusCounts->get(InternshipStatus::PENDING->value, 0),
+            'awaiting_signature' => $statusCounts->get(InternshipStatus::AWAITING_SIGNATURE->value, 0),
+            'released' => $statusCounts->get(InternshipStatus::RELEASED->value, 0),
+            'in_progress' => $statusCounts->get(InternshipStatus::IN_PROGRESS->value, 0),
+            'completed' => $statusCounts->get(InternshipStatus::COMPLETED->value, 0),
+            'cancelled' => $statusCounts->get(InternshipStatus::CANCELLED->value, 0),
         ];
 
         // Coleta estatísticas sobre as empresas (partes concedentes).
@@ -52,14 +56,13 @@ class DashboardController extends Controller
             ->distinct('company_legal_identifier')
             ->count('company_legal_identifier');
 
-        // Coleta estatísticas sobre os usuários do sistema.
-        $totalUsers = User::count();
-        $deletedUsers = User::onlyTrashed()->count();
-        // Agrupa e conta os usuários por papel (role).
+        // Coleta estatísticas sobre os usuários do sistema com uma única query.
         $usersByRole = User::selectRaw('role, count(*) as count')
             ->groupBy('role')
             ->pluck('count', 'role')
             ->toArray();
+        $totalUsers = array_sum($usersByRole);
+        $deletedUsers = User::onlyTrashed()->count();
 
         // Coleta estatísticas sobre os cursos.
         $totalCourses = Course::count();

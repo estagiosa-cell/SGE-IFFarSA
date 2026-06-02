@@ -119,6 +119,7 @@ class SyncDataController extends Controller
         }
 
         $processedCount = 0;
+        $updateData = [];
 
         foreach ($rows as $index => $row) {
             $rowNumber = $index + 2; // A contagem de linhas começa em 2.
@@ -255,6 +256,23 @@ class SyncDataController extends Controller
             $identificadorLegal = $cnpjConcedente ?? $cpfConcedente;
             $partesConcedentes = Company::where('legal_identifier', $identificadorLegal)->get();
 
+            // Valores padrão se empresa não for encontrada ou se houver múltiplas
+            $razaoSocialConcedente = null;
+            $telefoneConcedente = null;
+            $emailConcedente = null;
+            $enderecoRuaConcedente = null;
+            $enderecoNumeroConcedente = null;
+            $enderecoBairroConcedente = null;
+            $cidadeConcedente = null;
+            $ufConcedente = null;
+            $cepConcedente = null;
+            $nomeRepresentanteConcedente = null;
+            $cargoRepresentanteConcedente = null;
+            $areaDeAtuacao = null;
+            $registroConselhoProfissional = null;
+            $numeroRegistroConselho = null;
+            $numeroProcesso = null;
+
             // Trata os resultados da busca pela empresa.
             if ($partesConcedentes->count() === 1) {
                 // Um resultado: usa os dados padronizados do banco de dados local.
@@ -275,41 +293,11 @@ class SyncDataController extends Controller
                 $numeroRegistroConselho = $parteConcedente->council_registration_number ?? null;
                 $numeroProcesso = $parteConcedente->process_number ?? null;
             } elseif ($partesConcedentes->count() > 1) {
-                // Múltiplos resultados: deixa os campos em branco e adiciona um aviso.
-                $razaoSocialConcedente = null;
-                $telefoneConcedente = null;
-                $emailConcedente = null;
-                $enderecoRuaConcedente = null;
-                $enderecoNumeroConcedente = null;
-                $enderecoBairroConcedente = null;
-                $cidadeConcedente = null;
-                $ufConcedente = null;
-                $cepConcedente = null;
-                $nomeRepresentanteConcedente = null;
-                $cargoRepresentanteConcedente = null;
-                $areaDeAtuacao = null;
-                $registroConselhoProfissional = null;
-                $numeroRegistroConselho = null;
-                $numeroProcesso = null;
+                // Múltiplos resultados: adiciona um aviso.
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').
                     "ATENÇÃO: Múltiplas empresas encontradas com o CNPJ/CPF {$identificadorLegal}. Seleção manual necessária.";
             } else {
-                // Nenhum resultado: deixa os campos em branco e adiciona um aviso.
-                $razaoSocialConcedente = null;
-                $telefoneConcedente = null;
-                $emailConcedente = null;
-                $enderecoRuaConcedente = null;
-                $enderecoNumeroConcedente = null;
-                $enderecoBairroConcedente = null;
-                $cidadeConcedente = null;
-                $ufConcedente = null;
-                $cepConcedente = null;
-                $nomeRepresentanteConcedente = null;
-                $cargoRepresentanteConcedente = null;
-                $areaDeAtuacao = null;
-                $registroConselhoProfissional = null;
-                $numeroRegistroConselho = null;
-                $numeroProcesso = null;
+                // Nenhum resultado: adiciona um aviso.
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').
                     "ATENÇÃO: Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário.";
             }
@@ -470,13 +458,21 @@ class SyncDataController extends Controller
 
             $processedCount++;
 
-            // Marca a linha como processada na planilha, escrevendo '1' na coluna 'BJ'.
+            // Adiciona a linha para o batchUpdate da planilha
             $updateRange = "'Respostas ao formulário 1'!BJ".$rowNumber;
-            $values = [[1]];
-            $body = new \Google_Service_Sheets_ValueRange(['values' => $values]);
-            $params = ['valueInputOption' => 'RAW'];
+            $updateData[] = new \Google_Service_Sheets_ValueRange([
+                'range' => $updateRange,
+                'values' => [[1]]
+            ]);
+        }
 
-            $service->spreadsheets_values->update($spreadsheetId, $updateRange, $body, $params);
+        // Executa todas as atualizações na planilha em uma única requisição (Batch Update)
+        if (!empty($updateData)) {
+            $batchUpdateRequest = new \Google_Service_Sheets_BatchUpdateValuesRequest([
+                'valueInputOption' => 'RAW',
+                'data' => $updateData
+            ]);
+            $service->spreadsheets_values->batchUpdate($spreadsheetId, $batchUpdateRequest);
         }
 
         return $processedCount;
@@ -515,6 +511,7 @@ class SyncDataController extends Controller
         }
 
         $processedCount = 0;
+        $updateData = [];
 
         foreach ($rows as $index => $row) {
             // Se a coluna de controle 'Z' (índice 25) estiver marcada com '1', pula a linha.
@@ -582,17 +579,24 @@ class SyncDataController extends Controller
                 'other_observations' => $otherObservations,
             ]);
 
-            // Marca a linha como processada na planilha, escrevendo '1' na coluna 'Z'.
+            // Adiciona a linha para o batchUpdate da planilha
             $rowNumber = $index + 2;
             $updateRange = "'Respostas ao formulário 1'!Z{$rowNumber}";
-            $values = [[1]];
-            $body = new \Google_Service_Sheets_ValueRange([
-                'values' => $values,
+            $updateData[] = new \Google_Service_Sheets_ValueRange([
+                'range' => $updateRange,
+                'values' => [[1]]
             ]);
-            $params = ['valueInputOption' => 'RAW'];
-            $service->spreadsheets_values->update($spreadsheetId, $updateRange, $body, $params);
 
             $processedCount++;
+        }
+
+        // Executa todas as atualizações na planilha em uma única requisição (Batch Update)
+        if (!empty($updateData)) {
+            $batchUpdateRequest = new \Google_Service_Sheets_BatchUpdateValuesRequest([
+                'valueInputOption' => 'RAW',
+                'data' => $updateData
+            ]);
+            $service->spreadsheets_values->batchUpdate($spreadsheetId, $batchUpdateRequest);
         }
 
         return $processedCount;

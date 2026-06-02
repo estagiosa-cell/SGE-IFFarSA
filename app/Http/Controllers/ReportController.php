@@ -110,8 +110,6 @@ class ReportController extends Controller
         $query->where('start_date', '>=', $request->start_date)
             ->where('end_date', '<=', $request->end_date);
 
-        $internships = $query->get();
-
         // Adiciona mais detalhes ao nome do arquivo com base nos filtros do usuário para fácil identificação.
         if ($request->course_id === 'all_courses') {
             $courseName = $user->can('is-coordenador') ? 'todos_meus_cursos' : 'todos_cursos';
@@ -142,7 +140,7 @@ class ReportController extends Controller
         ];
 
         // Usa um callback para gerar o CSV em streaming, otimizando o uso de memória.
-        $callback = function () use ($internships, $columns) {
+        $callback = function () use ($query, $columns) {
             // Cria um "arquivo" em memória para escrita.
             $file = fopen('php://output', 'w');
 
@@ -152,8 +150,8 @@ class ReportController extends Controller
             // Escreve a linha de cabeçalho no CSV.
             fputcsv($file, $columns);
 
-            // Itera sobre os estágios e escreve cada um como uma linha no CSV.
-            foreach ($internships as $internship) {
+            // Itera sobre os estágios e escreve cada um como uma linha no CSV usando cursor (menos uso de memória).
+            foreach ($query->cursor() as $internship) {
                 // Monta a linha do CSV com os dados do estágio.
                 $row = [
                     $internship->course->name ?? 'Não informado',
