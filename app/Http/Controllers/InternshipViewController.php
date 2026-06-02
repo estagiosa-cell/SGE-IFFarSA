@@ -104,8 +104,8 @@ class InternshipViewController extends Controller
                 ->orderBy('name')
                 ->get();
         } else {
-            // Se o usuário não for orientador nem coordenador, retorna lista vazia
-            $internships = Internship::query()->whereRaw('1 = 0')->paginate(100);
+            // Se o usuário não for orientador nem coordenador, bloqueia o acesso.
+            abort(403);
         }
 
         $activeFilters = collect([
