@@ -18,14 +18,16 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TeachingDirectorController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [SessionController::class, 'create'])->name('login');
-Route::post('/login', [SessionController::class, 'store'])->name('store.login');
+Route::middleware(['guest'])->group(function () {
+    Route::get('/', [SessionController::class, 'create'])->name('login');
+    Route::post('/login', [SessionController::class, 'store'])->name('store.login');
 
-// Rotas de Recuperação de Senha
-Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
-Route::post('/forgot-password', [PasswordResetController::class, 'store'])->name('password.email');
-Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
-Route::put('/reset-password', [PasswordResetController::class, 'update'])->name('password.update');
+    // Rotas de Recuperacao de Senha
+    Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'store'])->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
+    Route::put('/reset-password', [PasswordResetController::class, 'update'])->name('password.update');
+});
 
 // Rotas dos usuários autenticados
 Route::middleware(['auth'])->group(function () {
