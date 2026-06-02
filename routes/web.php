@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\InternshipTypeController;
 use App\Http\Controllers\Admin\SupervisorEvaluationController;
 use App\Http\Controllers\Admin\SyncDataController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\GoogleFormQuestionIdController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\BackupController;
@@ -35,6 +36,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['can:is-admin'])->group(function () {
         Route::get('/dashboard', DashboardController::class)->name('admin.dashboard');
+
+        Route::get('/idform', GoogleFormQuestionIdController::class)->name('admin.form-ids');
 
         // Rotas de Usuários
         Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');

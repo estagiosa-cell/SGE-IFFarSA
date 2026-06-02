@@ -68,6 +68,17 @@ A configuração para o ambiente de produção é feita exclusivamente através 
    GOOGLE_FORM_QUESTION_ID_ADVISORS="<id_da_pergunta_de_orientadores>"
    ```
 
+   > **Como descobrir o ID da Pergunta (`GOOGLE_FORM_QUESTION_ID_ADVISORS`)?**
+   > A API oficial do Google Forms utiliza IDs internos diferentes dos exibidos nos scripts do Google. Para manter a segurança, a rota que mostra esses IDs fica desativada por padrão.
+   > 
+   > Siga estes passos para liberar a rota temporariamente:
+   > 1. Configure o `GOOGLE_FORM_ID_DATA_COLLECTION` no arquivo `.env`.
+   > 2. No terminal, rode o comando: `php artisan google:form-ids`
+   > 3. O comando irá liberar a rota e ficar travado ("rodando"). Não o feche ainda!
+   > 4. Faça login na sua aplicação como Administrador e acesse a URL: `http://localhost:8000/idform` (ou a URL equivalente em produção).
+   > 5. A tela mostrará um JSON com todos os títulos e seus respectivos IDs. Copie o ID da pergunta de Orientadores para o `.env`.
+   > 6. Volte no terminal e pressione `Ctrl+C` para encerrar o comando e travar a rota de volta por segurança.
+
    > **Atenção**: A variável `GOOGLE_ADMIN_ACCOUNT_EMAIL` é a trava de segurança principal. A aplicação irá rejeitar qualquer tentativa de login com uma conta Google que não corresponda a este e-mail.
 
 ## Parte 3: Publicando a Aplicação (Passo Final para Produção)
