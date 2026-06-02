@@ -61,7 +61,8 @@ class UpdateUserRequest extends FormRequest
 
             // Verifica se está tentando alterar o papel de um coordenador com cursos atrelados
             if ($userToUpdate->role === UserRole::COORDENADOR
-                && $userToUpdate->coordinatedCourses()->exists()
+                && ($userToUpdate->coordinatedCourses()->exists()
+                    || $userToUpdate->secondaryCoordinatedCourses()->exists())
                 && $newRole !== UserRole::COORDENADOR->value) {
                 $validator->errors()->add('role', 'Não é possível alterar o papel de um coordenador com cursos atrelados.');
             }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\InternshipStatus;
+use App\Models\Course;
 use App\Models\Internship;
 use App\Models\User;
 use App\Utils\SearchHelper;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 class InternshipViewController extends Controller
 {
     use AuthorizesRequests;
+
     /**
      * Exibe uma lista de estágios com base no perfil do usuário (orientador ou coordenador).
      *
@@ -33,6 +35,7 @@ class InternshipViewController extends Controller
 
         $user = Auth::user();
         $advisors = collect();
+        $courses = collect();
         $statusOptions = InternshipStatus::options();
         $orderBy = $request->get('order_by', 'status_priority'); // Padrão: ordenação por prioridade de status
 
@@ -61,7 +64,11 @@ class InternshipViewController extends Controller
             );
         } elseif ($user->can('is-coordenador')) {
             // Coordenadores veem estágios dos cursos que coordenam ou que eles próprios orientam.
-            $courseIds = $user->coordinatedCourses()->pluck('id');
+            $courses = Course::where('coordinator_id', $user->id)
+                ->orWhere('secondary_coordinator_id', $user->id)
+                ->orderBy('name')
+                ->get();
+            $courseIds = $courses->pluck('id');
 
             $query = Internship::where(function ($q) use ($courseIds, $user) {
                 $q->whereIn('course_id', $courseIds)
@@ -71,6 +78,7 @@ class InternshipViewController extends Controller
             // Aplica os filtros padrão da requisição na query.
             $query->applyStandardFilters($request, [
                 'allow_advisor_filter' => true,
+                'allow_course_filter' => true,
                 'skip_name_search' => true,
             ]);
 
@@ -109,13 +117,14 @@ class InternshipViewController extends Controller
         ]);
         if (auth()->user()->can('is-coordenador')) {
             $activeFilters->push(request('advisor'));
+            $activeFilters->push(request('course_id'));
         }
         if ($orderBy && $orderBy !== 'status_priority') {
             $activeFilters->push($orderBy);
         }
         $activeFiltersCount = $activeFilters->filter(fn ($v) => filled($v))->count();
 
-        return view('internship-view.index', compact('internships', 'advisors', 'statusOptions', 'orderBy', 'activeFiltersCount'));
+        return view('internship-view.index', compact('internships', 'advisors', 'courses', 'statusOptions', 'orderBy', 'activeFiltersCount'));
     }
 
     /**

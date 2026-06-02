@@ -22,7 +22,8 @@ class Course extends Model
      */
     protected $fillable = [
         'name',
-        'coordinator_id'
+        'coordinator_id',
+        'secondary_coordinator_id',
     ];
 
     /**
@@ -33,6 +34,16 @@ class Course extends Model
     public function coordinator()
     {
         return $this->belongsTo(User::class, 'coordinator_id');
+    }
+
+    /**
+     * Relacionamento: retorna o coordenador secundário do curso.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function secondaryCoordinator()
+    {
+        return $this->belongsTo(User::class, 'secondary_coordinator_id');
     }
 
     /**

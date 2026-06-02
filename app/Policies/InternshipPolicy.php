@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Course;
 use App\Models\Internship;
 use App\Models\User;
 
@@ -41,10 +42,14 @@ class InternshipPolicy
 
         // Coordenadores podem ver estágios dos cursos que coordenam ou que eles próprios orientam
         if ($user->can('is-coordenador')) {
-            $coordinatedCourseIds = $user->coordinatedCourses()->pluck('id');
+            $canViewByCourse = Course::where('id', $internship->course_id)
+                ->where(function ($query) use ($user) {
+                    $query->where('coordinator_id', $user->id)
+                        ->orWhere('secondary_coordinator_id', $user->id);
+                })
+                ->exists();
 
-            return $coordinatedCourseIds->contains($internship->course_id)
-                || $internship->advisor_id === $user->id;
+            return $canViewByCourse || $internship->advisor_id === $user->id;
         }
 
         return false;

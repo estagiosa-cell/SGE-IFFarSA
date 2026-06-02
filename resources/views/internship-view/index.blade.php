@@ -60,8 +60,20 @@
                                 </select>
                             </div>
 
-                            {{-- Filtro por orientador (apenas para coordenadores) --}}
+                            {{-- Filtro por curso e orientador (apenas para coordenadores) --}}
                             @if (auth()->user()->can('is-coordenador'))
+                                <div class="col-md-3">
+                                    <label for="course_id" class="form-label mb-0 small">Curso</label>
+                                    <select class="form-select form-select-sm" id="course_id" name="course_id">
+                                        <option value="">Todos</option>
+                                        @foreach ($courses as $course)
+                                            <option value="{{ $course->id }}"
+                                                {{ request('course_id') == $course->id ? 'selected' : '' }}>
+                                                {{ $course->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="col-md-3">
                                     <label for="advisor" class="form-label mb-0 small">Orientador</label>
                                     <select class="form-select form-select-sm" id="advisor" name="advisor">
@@ -121,7 +133,7 @@
                                     <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
                                         <i class="bi bi-funnel"></i> Filtrar
                                     </button>
-                                    @if (request()->hasAny(['search', 'status', 'advisor', 'registration', 'end_date_from', 'end_date_to']))
+                                    @if (request()->hasAny(['search', 'status', 'advisor', 'course_id', 'registration', 'end_date_from', 'end_date_to']))
                                         <a href="{{ route('internship-view.index') }}"
                                             class="btn btn-outline-secondary btn-sm" title="Limpar">
                                             <i class="bi bi-arrow-clockwise"></i>
@@ -140,7 +152,7 @@
                 <div class="card-body">
                     <div class="text-center py-5">
                         <div class="mb-4">
-                            @if (request()->hasAny(['search', 'status', 'advisor', 'registration']))
+                            @if (request()->hasAny(['search', 'status', 'advisor', 'course_id', 'registration']))
                                 <i class="bi bi-search text-muted display-3"></i>
                             @else
                                 <i class="bi bi-briefcase text-muted display-3"></i>
@@ -148,7 +160,7 @@
                         </div>
                         <h4 class="text-muted mb-3">Nenhum estágio encontrado</h4>
                         <p class="text-muted mb-4">
-                            @if (request()->hasAny(['search', 'status', 'advisor', 'registration', 'end_date_from', 'end_date_to']))
+                            @if (request()->hasAny(['search', 'status', 'advisor', 'course_id', 'registration', 'end_date_from', 'end_date_to']))
                                 Não encontramos estágios com os filtros aplicados.
                                 <br>
                                 <a href="{{ route('internship-view.index') }}"

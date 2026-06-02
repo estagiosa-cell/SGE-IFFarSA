@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
@@ -53,7 +52,7 @@ class UserPolicy
             return Response::deny('Não é possível excluir um orientador com estágios vinculados.');
         }
 
-        if ($model->coordinatedCourses()->exists()) {
+        if ($model->coordinatedCourses()->exists() || $model->secondaryCoordinatedCourses()->exists()) {
             return Response::deny('Não é possível excluir um coordenador com cursos vinculados.');
         }
 

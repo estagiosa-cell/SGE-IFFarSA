@@ -26,6 +26,7 @@ class UpdateCourseRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'coordinator_id' => ['nullable', 'exists:users,id'],
+            'secondary_coordinator_id' => ['nullable', 'exists:users,id', 'different:coordinator_id'],
         ];
     }
 
@@ -37,6 +38,8 @@ class UpdateCourseRequest extends FormRequest
         return [
             'name.required' => 'O nome do curso é obrigatório.',
             'coordinator_id.exists' => 'O coordenador selecionado não existe.',
+            'secondary_coordinator_id.exists' => 'O coordenador secundário selecionado não existe.',
+            'secondary_coordinator_id.different' => 'O coordenador secundário não pode ser o mesmo do coordenador principal.',
         ];
     }
 }

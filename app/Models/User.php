@@ -118,4 +118,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Course::class, 'coordinator_id');
     }
+
+    /**
+     * Relacionamento: cursos onde este usuário é coordenador secundário.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function secondaryCoordinatedCourses()
+    {
+        return $this->hasMany(Course::class, 'secondary_coordinator_id');
+    }
 }

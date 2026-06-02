@@ -20,7 +20,7 @@
 
                     <div class="row m-0 m-0">
                         {{-- Nome do Curso --}}
-                        <div class="col-md-8 mb-3">
+                        <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
                                     id="name" name="name" value="{{ old('name', $course->name) }}"
@@ -35,7 +35,7 @@
                         </div>
 
                         {{-- Coordenador --}}
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('coordinator_id') is-invalid @enderror"
                                     id="coordinator_id" name="coordinator_id">
@@ -49,6 +49,27 @@
                                 </select>
                                 <label for="coordinator_id"><i class="bi bi-person-badge me-2"></i>Coordenador</label>
                                 @error('coordinator_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Coordenador secundário --}}
+                        <div class="col-md-3 mb-3">
+                            <div class="form-floating">
+                                <select class="form-select @error('secondary_coordinator_id') is-invalid @enderror"
+                                    id="secondary_coordinator_id" name="secondary_coordinator_id">
+                                    <option value="">Nenhum coordenador secundário</option>
+                                    @foreach ($coordinators as $coordinator)
+                                        <option value="{{ $coordinator->id }}"
+                                            {{ old('secondary_coordinator_id', $course->secondary_coordinator_id) == $coordinator->id ? 'selected' : '' }}>
+                                            {{ $coordinator->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <label for="secondary_coordinator_id"><i class="bi bi-person-badge me-2"></i>Coordenador
+                                    Secundário</label>
+                                @error('secondary_coordinator_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

@@ -37,8 +37,11 @@ class ReportController extends Controller
             // Admin vê todos os cursos disponíveis no sistema.
             $courses = Course::orderBy('name')->get();
         } elseif ($user->can('is-coordenador')) {
-            // Coordenador vê apenas os cursos que ele coordena.
-            $courses = Course::where('coordinator_id', $user->id)->orderBy('name')->get();
+            // Coordenador vê apenas os cursos que ele coordena (principal ou secundário).
+            $courses = Course::where('coordinator_id', $user->id)
+                ->orWhere('secondary_coordinator_id', $user->id)
+                ->orderBy('name')
+                ->get();
         }
         // Orientadores não precisam de uma lista de cursos, pois o filtro é sempre "meus orientandos".
 
@@ -93,7 +96,9 @@ class ReportController extends Controller
             } elseif ($request->course_id != 'all_courses') {
                 $query->where('course_id', $request->course_id);
             } else {
-                $coordinatorCourses = Course::where('coordinator_id', $user->id)->pluck('id');
+                $coordinatorCourses = Course::where('coordinator_id', $user->id)
+                    ->orWhere('secondary_coordinator_id', $user->id)
+                    ->pluck('id');
                 $query->whereIn('course_id', $coordinatorCourses);
             }
         } elseif ($user->can('is-orientador')) {
