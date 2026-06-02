@@ -27,6 +27,7 @@ Siga estes passos para criar as credenciais que a aplicação Laravel usará par
    - Google Drive API
    - Google Sheets API
    - Google Docs API
+   - Google Forms API
 
 ### 2. Configuração da Tela de Consentimento OAuth
 
@@ -61,6 +62,10 @@ A configuração para o ambiente de produção é feita exclusivamente através 
 
    # E-mail exato da Conta Google que tem permissão para ser usada
    GOOGLE_ADMIN_ACCOUNT_EMAIL="admin.exemplo@dominio.com"
+
+   # IDs do Formulário e da Pergunta de Orientadores
+   GOOGLE_FORM_ID_DATA_COLLECTION="<id_do_seu_formulario>"
+   GOOGLE_FORM_QUESTION_ID_ADVISORS="<id_da_pergunta_de_orientadores>"
    ```
 
    > **Atenção**: A variável `GOOGLE_ADMIN_ACCOUNT_EMAIL` é a trava de segurança principal. A aplicação irá rejeitar qualquer tentativa de login com uma conta Google que não corresponda a este e-mail.

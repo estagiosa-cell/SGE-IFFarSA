@@ -13,4 +13,4 @@
 - **Frontend**: Bootstrap 5, SASS, Vite
 - **Banco de Dados**: SQLite (desenvolvimento), MySQL/PostgreSQL (produção)
 - **Servidor de E-mail**: Configurável via SMTP no arquivo `.env`
-- **APIs do Google**: Integração com Drive, Docs e Sheets para geração e organização de documentos
+- **APIs do Google**: Integração com Drive, Docs, Sheets e Forms para geração, organização e sincronização de dados
