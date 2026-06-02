@@ -308,8 +308,9 @@ class SyncDataController extends Controller
                     "ATENÇÃO: Múltiplas empresas encontradas com o CNPJ/CPF {$identificadorLegal}. Seleção manual necessária.";
             } else {
                 // Nenhum resultado: adiciona um aviso.
+                $nomeEmpresaForm = $row[28] ?? 'Não informado';
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').
-                    "ATENÇÃO: Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário.";
+                    "ATENÇÃO: Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário. Nome informado: {$nomeEmpresaForm}";
             }
 
             if ($row[12]) {
