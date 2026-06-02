@@ -11,7 +11,7 @@
                         <div class="display-4 fw-bold text-primary mb-3">403</div>
                         <h1 class="h5 mb-3">Acesso negado</h1>
                         <p class="text-muted mb-4">
-                            Você não tem permissão para acessar esta página.
+                            {{ $exception->getMessage() ?: 'Você não tem permissão para acessar esta página.' }}
                         </p>
                         <div class="d-flex gap-2 justify-content-center">
                             <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">Voltar</a>
