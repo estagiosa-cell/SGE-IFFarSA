@@ -59,50 +59,26 @@
         </div>
 
         @if ($courses->isEmpty())
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-center py-5">
-                        <div class="mb-4">
-                            @if ($showDeleted)
-                                <i class="bi bi-trash text-muted display-3"></i>
-                            @elseif (request()->filled('search'))
-                                <i class="bi bi-search text-muted display-3"></i>
-                            @else
-                                <i class="bi bi-book text-muted display-3"></i>
-                            @endif
-                        </div>
-                        @if ($showDeleted)
-                            <h4 class="text-muted mb-3">Nenhum curso deletado</h4>
-                            <p class="text-muted mb-4">
-                                Não há cursos deletados no momento.<br>
-                                Você pode alternar para ver os ativos.
-                            </p>
-                            <a href="{{ route('admin.courses.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
-                                class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Cursos Ativos
-                            </a>
-                        @elseif (request()->filled('search'))
-                            <h4 class="text-muted mb-3">Nenhum curso encontrado</h4>
-                            <p class="text-muted mb-4">
-                                Não foram encontrados cursos com os filtros aplicados.<br>
-                                Tente ajustar os critérios de busca.
-                            </p>
-                            <a href="{{ route('admin.courses.index') }}" class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Todos os Cursos
-                            </a>
-                        @else
-                            <h4 class="text-muted mb-3">Nenhum curso encontrado</h4>
-                            <p class="text-muted mb-4">
-                                Ainda não existem cursos cadastrados.<br>
-                                Comece adicionando o primeiro curso da instituição.
-                            </p>
-                            <a href="{{ route('admin.courses.create') }}" class="btn btn-primary btn-lg">
-                                <i class="bi bi-plus-circle me-2"></i>Cadastrar Primeiro Curso
-                            </a>
-                        @endif
-                    </div>
-                </div>
-            </div>
+            <x-ui.empty-state 
+                icon="{{ $showDeleted ? 'bi-trash' : (request()->filled('search') ? 'bi-search' : 'bi-book') }}"
+                title="{{ $showDeleted ? 'Nenhum curso deletado' : (request()->filled('search') ? 'Nenhum curso encontrado' : 'Nenhum curso cadastrado') }}"
+                description="{!! $showDeleted ? 'Não há cursos deletados no momento.<br>Você pode alternar para ver os ativos.' : (request()->filled('search') ? 'Não foram encontrados cursos com os filtros aplicados.<br>Tente ajustar os critérios de busca.' : 'Ainda não existem cursos cadastrados.<br>Comece adicionando o primeiro curso da instituição.') !!}"
+            >
+                @if ($showDeleted)
+                    <a href="{{ route('admin.courses.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
+                        class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Cursos Ativos
+                    </a>
+                @elseif (request()->filled('search'))
+                    <a href="{{ route('admin.courses.index') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Todos os Cursos
+                    </a>
+                @else
+                    <a href="{{ route('admin.courses.create') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Cadastrar Primeiro Curso
+                    </a>
+                @endif
+            </x-ui.empty-state>
         @else
             @foreach ($courses as $course)
                 <div class="card mb-3 shadow-sm border-0">

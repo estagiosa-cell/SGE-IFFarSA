@@ -128,46 +128,22 @@
         </div>
 
         @if ($internships->isEmpty())
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-center py-5">
-                        <div class="mb-4">
-                            @if ($showDeleted)
-                                <i class="bi bi-trash text-muted display-3"></i>
-                            @elseif (request()->hasAny(['search', 'registration', 'status', 'course_id', 'end_date_from', 'end_date_to']))
-                                <i class="bi bi-search text-muted display-3"></i>
-                            @else
-                                <i class="bi bi-briefcase text-muted display-3"></i>
-                            @endif
-                        </div>
-                        @if ($showDeleted)
-                            <h4 class="text-muted mb-3">Nenhum estágio deletado</h4>
-                            <p class="text-muted mb-4">
-                                Não há estágios deletados no momento.<br>
-                                Você pode alternar para ver os ativos.
-                            </p>
-                            <a href="{{ route('admin.internships.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
-                                class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Estágios Ativos
-                            </a>
-                        @elseif (request()->hasAny(['search', 'registration', 'status', 'course_id', 'end_date_from', 'end_date_to']))
-                            <h4 class="text-muted mb-3">Nenhum estágio encontrado</h4>
-                            <p class="text-muted mb-4">
-                                Não foram encontrados estágios com os filtros aplicados.<br>
-                                Tente ajustar os critérios de busca.
-                            </p>
-                            <a href="{{ route('admin.internships.index') }}" class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Todos os Estágios
-                            </a>
-                        @else
-                            <h4 class="text-muted mb-3">Nenhum estágio encontrado</h4>
-                            <p class="text-muted mb-4">
-                                Ainda não existem estágios cadastrados no sistema.
-                            </p>
-                        @endif
-                    </div>
-                </div>
-            </div>
+            <x-ui.empty-state 
+                icon="{{ $showDeleted ? 'bi-trash' : (request()->hasAny(['search', 'registration', 'status', 'course_id', 'end_date_from', 'end_date_to']) ? 'bi-search' : 'bi-briefcase') }}"
+                title="{{ $showDeleted ? 'Nenhum estágio deletado' : (request()->hasAny(['search', 'registration', 'status', 'course_id', 'end_date_from', 'end_date_to']) ? 'Nenhum estágio encontrado' : 'Nenhum estágio cadastrado') }}"
+                description="{!! $showDeleted ? 'Não há estágios deletados no momento.<br>Você pode alternar para ver os ativos.' : (request()->hasAny(['search', 'registration', 'status', 'course_id', 'end_date_from', 'end_date_to']) ? 'Não foram encontrados estágios com os filtros aplicados.<br>Tente ajustar os critérios de busca.' : 'Ainda não existem estágios cadastrados no sistema.<br>Eles aparecerão aqui quando forem inseridos ou importados.') !!}"
+            >
+                @if ($showDeleted)
+                    <a href="{{ route('admin.internships.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
+                        class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Estágios Ativos
+                    </a>
+                @elseif (request()->hasAny(['search', 'registration', 'status', 'course_id', 'end_date_from', 'end_date_to']))
+                    <a href="{{ route('admin.internships.index') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Todos os Estágios
+                    </a>
+                @endif
+            </x-ui.empty-state>
         @else
             @foreach ($internships as $internship)
                 <div class="card mb-3 shadow-sm border-0">

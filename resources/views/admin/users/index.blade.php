@@ -84,50 +84,26 @@
         </div>
 
         @if ($users->isEmpty())
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-center py-5">
-                        <div class="mb-4">
-                            @if ($showDeleted)
-                                <i class="bi bi-trash text-muted display-3"></i>
-                            @elseif (request()->hasAny(['search', 'role', 'status']))
-                                <i class="bi bi-search text-muted display-3"></i>
-                            @else
-                                <i class="bi bi-person-x text-muted display-3"></i>
-                            @endif
-                        </div>
-                        @if ($showDeleted)
-                            <h4 class="text-muted mb-3">Nenhum usuário deletado</h4>
-                            <p class="text-muted mb-4">
-                                Não há usuários deletados no momento.<br>
-                                Você pode alternar para ver os ativos.
-                            </p>
-                            <a href="{{ route('admin.users.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
-                                class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Usuários Ativos
-                            </a>
-                        @elseif (request()->hasAny(['search', 'role', 'status']))
-                            <h4 class="text-muted mb-3">Nenhum usuário encontrado</h4>
-                            <p class="text-muted mb-4">
-                                Não foram encontrados usuários com os filtros aplicados.<br>
-                                Tente ajustar os critérios de busca.
-                            </p>
-                            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Todos os Usuários
-                            </a>
-                        @else
-                            <h4 class="text-muted mb-3">Nenhum usuário encontrado</h4>
-                            <p class="text-muted mb-4">
-                                Ainda não existem usuários cadastrados.<br>
-                                Comece adicionando o primeiro usuário do sistema.
-                            </p>
-                            <a href="{{ route('admin.users.create') }}" class="btn btn-primary btn-lg">
-                                <i class="bi bi-plus-circle me-2"></i>Cadastrar Usuário
-                            </a>
-                        @endif
-                    </div>
-                </div>
-            </div>
+            <x-ui.empty-state 
+                icon="{{ $showDeleted ? 'bi-trash' : (request()->hasAny(['search', 'role', 'status']) ? 'bi-search' : 'bi-person-x') }}"
+                title="{{ $showDeleted ? 'Nenhum usuário deletado' : (request()->hasAny(['search', 'role', 'status']) ? 'Nenhum usuário encontrado' : 'Nenhum usuário cadastrado') }}"
+                description="{!! $showDeleted ? 'Não há usuários deletados no momento.<br>Você pode alternar para ver os ativos.' : (request()->hasAny(['search', 'role', 'status']) ? 'Não foram encontrados usuários com os filtros aplicados.<br>Tente ajustar os critérios de busca.' : 'Ainda não existem usuários cadastrados.<br>Comece adicionando o primeiro usuário do sistema.') !!}"
+            >
+                @if ($showDeleted)
+                    <a href="{{ route('admin.users.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
+                        class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Usuários Ativos
+                    </a>
+                @elseif (request()->hasAny(['search', 'role', 'status']))
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Todos os Usuários
+                    </a>
+                @else
+                    <a href="{{ route('admin.users.create') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Cadastrar Usuário
+                    </a>
+                @endif
+            </x-ui.empty-state>
         @else
             @foreach ($users as $user)
                 <div class="card mb-3 shadow-sm border-0">

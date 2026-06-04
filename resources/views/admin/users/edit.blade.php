@@ -6,9 +6,7 @@
     <div class="container-fluid mt-4 mx-1">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h4 mb-0">Editar Usuário - {{ $user->name }}</h2>
-            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left-circle me-2"></i>Voltar
-            </a>
+            <x-ui.back-button url="{{ route('admin.users.index') }}" />
         </div>
 
         <div class="card border-0 shadow-sm">
@@ -17,57 +15,28 @@
                     novalidate>
                     @csrf
                     @method('PUT')
-                    <div class="row m-0 m-0">
+                    <div class="row m-0">
                         {{-- Nome --}}
                         <div class="mb-3 col-md-6">
-                            <div class="form-floating">
-                                <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                    id="name" name="name" value="{{ old('name', $user->name) }}"
-                                    placeholder="Nome completo" required>
-                                <label for="name"><i class="bi bi-person me-2"></i>Nome *</label>
-                                @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @else
-                                    <div class="invalid-feedback">O campo nome é obrigatório.</div>
-                                @enderror
-                            </div>
+                            <x-form.input name="name" value="{{ $user->name }}" icon="bi-person" label="Nome *" placeholder="Nome completo" required feedback="O campo nome é obrigatório." />
                         </div>
                         {{-- E-mail --}}
                         <div class="mb-3 col-md-6">
-                            <div class="form-floating">
-                                <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                    id="email" name="email" value="{{ old('email', $user->email) }}"
-                                    placeholder="E-mail" required>
-                                <label for="email"><i class="bi bi-envelope me-2"></i>E-mail *</label>
-                                @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @else
-                                    <div class="invalid-feedback">O campo e-mail é obrigatório.</div>
-                                @enderror
-                            </div>
+                            <x-form.input type="email" name="email" value="{{ $user->email }}" icon="bi-envelope" label="E-mail *" placeholder="E-mail" required feedback="O campo e-mail é obrigatório." />
                         </div>
                     </div>
-                    <div class="row m-0 m-0">
+                    <div class="row m-0">
                         {{-- Papel --}}
                         <div class="mb-3 col-md-6">
-                            <div class="form-floating">
-                                <select class="form-select @error('role') is-invalid @enderror" id="role"
-                                    name="role" required>
-                                    <option value="">Selecione o papel</option>
-                                    @foreach ($roles as $role)
-                                        <option value="{{ $role->value }}"
-                                            {{ old('role', $user->role->value) == $role->value ? 'selected' : '' }}>
-                                            {{ $role->label() ?? $role->value }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <label for="role"><i class="bi bi-person-badge me-2"></i>Papel *</label>
-                                @error('role')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @else
-                                    <div class="invalid-feedback">O campo papel é obrigatório.</div>
-                                @enderror
-                            </div>
+                            <x-form.select name="role" icon="bi-person-badge" label="Papel *" required feedback="O campo papel é obrigatório.">
+                                <option value="">Selecione o papel</option>
+                                @foreach ($roles as $role)
+                                    <option value="{{ $role->value }}"
+                                        {{ old('role', $user->role->value) == $role->value ? 'selected' : '' }}>
+                                        {{ $role->label() ?? $role->value }}
+                                    </option>
+                                @endforeach
+                            </x-form.select>
                         </div>
                         {{-- Status --}}
                         <div class="mb-3 col-md-6">
@@ -82,7 +51,7 @@
                     {{-- Informações adicionais --}}
                     <div class="row m-0 mb-3">
                         <div class="col-md-6">
-                            <div class="card bg-light">
+                            <div class="card bg-light border-0">
                                 <div class="card-body py-2">
                                     <small class="text-muted">
                                         <i class="bi bi-calendar-plus me-1"></i>
@@ -92,7 +61,7 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card bg-light">
+                            <div class="card bg-light border-0">
                                 <div class="card-body py-2">
                                     <small class="text-muted">
                                         <i class="bi bi-pencil-square me-1"></i>
@@ -193,28 +162,5 @@
         </div>
     </div>
 
-    {{-- Modal Excluir --}}
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirmar Exclusão</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                </div>
-                <div class="modal-body">
-                    Tem certeza que deseja excluir este usuário? Esta ação pode ser desfeita.
-                </div>
-                <div class="modal-footer">
-                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash me-2"></i>Excluir
-                        </button>
-                    </form>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-modal.delete action="{{ route('admin.users.destroy', $user->id) }}" />
 @endsection

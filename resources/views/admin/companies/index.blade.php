@@ -72,50 +72,26 @@
         </div>
 
         @if ($companies->isEmpty())
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-center py-5">
-                        <div class="mb-4">
-                            @if ($showDeleted)
-                                <i class="bi bi-trash text-muted display-3"></i>
-                            @elseif (request()->hasAny(['name', 'legal_identifier', 'address_city']))
-                                <i class="bi bi-search text-muted display-3"></i>
-                            @else
-                                <i class="bi bi-building-gear text-muted display-3"></i>
-                            @endif
-                        </div>
-                        @if ($showDeleted)
-                            <h4 class="text-muted mb-3">Nenhuma parte concedente deletada</h4>
-                            <p class="text-muted mb-4">
-                                Não há partes concedentes deletadas no momento.<br>
-                                Você pode alternar para ver as ativas.
-                            </p>
-                            <a href="{{ route('admin.companies.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
-                                class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Partes Concedentes Ativas
-                            </a>
-                        @elseif (request()->hasAny(['name', 'legal_identifier', 'address_city']))
-                            <h4 class="text-muted mb-3">Nenhuma parte concedente encontrada</h4>
-                            <p class="text-muted mb-4">
-                                Não foram encontrados registros com os filtros aplicados.<br>
-                                Tente ajustar os critérios de busca.
-                            </p>
-                            <a href="{{ route('admin.companies.index') }}" class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Todos os Registros
-                            </a>
-                        @else
-                            <h4 class="text-muted mb-3">Nenhuma parte concedente cadastrada</h4>
-                            <p class="text-muted mb-4">
-                                Ainda não existem partes concedentes na sua base de dados.<br>
-                                Comece adicionando o primeiro registro.
-                            </p>
-                            <a href="{{ route('admin.companies.create') }}" class="btn btn-primary btn-lg">
-                                <i class="bi bi-plus-circle me-2"></i>Cadastrar Parte Concedente
-                            </a>
-                        @endif
-                    </div>
-                </div>
-            </div>
+            <x-ui.empty-state 
+                icon="{{ $showDeleted ? 'bi-trash' : (request()->hasAny(['name', 'legal_identifier', 'address_city']) ? 'bi-search' : 'bi-building-gear') }}"
+                title="{{ $showDeleted ? 'Nenhuma parte concedente deletada' : (request()->hasAny(['name', 'legal_identifier', 'address_city']) ? 'Nenhuma parte concedente encontrada' : 'Nenhuma parte concedente cadastrada') }}"
+                description="{!! $showDeleted ? 'Não há partes concedentes deletadas no momento.<br>Você pode alternar para ver as ativas.' : (request()->hasAny(['name', 'legal_identifier', 'address_city']) ? 'Não foram encontrados registros com os filtros aplicados.<br>Tente ajustar os critérios de busca.' : 'Ainda não existem partes concedentes na sua base de dados.<br>Comece adicionando o primeiro registro.') !!}"
+            >
+                @if ($showDeleted)
+                    <a href="{{ route('admin.companies.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
+                        class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Partes Concedentes Ativas
+                    </a>
+                @elseif (request()->hasAny(['name', 'legal_identifier', 'address_city']))
+                    <a href="{{ route('admin.companies.index') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Todos os Registros
+                    </a>
+                @else
+                    <a href="{{ route('admin.companies.create') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Cadastrar Parte Concedente
+                    </a>
+                @endif
+            </x-ui.empty-state>
         @else
             @foreach ($companies as $company)
                 <div class="card mb-3 shadow-sm border-0">

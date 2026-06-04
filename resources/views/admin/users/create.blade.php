@@ -6,9 +6,7 @@
     <div class="container-fluid mt-4 mx-1">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h4 mb-0">Cadastrar Usuário</h2>
-            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left-circle me-2"></i>Voltar
-            </a>
+            <x-ui.back-button url="{{ route('admin.users.index') }}" />
         </div>
 
         {{-- Cadastro normal --}}
@@ -18,64 +16,26 @@
                     @csrf
                     {{-- Nome --}}
                     <div class="mb-3">
-                        <div class="form-floating">
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
-                                name="name" value="{{ old('name') }}" placeholder="Nome completo" required>
-                            <label for="name"><i class="bi bi-person me-2"></i>Nome *</label>
-                            @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @else
-                                <div class="invalid-feedback">O campo nome é obrigatório.</div>
-                            @enderror
-                        </div>
+                        <x-form.input name="name" icon="bi-person" label="Nome *" placeholder="Nome completo" required feedback="O campo nome é obrigatório." />
                     </div>
                     {{-- E-mail --}}
                     <div class="mb-3">
-                        <div class="form-floating">
-                            <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
-                                name="email" value="{{ old('email') }}" placeholder="E-mail" required>
-                            <label for="email"><i class="bi bi-envelope me-2"></i>E-mail *</label>
-                            @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @else
-                                <div class="invalid-feedback">O campo e-mail é obrigatório.</div>
-                            @enderror
-                        </div>
+                        <x-form.input type="email" name="email" icon="bi-envelope" label="E-mail *" placeholder="E-mail" required feedback="O campo e-mail é obrigatório." />
                     </div>
                     {{-- Confirmação de E-mail --}}
                     <div class="mb-3">
-                        <div class="form-floating">
-                            <input type="email" class="form-control @error('email_confirmation') is-invalid @enderror"
-                                id="email_confirmation" name="email_confirmation" value="{{ old('email_confirmation') }}"
-                                placeholder="Confirme o e-mail" required>
-                            <label for="email_confirmation"><i class="bi bi-envelope-check me-2"></i>Confirmar E-mail
-                                *</label>
-                            @error('email_confirmation')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @else
-                                <div class="invalid-feedback">Confirme o e-mail.</div>
-                            @enderror
-                        </div>
+                        <x-form.input type="email" name="email_confirmation" icon="bi-envelope-check" label="Confirmar E-mail *" placeholder="Confirme o e-mail" required feedback="Confirme o e-mail." />
                     </div>
                     {{-- Papel --}}
                     <div class="mb-3">
-                        <div class="form-floating">
-                            <select class="form-select @error('role') is-invalid @enderror" id="role" name="role"
-                                required>
-                                <option value="">Selecione o papel</option>
-                                @foreach ($roles as $role)
-                                    <option value="{{ $role->value }}" {{ old('role') == $role->value ? 'selected' : '' }}>
-                                        {{ $role->label() ?? $role->value }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <label for="role"><i class="bi bi-person-badge me-2"></i>Papel *</label>
-                            @error('role')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @else
-                                <div class="invalid-feedback">O campo papel é obrigatório.</div>
-                            @enderror
-                        </div>
+                        <x-form.select name="role" icon="bi-person-badge" label="Papel *" required feedback="O campo papel é obrigatório.">
+                            <option value="">Selecione o papel</option>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->value }}" {{ old('role') == $role->value ? 'selected' : '' }}>
+                                    {{ $role->label() ?? $role->value }}
+                                </option>
+                            @endforeach
+                        </x-form.select>
                     </div>
 
                     <x-form-info-alert>
