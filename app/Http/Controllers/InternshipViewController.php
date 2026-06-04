@@ -52,10 +52,10 @@ class InternshipViewController extends Controller
 
             // Aplica ordenação
             $query = $query->select([
-                    'id', 'student_name', 'student_registration_number',
+                    'id', 'student_name', 'student_email', 'student_registration_number',
                     'status', 'start_date', 'end_date',
                     'advisor_id', 'course_id', 'company_name',
-                    'company_legal_identifier', 'updated_at',
+                    'company_legal_identifier', 'updated_at', 'supervisor_name',
                 ])
                 ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);
@@ -88,10 +88,10 @@ class InternshipViewController extends Controller
 
             // Aplica ordenação
             $query = $query->select([
-                    'id', 'student_name', 'student_registration_number',
+                    'id', 'student_name', 'student_email', 'student_registration_number',
                     'status', 'start_date', 'end_date',
                     'advisor_id', 'course_id', 'company_name',
-                    'company_legal_identifier', 'updated_at',
+                    'company_legal_identifier', 'updated_at', 'supervisor_name',
                 ])
                 ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);

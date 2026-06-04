@@ -45,9 +45,10 @@ class TeachingDirectorController extends Controller
 
         // Inicia a query com os relacionamentos necessários
         $query = Internship::select([
-                'id', 'student_name', 'student_registration_number',
+                'id', 'student_name', 'student_email', 'student_registration_number',
                 'status', 'start_date', 'end_date',
-                'advisor_id', 'course_id', 'updated_at',
+                'advisor_id', 'course_id', 'company_name',
+                'company_legal_identifier', 'deleted_at', 'updated_at', 'internship_type_name',
             ])
             ->with(['advisor:id,name', 'course:id,name']);
 
@@ -117,12 +118,17 @@ class TeachingDirectorController extends Controller
      * @param  \App\Models\Internship  $internship  O estágio a ser exibido.
      * @return \Illuminate\View\View
      */
-    public function show(Internship $internship)
+    public function show($id)
     {
-        $this->authorize('view', $internship);
+        $internship = Internship::select([
+            'id', 'student_name', 'student_registration_number', 'student_email', 'student_year_semester',
+            'status', 'start_date', 'end_date', 'required_hours', 'internship_type_name',
+            'advisor_id', 'course_id', 'company_name', 'company_address_city'
+        ])
+        ->with(['advisor:id,name', 'course:id,name'])
+        ->findOrFail($id);
 
-        // Carrega relacionamentos básicos
-        $internship->load(['advisor:id,name', 'course:id,name']);
+        $this->authorize('view', $internship);
 
         return view('teaching-director.show', compact('internship'));
     }

@@ -41,10 +41,10 @@ class InternshipController extends Controller
 
         // Inicia a query com o carregamento antecipado de relacionamentos para otimização.
         $query = Internship::select([
-                'id', 'student_name', 'student_registration_number',
+                'id', 'student_name', 'student_email', 'student_registration_number',
                 'status', 'start_date', 'end_date',
                 'advisor_id', 'course_id', 'company_name',
-                'company_legal_identifier', 'deleted_at', 'updated_at',
+                'company_legal_identifier', 'deleted_at', 'updated_at', 'internship_type_name',    
             ])
             ->with([
                 'advisor:id,name',
