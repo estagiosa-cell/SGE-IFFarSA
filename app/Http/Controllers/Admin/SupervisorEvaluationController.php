@@ -84,8 +84,9 @@ class SupervisorEvaluationController extends Controller
         $this->authorize('update', $evaluation);
 
         // Busca estágios com status "Em Andamento" para o dropdown de associação.
-        $internships = Internship::where('status', InternshipStatus::IN_PROGRESS)
-            ->with('course')
+        $internships = Internship::select(['id', 'student_name', 'course_id'])
+            ->where('status', InternshipStatus::IN_PROGRESS)
+            ->with('course:id,name')
             ->orderBy('student_name')
             ->get();
 

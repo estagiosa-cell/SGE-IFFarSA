@@ -44,7 +44,12 @@ class TeachingDirectorController extends Controller
         $orderBy = $request->get('order_by', 'status_priority');
 
         // Inicia a query com os relacionamentos necessários
-        $query = Internship::with(['advisor', 'course']);
+        $query = Internship::select([
+                'id', 'student_name', 'student_registration_number',
+                'status', 'start_date', 'end_date',
+                'advisor_id', 'course_id', 'updated_at',
+            ])
+            ->with(['advisor:id,name', 'course:id,name']);
 
         // Aplica os filtros padrão da requisição
         $query->applyStandardFilters($request, [
@@ -117,7 +122,7 @@ class TeachingDirectorController extends Controller
         $this->authorize('view', $internship);
 
         // Carrega relacionamentos básicos
-        $internship->load(['advisor', 'course']);
+        $internship->load(['advisor:id,name', 'course:id,name']);
 
         return view('teaching-director.show', compact('internship'));
     }

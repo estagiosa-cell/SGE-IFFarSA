@@ -34,7 +34,7 @@ class InternshipTypeController extends Controller
         $this->authorize('viewAny', InternshipType::class);
 
         // Inicia a query com o relacionamento do curso para otimização.
-        $query = InternshipType::with('course');
+        $query = InternshipType::with('course:id,name');
 
         // Verifica se o usuário deseja ver os registros excluídos (soft deleted).
         $showDeleted = $request->input('show_deleted') === '1';
@@ -56,7 +56,7 @@ class InternshipTypeController extends Controller
         );
 
         // Carrega os cursos para preencher o dropdown de filtro.
-        $courses = Course::orderBy('name')->get();
+        $courses = Course::orderBy('name')->get(['id', 'name']);
 
         $activeFiltersCount = collect([
             $request->input('search'),
@@ -77,7 +77,7 @@ class InternshipTypeController extends Controller
         $this->authorize('create', InternshipType::class);
 
         // Carrega todos os cursos para o dropdown de seleção.
-        $courses = Course::all();
+        $courses = Course::orderBy('name')->get(['id', 'name']);
 
         return view('admin.internship_types.create', compact('courses'));
     }
@@ -112,7 +112,7 @@ class InternshipTypeController extends Controller
         $this->authorize('update', $internshipType);
 
         // Carrega todos os cursos para o dropdown de seleção.
-        $courses = Course::all();
+        $courses = Course::orderBy('name')->get(['id', 'name']);
 
         return view('admin.internship_types.edit', compact('internshipType', 'courses'));
     }

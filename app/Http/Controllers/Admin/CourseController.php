@@ -33,7 +33,7 @@ class CourseController extends Controller
         $this->authorize('viewAny', Course::class);
 
         // Inicia a query com o carregamento antecipado do coordenador para otimização.
-        $query = Course::with('coordinator');
+        $query = Course::with('coordinator:id,name');
 
         // Verifica se o filtro 'show_deleted' está ativo para incluir cursos removidos (soft delete).
         $showDeleted = $request->input('show_deleted') === '1';

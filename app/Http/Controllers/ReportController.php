@@ -35,10 +35,11 @@ class ReportController extends Controller
 
         if ($user->can('is-admin')) {
             // Admin vê todos os cursos disponíveis no sistema.
-            $courses = Course::orderBy('name')->get();
+            $courses = Course::orderBy('name')->get(['id', 'name']);
         } elseif ($user->can('is-coordenador')) {
             // Coordenador vê apenas os cursos que ele coordena (principal ou secundário).
-            $courses = Course::where('coordinator_id', $user->id)
+            $courses = Course::select(['id', 'name'])
+                ->where('coordinator_id', $user->id)
                 ->orWhere('secondary_coordinator_id', $user->id)
                 ->orderBy('name')
                 ->get();
@@ -81,7 +82,13 @@ class ReportController extends Controller
             ]
         );
 
-        $query = Internship::with(['course', 'advisor']);
+        $query = Internship::select([
+                'id', 'student_name', 'student_registration_number',
+                'company_name', 'company_legal_identifier',
+                'start_date', 'end_date', 'status', 'evaluation_grade',
+                'supervisor_name', 'advisor_id', 'course_id',
+            ])
+            ->with(['course:id,name', 'advisor:id,name']);
 
         // Aplica a lógica de filtragem com base no perfil do usuário.
         if ($user->can('is-admin')) {

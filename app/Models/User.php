@@ -91,9 +91,10 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public static function coordinators()
+    public static function coordinators(array $columns = ['id', 'name'])
     {
-        return self::where('role', UserRole::COORDENADOR)
+        return self::select($columns)
+            ->where('role', UserRole::COORDENADOR)
             ->whereNull('deactivated_at')
             ->orderBy('name')
             ->get();

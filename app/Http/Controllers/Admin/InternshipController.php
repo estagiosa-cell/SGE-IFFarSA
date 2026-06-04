@@ -40,7 +40,16 @@ class InternshipController extends Controller
         $orderBy = $request->get('order_by', 'status_priority'); // Padrão: ordenação por prioridade de status
 
         // Inicia a query com o carregamento antecipado de relacionamentos para otimização.
-        $query = Internship::with(['advisor', 'course']);
+        $query = Internship::select([
+                'id', 'student_name', 'student_registration_number',
+                'status', 'start_date', 'end_date',
+                'advisor_id', 'course_id', 'company_name',
+                'company_legal_identifier', 'deleted_at', 'updated_at',
+            ])
+            ->with([
+                'advisor:id,name',
+                'course:id,name',
+            ]);
 
         // Verifica se o filtro 'show_deleted' está ativo para incluir estágios removidos (soft delete).
         $showDeleted = $request->input('show_deleted') === '1';
@@ -96,14 +105,15 @@ class InternshipController extends Controller
         $this->authorize('update', $internship);
 
         // Carrega os relacionamentos para serem usados na view.
-        $internship->load(['advisor', 'course']);
+        $internship->load(['advisor:id,name', 'course:id,name']);
         $statusOptions = InternshipStatus::options();
 
         // Busca orientadores disponíveis (usuários com papel de orientador ou coordenador) que estão ativos.
-        $advisors = \App\Models\User::whereIn('role', ['orientador', 'coordenador'])
+        $advisors = \App\Models\User::select(['id', 'name'])
+            ->whereIn('role', ['orientador', 'coordenador'])
             ->whereNull('deactivated_at')
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get();
 
         return view('admin.internships.edit', compact('internship', 'statusOptions', 'advisors'));
     }

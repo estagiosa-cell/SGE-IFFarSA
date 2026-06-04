@@ -128,6 +128,13 @@ class SyncDataController extends Controller
             return 0; // Nenhum dado para sincronizar.
         }
 
+        // Pré-carrega os dados de lookup antes do loop para evitar queries N+1.
+        $allCourses = Course::with('internshipTypes')->get();
+        $allUsers = User::select(['id', 'name'])
+            ->whereNull('deactivated_at')
+            ->get();
+        $allCompanies = Company::all()->groupBy('legal_identifier');
+
         $processedCount = 0;
         $updateData = [];
 
@@ -210,8 +217,10 @@ class SyncDataController extends Controller
             $valorAuxilioTransporte = $row[58] ?? null; // Coluna BH
             $observacoes = $row[59] ?? null; // Coluna BI
 
-            // Busca o curso pelo nome (com correspondência flexível).
-            $curso = Course::whereLike('name', $nomeCurso)->first();
+            // Busca o curso pelo nome na coleção pré-carregada (sem query).
+            $curso = $allCourses->first(function ($c) use ($nomeCurso) {
+                return mb_stripos($c->name, $nomeCurso) !== false;
+            });
 
             // Busca os dados do tipo de estágio relacionado ao curso.
             $internshipType = null;
@@ -221,13 +230,15 @@ class SyncDataController extends Controller
 
             if ($curso) {
                 if ($tipoEstagio) {
-                    // Tenta encontrar o tipo de estágio específico informado.
-                    $internshipType = $curso->internshipTypes()->whereLike('name', $tipoEstagio)->first();
+                    // Tenta encontrar o tipo de estágio específico informado na coleção pré-carregada.
+                    $internshipType = $curso->internshipTypes->first(function ($it) use ($tipoEstagio) {
+                        return mb_stripos($it->name, $tipoEstagio) !== false;
+                    });
                 }
 
                 // Se não encontrou ou não foi informado, usa o primeiro tipo de estágio do curso como padrão.
                 if (! $internshipType) {
-                    $internshipType = $curso->internshipTypes()->first();
+                    $internshipType = $curso->internshipTypes->first();
                 }
 
                 // Se um tipo de estágio foi encontrado, extrai seus dados.
@@ -262,9 +273,9 @@ class SyncDataController extends Controller
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').$advisorWarning;
             }
 
-            // Busca os dados da parte concedente (empresa) pelo CNPJ ou CPF.
+            // Busca os dados da parte concedente (empresa) na coleção pré-carregada (sem query).
             $identificadorLegal = $cnpjConcedente ?? $cpfConcedente;
-            $partesConcedentes = Company::where('legal_identifier', $identificadorLegal)->get();
+            $partesConcedentes = $allCompanies->get($identificadorLegal, collect());
 
             // Valores padrão se empresa não for encontrada ou se houver múltiplas
             $razaoSocialConcedente = null;
@@ -523,6 +534,7 @@ class SyncDataController extends Controller
 
         $processedCount = 0;
         $updateData = [];
+        $evaluationsToInsert = [];
 
         foreach ($rows as $index => $row) {
             // Se a coluna de controle 'Z' (índice 25) estiver marcada com '1', pula a linha.
@@ -563,8 +575,8 @@ class SyncDataController extends Controller
             // Usa o cargo que estiver preenchido, com prioridade para o primeiro campo.
             $jobRole = ! empty($jobRole1) ? $jobRole1 : $jobRole2;
 
-            // Cria o registro da avaliação no banco de dados.
-            SupervisorEvaluation::create([
+            // Acumula o registro para inserção em batch (ao invés de create() individual).
+            $evaluationsToInsert[] = [
                 'supervisor_email' => $supervisorEmail,
                 'student_name' => $studentName,
                 'supervisor_name' => $supervisorName,
@@ -588,7 +600,9 @@ class SyncDataController extends Controller
                 'suggestions_to_institution' => $suggestionsToInstitution,
                 'performance_issues' => $performanceIssues,
                 'other_observations' => $otherObservations,
-            ]);
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
 
             // Adiciona a linha para o batchUpdate da planilha
             $rowNumber = $index + 2;
@@ -599,6 +613,11 @@ class SyncDataController extends Controller
             ]);
 
             $processedCount++;
+        }
+
+        // Insere todas as avaliações em uma única operação de batch.
+        if (! empty($evaluationsToInsert)) {
+            SupervisorEvaluation::insert($evaluationsToInsert);
         }
 
         // Executa todas as atualizações na planilha em uma única requisição (Batch Update)

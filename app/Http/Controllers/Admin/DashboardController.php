@@ -72,14 +72,22 @@ class DashboardController extends Controller
         $totalEvaluations = SupervisorEvaluation::count();
         $deletedEvaluations = SupervisorEvaluation::onlyTrashed()->count();
 
+        $internshipSelect = [
+            'id', 'student_name', 'status', 'start_date', 'end_date',
+            'advisor_id', 'course_id', 'updated_at', 'company_name', 'created_at',
+        ];
+
         // Busca os estágios pendentes
-        $pendingInternships = Internship::with(['advisor', 'course'])
+        $pendingInternships = Internship::select($internshipSelect)
+            ->with(['advisor:id,name', 'course:id,name'])
             ->where('status', InternshipStatus::PENDING->value)
             ->latest()
+            ->take(100)
             ->get();
 
         // Busca até 10 estágios que não estão pendentes
-        $otherInternships = Internship::with(['advisor', 'course'])
+        $otherInternships = Internship::select($internshipSelect)
+            ->with(['advisor:id,name', 'course:id,name'])
             ->where('status', '!=', InternshipStatus::PENDING->value)
             ->orderByRaw(InternshipStatus::orderSql())
             ->latest()

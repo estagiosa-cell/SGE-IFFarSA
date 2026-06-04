@@ -51,7 +51,13 @@ class InternshipViewController extends Controller
             ]);
 
             // Aplica ordenação
-            $query = $query->with(['course', 'advisor']);
+            $query = $query->select([
+                    'id', 'student_name', 'student_registration_number',
+                    'status', 'start_date', 'end_date',
+                    'advisor_id', 'course_id', 'company_name',
+                    'company_legal_identifier', 'updated_at',
+                ])
+                ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);
 
             $internships = SearchHelper::searchAndPaginate(
@@ -81,7 +87,13 @@ class InternshipViewController extends Controller
             ]);
 
             // Aplica ordenação
-            $query = $query->with(['course', 'advisor']);
+            $query = $query->select([
+                    'id', 'student_name', 'student_registration_number',
+                    'status', 'start_date', 'end_date',
+                    'advisor_id', 'course_id', 'company_name',
+                    'company_legal_identifier', 'updated_at',
+                ])
+                ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);
 
             $internships = SearchHelper::searchAndPaginate(
@@ -141,7 +153,7 @@ class InternshipViewController extends Controller
         $this->authorize('view', $internship);
 
         // Carrega os relacionamentos para evitar N+1 queries na view.
-        $internship->load(['advisor', 'course']);
+        $internship->load(['advisor:id,name', 'course:id,name']);
 
         return view('internship-view.show', compact('internship'));
     }

@@ -87,7 +87,7 @@ class FuzzySearchService
                 }
             });
 
-            $entities = $q->get();
+            $entities = $q->get(['id', $searchField]);
             foreach ($entities as $entity) {
                 $possibleEntities->push($entity);
             }

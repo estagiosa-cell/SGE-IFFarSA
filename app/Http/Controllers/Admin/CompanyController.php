@@ -36,14 +36,6 @@ class CompanyController extends Controller
         $searchLegalIdentifier = $request->get('legal_identifier');
         $searchCity = $request->get('address_city');
 
-        // Obtém as cidades únicas para o filtro, ignorando nulas e vazias.
-        $cities = Company::select('address_city')
-            ->whereNotNull('address_city')
-            ->where('address_city', '!=', '')
-            ->distinct()
-            ->orderBy('address_city')
-            ->pluck('address_city');
-
         // Inicia a construção da consulta ao banco de dados.
         $query = Company::query();
 
@@ -58,8 +50,6 @@ class CompanyController extends Controller
             // Usa 'like' para permitir a busca mesmo que o usuário não digite a máscara completa.
             $query->where('legal_identifier', 'like', '%'.$searchLegalIdentifier.'%');
         }
-
-        // Nota: busca por cidade será aplicada mais abaixo usando SearchHelper
 
         $orderedQuery = $query->orderBy('name');
 
@@ -84,7 +74,6 @@ class CompanyController extends Controller
         // Retorna a view, passando a lista de empresas e os valores dos filtros para preenchimento.
         return view('admin.companies.index', [
             'companies' => $companies,
-            'cities' => $cities,
             'searchName' => $searchName,
             'searchLegalIdentifier' => $searchLegalIdentifier,
             'searchCity' => $searchCity,
@@ -196,16 +185,23 @@ class CompanyController extends Controller
             $file = $request->file('csv_file');
             $path = $file->getRealPath();
 
-            // Lê o arquivo CSV para um array, onde cada elemento é uma linha.
-            $csv = array_map('str_getcsv', file($path));
-
-            // Remove o cabeçalho (primeira linha) do array.
-            array_shift($csv);
-
             $imported = 0;
             $errors = [];
+            $batch = [];
 
-            foreach ($csv as $lineNumber => $row) {
+            // Lê o arquivo CSV linha a linha em vez de carregar tudo na memória
+            $handle = fopen($path, 'r');
+            
+            // Pula a primeira linha (cabeçalho)
+            if ($handle !== false) {
+                fgetcsv($handle);
+            }
+
+            $lineNumber = 1; // Começa a contagem após o cabeçalho (que foi lido acima)
+
+            while (($row = fgetcsv($handle)) !== false) {
+                $lineNumber++;
+                
                 // Pula linhas que estejam completamente vazias no CSV.
                 if (empty(array_filter($row))) {
                     continue;
@@ -215,18 +211,37 @@ class CompanyController extends Controller
                 $companyData = $this->mapCsvToCompanyData($row);
 
                 // Valida os dados mapeados para garantir a integridade.
-                $validation = $this->validateCompanyData($companyData, $lineNumber + 2); // +2 para compensar o cabeçalho e o índice 0.
+                $validation = $this->validateCompanyData($companyData, $lineNumber);
 
                 if (! empty($validation['errors'])) {
                     $errors = array_merge($errors, $validation['errors']);
-
                     continue; // Pula para a próxima linha se houver erros.
                 }
 
-                // Cria a empresa no banco de dados.
-                Company::create($companyData);
-                $imported++;
+                // Adiciona a linha válida ao batch, com timestamps.
+                $batch[] = $companyData + [
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+
+                // Insere em banco a cada 100 registros para não estourar memória.
+                if (count($batch) >= 100) {
+                    Company::insert($batch);
+                    $imported += count($batch);
+                    $batch = [];
+                }
             }
+
+            // Insere qualquer registro remanescente que não alcançou 100.
+            if (!empty($batch)) {
+                Company::insert($batch);
+                $imported += count($batch);
+            }
+
+            if ($handle !== false) {
+                fclose($handle);
+            }
+            
             $message = "Importação concluída! {$imported} empresas importadas.";
 
             // Se houver erros de validação, retorna com uma mensagem de aviso e a lista de erros.
