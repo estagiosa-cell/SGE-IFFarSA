@@ -147,7 +147,9 @@ class InternshipTypeController extends Controller
             $this->authorize('delete', $internshipType);
             $internshipType->delete();
         } catch (AuthorizationException $e) {
-            return redirect()->route('admin.internship-types.index')->with('error', $e->getMessage());
+            return redirect()->back()
+                ->with('message', $e->getMessage())
+                ->with('messageType', 'danger');
         }
 
         // Redireciona para a lista com uma mensagem de sucesso.

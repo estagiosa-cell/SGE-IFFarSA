@@ -135,7 +135,9 @@ class CourseController extends Controller
             $this->authorize('delete', $course);
             $course->delete();
         } catch (AuthorizationException $e) {
-            return redirect()->route('admin.courses.index')->with('error', $e->getMessage());
+            return redirect()->back()
+                ->with('message', $e->getMessage())
+                ->with('messageType', 'danger');
         }
 
         return redirect()->route('admin.courses.index')

@@ -158,7 +158,9 @@ class CompanyController extends Controller
             $this->authorize('delete', $company);
             $company->delete();
         } catch (AuthorizationException $e) {
-            return redirect()->route('admin.companies.index')->with('error', $e->getMessage());
+            return redirect()->back()
+                ->with('message', $e->getMessage())
+                ->with('messageType', 'danger');
         }
 
         return redirect()->route('admin.companies.index')
