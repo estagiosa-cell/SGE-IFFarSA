@@ -6,12 +6,14 @@ use App\Enums\InternshipStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AssociateSupervisorEvaluationRequest;
 use App\Http\Requests\UpdateSupervisorEvaluationRequest;
+use App\Mail\AvaliacaoEstagioConcluida;
 use App\Models\Internship;
 use App\Models\SupervisorEvaluation;
 use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Controlador para gerenciar as avaliações de estágio enviadas pelos supervisores.
@@ -171,6 +173,12 @@ class SupervisorEvaluationController extends Controller
                 $internship->update([
                     'status' => InternshipStatus::COMPLETED,
                 ]);
+
+                // Envia e-mail ao estagiário informando a conclusão da avaliação e a nota atribuída.
+                if (!empty($internship->student_email)) {
+                    $internship->load('course:id,name');
+                    Mail::to($internship->student_email)->send(new AvaliacaoEstagioConcluida($internship));
+                }
             }
 
             // Realiza o soft delete da avaliação temporária para removê-la da lista de pendências.
