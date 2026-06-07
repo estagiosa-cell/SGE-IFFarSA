@@ -156,20 +156,43 @@ sudo systemctl restart nginx
 
 ## Atualizações Futuras
 
-Para atualizar a aplicação após mudanças no código:
+A aplicação possui um script automatizado (`update-system.sh`) que simplifica o processo de atualização do sistema para as versões mais recentes.
+
+### Execução Manual
+
+Para atualizar a aplicação manualmente após mudanças no código, basta acessar a raiz do projeto e rodar o script (não é necessário o uso de `sudo`):
 
 ```bash
 cd /var/www/sge-iffarsa
-git pull origin main
-composer install --optimize-autoloader --no-dev
-npm install
-npm run build
-php artisan migrate --force
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-sudo systemctl restart nginx
+bash update-system.sh
 ```
+
+O script cuidará de todo o fluxo de atualização:
+1. **Verificação Inteligente**: Consulta o repositório remoto e só prossegue se houver de fato uma nova versão (evitando inatividade desnecessária).
+2. Coloca o sistema em modo de manutenção.
+3. Baixa o código atualizado.
+4. Instala novas dependências (Composer/NPM) e recompila os assets.
+5. Roda migrações do banco de dados.
+6. Limpa e recria caches de otimização.
+7. Reativa a aplicação.
+
+### Automação via Cron
+
+Como o script foi otimizado para não exigir permissões de superusuário e só intervir quando há atualizações, ele é ideal para ser automatizado através do **cron**.
+
+Edite as tarefas agendadas do usuário dono do projeto:
+
+```bash
+crontab -e
+```
+
+Adicione a linha abaixo para realizar a checagem automática (no exemplo, **todos os dias às 03:00 da manhã**):
+
+```bash
+0 3 * * * cd /var/www/sge-iffarsa && /bin/bash update-system.sh >> storage/logs/update.log 2>&1
+```
+
+> **Nota**: Todo o registro das atualizações (seja de sucesso ou algum erro que exigir intervenção) ficará salvo em `storage/logs/update.log`.
 
 ## Segurança
 
