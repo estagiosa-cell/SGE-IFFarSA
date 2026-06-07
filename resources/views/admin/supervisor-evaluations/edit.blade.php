@@ -18,9 +18,7 @@
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
@@ -308,11 +306,17 @@
                 </div>
                 <div class="modal-body">
                     <p class="mb-2">Tem certeza que deseja associar esta avaliação ao estágio selecionado?</p>
-                    <div class="alert alert-warning mb-0" role="alert">
+                    <div class="alert alert-warning mb-3" role="alert">
                         <i class="fas fa-exclamation-triangle"></i>
                         <strong>Atenção:</strong> Esta ação não pode ser desfeita facilmente. A avaliação será arquivada e
                         vinculada permanentemente ao estágio.
                     </div>
+                    @if ($evaluation->hasCompletedWorkload())
+                        <div class="alert alert-info mb-0" role="alert">
+                            <i class="fas fa-envelope"></i>
+                            <strong>Notificação por E-mail:</strong> Como a carga horária foi cumprida, um e-mail de notificação com a avaliação e a nota final calculada será enviado automaticamente ao estagiário.
+                        </div>
+                    @endif
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
