@@ -19,13 +19,14 @@
         @if($icon)
             <i class="bi {{ $icon }} me-2"></i>
         @endif
-        {{ $label }}
+        {{ rtrim($label, ' *') }}
+        <span class="text-danger required-indicator d-none">*</span>
     </label>
     @error($name)
         <div class="invalid-feedback">{{ $message }}</div>
     @else
-        @if($feedback)
-            <div class="invalid-feedback">{{ $feedback }}</div>
-        @endif
+        <div class="invalid-feedback">
+            {{ $feedback ?? ($attributes->has('required') ? 'Este campo é obrigatório.' : 'Campo inválido.') }}
+        </div>
     @enderror
 </div>

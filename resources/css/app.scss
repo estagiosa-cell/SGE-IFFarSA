@@ -32,3 +32,10 @@ $primary: #004a45;
   margin-bottom: 0;
   /* garante alinhamento vertical */
 }
+
+/* Exibe o asterisco para campos required */
+.form-floating > input:required ~ label .required-indicator,
+.form-floating > select:required ~ label .required-indicator,
+.form-floating > textarea:required ~ label .required-indicator {
+    display: inline !important;
+}
