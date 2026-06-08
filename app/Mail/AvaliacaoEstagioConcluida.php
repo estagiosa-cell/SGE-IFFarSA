@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use App\Models\Internship;
-use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -17,7 +16,8 @@ use Illuminate\Queue\SerializesModels;
  */
 class AvaliacaoEstagioConcluida extends Mailable
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
+
 
     /**
      * A instância do estágio avaliado.

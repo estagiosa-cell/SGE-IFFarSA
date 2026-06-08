@@ -322,7 +322,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="fas fa-times"></i> Cancelar
                     </button>
-                    <button type="button" class="btn btn-success"
+                    <button type="button" class="btn btn-success spinner-trigger"
                         onclick="document.getElementById('associateForm').submit();">
                         <i class="fas fa-check"></i> Confirmar Associação
                     </button>

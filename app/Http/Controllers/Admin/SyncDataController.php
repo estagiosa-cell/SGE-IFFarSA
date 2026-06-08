@@ -655,10 +655,22 @@ class SyncDataController extends Controller
         // Busca o formulário para obter o index do item
         $form = $service->forms->get($formId);
         $itemIndex = null;
+        $currentOptions = [];
 
         foreach ($form->getItems() as $index => $item) {
             if ($item->getItemId() == $questionId) {
                 $itemIndex = $index;
+                
+                // Extrai as opções atuais para evitar atualizações redundantes
+                $questionItem = $item->getQuestionItem();
+                if ($questionItem && $questionItem->getQuestion() && $questionItem->getQuestion()->getChoiceQuestion()) {
+                    $existingOptions = $questionItem->getQuestion()->getChoiceQuestion()->getOptions();
+                    if ($existingOptions) {
+                        foreach ($existingOptions as $opt) {
+                            $currentOptions[] = $opt->getValue();
+                        }
+                    }
+                }
                 break;
             }
         }
@@ -676,6 +688,12 @@ class SyncDataController extends Controller
 
         if (empty($advisors)) {
             return false;
+        }
+
+        // Se a lista do formulário já for exatamente igual à lista do banco, 
+        // aborta a atualização para economizar cota e tempo da API.
+        if ($currentOptions === $advisors) {
+            return true;
         }
 
         $options = array_map(function ($name) {
