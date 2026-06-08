@@ -598,7 +598,12 @@
             let companiesData = [];
 
             function buscarDadosConcedente() {
-                let identificador = document.getElementById('company_legal_identifier').value;
+                // Remove qualquer formatação (pontos, traços, barras) do valor antes de buscar
+                let inputEl = document.getElementById('company_legal_identifier');
+                let identificador = inputEl.value.replace(/\D/g, '');
+                
+                // Atualiza o valor no input para refletir os números limpos
+                inputEl.value = identificador;
 
                 if (!identificador) {
                     alert('Por favor, informe o CNPJ/CPF');
@@ -648,22 +653,26 @@
                 const selectedCompany = companiesData.find(company => company.id == selectedCompanyId);
 
                 if (selectedCompany) {
-                    document.getElementById('company_name').value = selectedCompany.name || '';
-                    document.getElementById('company_phone').value = selectedCompany.phone || '';
-                    document.getElementById('company_email').value = selectedCompany.email || '';
-                    document.getElementById('company_representative_name').value = selectedCompany.representative_name || '';
-                    document.getElementById('company_representative_role').value = selectedCompany.representative_role || '';
-                    document.getElementById('field_of_activity').value = selectedCompany.field_of_activity || '';
-                    document.getElementById('company_address_street').value = selectedCompany.address_street || '';
-                    document.getElementById('company_address_number').value = selectedCompany.address_number || '';
-                    document.getElementById('company_address_neighborhood').value = selectedCompany.address_neighborhood || '';
-                    document.getElementById('company_address_city').value = selectedCompany.address_city || '';
-                    document.getElementById('company_address_state').value = selectedCompany.address_state || '';
-                    document.getElementById('company_address_zip').value = selectedCompany.address_zip || '';
-                    document.getElementById('professional_council').value = selectedCompany.professional_council || '';
-                    document.getElementById('council_registration_number').value = selectedCompany
-                        .council_registration_number || '';
-                    document.getElementById('process_number').value = selectedCompany.process_number || '';
+                    const setVal = (id, val) => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = val || '';
+                    };
+
+                    setVal('company_name', selectedCompany.name);
+                    setVal('company_phone', selectedCompany.phone);
+                    setVal('company_email', selectedCompany.email);
+                    setVal('company_representative_name', selectedCompany.representative_name);
+                    setVal('company_representative_role', selectedCompany.representative_role);
+                    setVal('field_of_activity', selectedCompany.field_of_activity);
+                    setVal('company_address_street', selectedCompany.address_street);
+                    setVal('company_address_number', selectedCompany.address_number);
+                    setVal('company_address_neighborhood', selectedCompany.address_neighborhood);
+                    setVal('company_address_city', selectedCompany.address_city);
+                    setVal('company_address_state', selectedCompany.address_state);
+                    setVal('company_address_zip', selectedCompany.address_zip);
+                    setVal('professional_council', selectedCompany.professional_council);
+                    setVal('council_registration_number', selectedCompany.council_registration_number);
+                    setVal('process_number', selectedCompany.process_number);
                 }
             }
 
