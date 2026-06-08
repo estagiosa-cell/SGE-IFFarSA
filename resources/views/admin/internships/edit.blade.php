@@ -600,6 +600,8 @@
             function buscarDadosConcedente() {
                 // Remove qualquer formatação (pontos, traços, barras) do valor antes de buscar
                 let inputEl = document.getElementById('company_legal_identifier');
+                if (!inputEl) return;
+
                 let identificador = inputEl.value.replace(/\D/g, '');
                 
                 // Atualiza o valor no input para refletir os números limpos
@@ -623,6 +625,7 @@
 
             function atualizarSelectEmpresas(companies) {
                 const selectContainer = document.getElementById('company_select_container');
+                if (!selectContainer) return;
 
                 if (companies && companies.length > 0) {
                     const selectHTML = `
@@ -681,6 +684,8 @@
                 const grant_value_field = document.getElementById('grant_value');
                 const transportation_allowance_field = document.getElementById('transportation_allowance');
 
+                if (!checkbox || !grant_value_field || !transportation_allowance_field) return;
+
                 if (checkbox.checked) {
                     grant_value_field.readOnly = false;
                     grant_value_field.required = true;
@@ -703,6 +708,8 @@
                 const legal_guardian_kinship = document.getElementById('legal_guardian_kinship');
                 const legal_guardian_kinship_readonly = document.getElementById('legal_guardian_kinship_readonly');
                 const legal_guardian_email = document.getElementById('legal_guardian_email');
+
+                if (!checkbox || !legal_guardian_name || !legal_guardian_cpf || !legal_guardian_email) return;
 
                 if (checkbox.checked) {
                     // Aluno é maior de idade - limpa campos e mostra inputs readonly
@@ -775,6 +782,9 @@
                 });
 
                 const totalField = document.getElementById('total_weekly_hours');
+                
+                if (!totalField) return;
+
                 totalField.value = total + 'h';
 
                 // Adiciona indicador visual se ultrapassar o limite
