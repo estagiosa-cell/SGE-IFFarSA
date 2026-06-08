@@ -621,10 +621,10 @@
 
                 if (companies && companies.length > 0) {
                     const selectHTML = `
-                        <x-form.select id="company_select" name="company_id" onchange="preencherDadosEmpresa()" label="Empresas encontradas (\${companies.length})">
+                        <x-form.select id="company_select" name="company_id" onchange="preencherDadosEmpresa()" label="Empresas encontradas (${companies.length})">
                             <option value="">Selecione uma empresa</option>
-                            \${companies.map(company =>
-                                \`<option value="\${company.id}">\${company.name}</option>\`
+                            ${companies.map(company =>
+                                `<option value="${company.id}">${company.name}</option>`
                             ).join('')}
                         </x-form.select>
                     `;
