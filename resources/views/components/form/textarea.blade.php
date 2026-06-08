@@ -14,7 +14,7 @@
 <div class="form-floating">
     <textarea name="{{ $name }}" 
               id="{{ $inputId }}" 
-              {{ $attributes->merge(['class' => 'form-control ' . ($errors->has($name) ? 'is-invalid' : '')]) }}>{{ old($name, $value) }}</textarea>
+              {{ $attributes->merge(['class' => 'form-control ' . ($errors->has($name) ? 'is-invalid' : '')]) }}>{{ old($name, $value ?? $slot) }}</textarea>
     <label for="{{ $inputId }}">
         @if($icon)
             <i class="bi {{ $icon }} me-2"></i>

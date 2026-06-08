@@ -56,7 +56,7 @@ class UpdateInternshipRequest extends FormRequest
             'legal_guardian_name' => 'nullable|required_if:student_is_adult,0|string|max:255',
             'legal_guardian_cpf' => 'nullable|required_if:student_is_adult,0|string|max:14',
             'legal_guardian_kinship' => 'nullable|required_if:student_is_adult,0|string|max:50',
-            'legal_guardian_email' => 'nullable|email|max:255',
+            'legal_guardian_email' => 'nullable|required_if:student_is_adult,0|email|max:255',
 
             // Dados da Empresa/Parte Concedente
             'company_legal_identifier' => 'required|string|max:20',
