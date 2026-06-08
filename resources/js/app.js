@@ -9,6 +9,7 @@ window.bootstrap = bootstrap;
 
 import { initializeToast } from './components/toast.js';
 import { initializeSpinner, showSpinner, hideSpinner } from './components/spinner.js';
+import { initializeFormValidation } from './components/form-validation.js';
 
 // Disponibiliza as funções do spinner globalmente
 window.showSpinner = showSpinner;
@@ -20,4 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Inicializa o spinner
   initializeSpinner();
+
+  // Inicializa a validação global de formulários
+  initializeFormValidation();
 });
