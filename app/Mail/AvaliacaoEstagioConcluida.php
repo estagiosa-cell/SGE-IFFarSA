@@ -58,6 +58,7 @@ class AvaliacaoEstagioConcluida extends Mailable
                 'evaluationGrade' => number_format((float) $this->internship->evaluation_grade, 2, ',', '.'),
                 'courseName'     => $this->internship->course?->name ?? 'N/A',
                 'internshipType' => $this->internship->internship_type_name ?? 'N/A',
+                'internshipWeight' => $this->internship->internship_type_weight ?? 'N/A',
             ],
         );
     }

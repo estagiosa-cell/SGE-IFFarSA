@@ -12,7 +12,7 @@ Temos o prazer de informar que a **avaliação do seu estágio** foi registada c
 |:---|:---|
 | **Curso** | {{ $courseName }} |
 | **Tipo de Estágio** | {{ $internshipType }} |
-| **Nota Atribuída** | **{{ $evaluationGrade }}** |
+| **Nota Atribuída** | **{{ $evaluationGrade.'/'.$internshipWeight }}** |
 @endcomponent
 
 ---
