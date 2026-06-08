@@ -25,21 +25,15 @@
 
                     <div class="row m-0 g-3">
                         <div class="col-md-8">
-                            <div class="form-floating">
-                                <select class="form-select" id="document_type" name="document_type" required>
-                                    <option value="" disabled selected>Selecione o tipo de documento</option>
-                                    <option value="termo-compromisso">Termo de Compromisso Padrão</option>
-                                    <option value="termo-emater-rs">Termo de Compromisso EMATER/RS</option>
-                                    <option value="termo-seduc">Termo de Compromisso SEDUC</option>
-                                    <option value="rescisao">Termo de Rescisão de Estágio</option>
-                                    <option value="credenciamento">Termo de Credenciamento</option>
-                                    <option value="termo-aditivo-terceira-clausula">Termo Aditivo - Cláusula Terceira</option>
-                                </select>
-                                <label for="document_type">
-                                    <i class="bi bi-file-earmark-text me-2"></i>Tipo de Documento *
-                                </label>
-                                <div class="invalid-feedback">Por favor, selecione o tipo de documento</div>
-                            </div>
+                            <x-form.select id="document_type" name="document_type" label="Tipo de Documento" icon="bi-file-earmark-text" feedback="Por favor, selecione o tipo de documento" required>
+                                <option value="" disabled selected>Selecione o tipo de documento</option>
+                                <option value="termo-compromisso">Termo de Compromisso Padrão</option>
+                                <option value="termo-emater-rs">Termo de Compromisso EMATER/RS</option>
+                                <option value="termo-seduc">Termo de Compromisso SEDUC</option>
+                                <option value="rescisao">Termo de Rescisão de Estágio</option>
+                                <option value="credenciamento">Termo de Credenciamento</option>
+                                <option value="termo-aditivo-terceira-clausula">Termo Aditivo - Cláusula Terceira</option>
+                            </x-form.select>
                         </div>
                         <div class="col-md-4">
                             <button type="submit" id="generateDocBtn" class="btn btn-primary w-100 h-100">
@@ -222,22 +216,16 @@
                     </div>
                     <div class="row m-0">
                         <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select class="form-select @error('legal_guardian_kinship') is-invalid @enderror"
-                                    id="legal_guardian_kinship" name="legal_guardian_kinship"
-                                    style="{{ $isAdult ? 'display: none;' : '' }}">
+                            <div id="kinship_select_wrapper" style="{{ $isAdult ? 'display: none;' : '' }}">
+                                <x-form.select name="legal_guardian_kinship" label="Parentesco" id="legal_guardian_kinship">
                                     <option value="">Selecione o parentesco</option>
                                     <option value="Pai" {{ old('legal_guardian_kinship', $internship->legal_guardian_kinship) == 'Pai' ? 'selected' : '' }}>Pai</option>
                                     <option value="Mãe" {{ old('legal_guardian_kinship', $internship->legal_guardian_kinship) == 'Mãe' ? 'selected' : '' }}>Mãe</option>
                                     <option value="Outro" {{ old('legal_guardian_kinship', $internship->legal_guardian_kinship) == 'Outro' ? 'selected' : '' }}>Outro</option>
-                                </select>
-                                <input type="text" class="form-control" id="legal_guardian_kinship_readonly"
-                                    readonly value="" placeholder="Não aplicável (maior de idade)"
-                                    style="{{ $isAdult ? '' : 'display: none;' }}">
-                                <label for="legal_guardian_kinship">Parentesco</label>
-                                @error('legal_guardian_kinship')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                </x-form.select>
+                            </div>
+                            <div id="kinship_input_wrapper" style="{{ $isAdult ? '' : 'display: none;' }}">
+                                <x-form.input name="legal_guardian_kinship_readonly" label="Parentesco" id="legal_guardian_kinship_readonly" placeholder="Não aplicável (maior de idade)" readonly />
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -633,23 +621,17 @@
 
                 if (companies && companies.length > 0) {
                     const selectHTML = `
-                        <div class="form-floating">
-                            <select class="form-select" id="company_select" name="company_id" onchange="preencherDadosEmpresa()">
-                                <option value="">Selecione uma empresa</option>
-                                ${companies.map(company =>
-                                    `<option value="${company.id}">${company.name}</option>`
-                                ).join('')}
-                            </select>
-                            <label for="company_select">Empresas encontradas (${companies.length})</label>
-                        </div>
+                        <x-form.select id="company_select" name="company_id" onchange="preencherDadosEmpresa()" label="Empresas encontradas (\${companies.length})">
+                            <option value="">Selecione uma empresa</option>
+                            \${companies.map(company =>
+                                \`<option value="\${company.id}">\${company.name}</option>\`
+                            ).join('')}
+                        </x-form.select>
                     `;
                     selectContainer.innerHTML = selectHTML;
                 } else {
                     const noCompanyHTML = `
-                        <div class="form-floating">
-                            <input type="text" class="form-control" value="Nenhuma empresa encontrada" readonly>
-                            <label>Empresas cadastradas</label>
-                        </div>
+                        <x-form.input name="no_company" id="no_company" value="Nenhuma empresa encontrada" label="Empresas cadastradas" readonly />
                     `;
                     selectContainer.innerHTML = noCompanyHTML;
                 }
@@ -718,20 +700,24 @@
                     legal_guardian_name.value = '';
                     legal_guardian_name.readOnly = true;
                     legal_guardian_name.required = false;
+                    legal_guardian_name.classList.remove('is-invalid');
 
                     legal_guardian_cpf.value = '';
                     legal_guardian_cpf.readOnly = true;
                     legal_guardian_cpf.required = false;
+                    legal_guardian_cpf.classList.remove('is-invalid');
 
                     // Esconde o select e mostra o input readonly
-                    legal_guardian_kinship.style.display = 'none';
+                    document.getElementById('kinship_select_wrapper').style.display = 'none';
                     legal_guardian_kinship.value = '';
                     legal_guardian_kinship.required = false;
-                    legal_guardian_kinship_readonly.style.display = 'block';
+                    legal_guardian_kinship.classList.remove('is-invalid');
+                    document.getElementById('kinship_input_wrapper').style.display = 'block';
 
                     legal_guardian_email.value = '';
                     legal_guardian_email.readOnly = true;
                     legal_guardian_email.required = false;
+                    legal_guardian_email.classList.remove('is-invalid');
                 } else {
                     // Aluno é menor de idade - habilita campos normais
                     legal_guardian_name.readOnly = false;
@@ -741,9 +727,9 @@
                     legal_guardian_cpf.required = true;
 
                     // Mostra o select e esconde o input readonly
-                    legal_guardian_kinship.style.display = 'block';
+                    document.getElementById('kinship_select_wrapper').style.display = 'block';
                     legal_guardian_kinship.required = true;
-                    legal_guardian_kinship_readonly.style.display = 'none';
+                    document.getElementById('kinship_input_wrapper').style.display = 'none';
 
                     legal_guardian_email.readOnly = false;
                     legal_guardian_email.required = true;
