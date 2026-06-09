@@ -44,54 +44,37 @@ class SyncDataController extends Controller
     {
         $this->authorize('viewAny', Internship::class);
 
-        $messages = [];
-        $hasSuccess = false;
+        $syncResult = [
+            'internships' => ['processed' => 0, 'errors' => []],
+            'evaluations' => ['processed' => 0, 'errors' => []],
+            'form'        => false,
+        ];
 
         // Tenta sincronizar os dados de estágios.
         try {
-            $internshipsCount = $this->syncInternshipsData($googleService, $fuzzySearch);
-            if ($internshipsCount > 0) {
-                $messages[] = "{$internshipsCount} novo(s) estágio(s) sincronizado(s)";
-                $hasSuccess = true;
-            }
+            $syncResult['internships'] = $this->syncInternshipsData($googleService, $fuzzySearch);
         } catch (\Exception $e) {
-            // Captura e armazena qualquer erro ocorrido durante a sincronização de estágios.
-            $messages[] = 'Estágios: '.$e->getMessage();
+            $syncResult['internships']['errors'][] = ['line' => null, 'student' => 'Sistema', 'reason' => $e->getMessage()];
         }
 
         // Tenta sincronizar as avaliações de supervisores.
         try {
-            $evaluationsCount = $this->syncSupervisorEvaluations($googleService);
-            if ($evaluationsCount > 0) {
-                $messages[] = "{$evaluationsCount} nova(s) avaliação(ões) sincronizada(s)";
-                $hasSuccess = true;
-            }
+            $syncResult['evaluations'] = $this->syncSupervisorEvaluations($googleService);
         } catch (\Exception $e) {
-            // Captura e armazena qualquer erro ocorrido durante a sincronização de avaliações.
-            $messages[] = 'Avaliações: '.$e->getMessage();
+            $syncResult['evaluations']['errors'][] = ['line' => null, 'student' => 'Sistema', 'reason' => $e->getMessage()];
         }
 
         // Tenta sincronizar a lista de orientadores no formulário.
         try {
             if ($this->syncAdvisorsToForm($googleService)) {
-                $messages[] = 'Lista de orientadores atualizada no formulário';
-                $hasSuccess = true;
+                $syncResult['form'] = true;
             }
         } catch (\Exception $e) {
-            $messages[] = 'Formulário: '.$e->getMessage();
+            // Apenas registra falso se falhar a sincronização do form
+            $syncResult['form'] = false;
         }
 
-        // Monta a mensagem final para o usuário.
-        $finalMessage = empty($messages)
-            ? 'Nenhum dado novo para sincronizar.'
-            : implode(' | ', $messages);
-
-        // Define o tipo de mensagem (sucesso, informação, erro) com base no resultado.
-        $messageType = $hasSuccess ? 'success' : 'info';
-
-        return redirect()->route('admin.dashboard')
-            ->with('message', $finalMessage)
-            ->with('messageType', $messageType);
+        return redirect()->route('admin.dashboard')->with('sync_result', $syncResult);
     }
 
     /**
@@ -108,7 +91,7 @@ class SyncDataController extends Controller
      *
      * @throws \Exception Se ocorrer um erro crítico durante o processo.
      */
-    private function syncInternshipsData(GoogleApiService $googleService, FuzzySearchService $fuzzySearch): int
+    private function syncInternshipsData(GoogleApiService $googleService, FuzzySearchService $fuzzySearch): array
     {
         $spreadsheetId = config('services.google.sheets.data_collection_id');
 
@@ -137,6 +120,7 @@ class SyncDataController extends Controller
 
         $processedCount = 0;
         $updateData = [];
+        $rowErrors = [];
 
         foreach ($rows as $index => $row) {
             $rowNumber = $index + 2; // A contagem de linhas começa em 2.
@@ -247,10 +231,12 @@ class SyncDataController extends Controller
                     $requiredHours = $internshipType->required_hours;
                     $internshipTypeWeight = $internshipType->weight;
                 } else {
-                    throw new \Exception("Nenhum tipo de estágio encontrado para o curso '$nomeCurso' do estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
+                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Nenhum tipo de estágio encontrado para o curso '$nomeCurso'."];
+                    continue;
                 }
             } else {
-                throw new \Exception("Curso '$nomeCurso' não encontrado para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
+                $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Curso '$nomeCurso' não encontrado."];
+                continue;
             }
 
             // Busca o orientador pelo nome, tolerando pequenos erros de digitação (fuzzy search).
@@ -259,7 +245,8 @@ class SyncDataController extends Controller
             $advisorWarning = '';
 
             if (! $result) {
-                throw new \Exception("Orientador '$nomeOrientador' não encontrado para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
+                $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Orientador '$nomeOrientador' não encontrado."];
+                continue;
             }
 
             $orientador = $result['entity'];
@@ -328,7 +315,8 @@ class SyncDataController extends Controller
                 try {
                     $dataNascimento = Carbon::createFromFormat('d/m/Y', $row[12])->startOfDay();
                 } catch (\Exception $e) {
-                    throw new \Exception("Data de nascimento inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
+                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Data de nascimento inválida."];
+                    continue;
                 }
             }
 
@@ -336,7 +324,8 @@ class SyncDataController extends Controller
                 try {
                     $rgDataExpedicao = Carbon::createFromFormat('d/m/Y', $row[15])->startOfDay();
                 } catch (\Exception $e) {
-                    throw new \Exception("Data de expedição do RG inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
+                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Data de expedição do RG inválida."];
+                    continue;
                 }
             }
 
@@ -344,7 +333,8 @@ class SyncDataController extends Controller
                 try {
                     $dataInicioEstagio = Carbon::createFromFormat('d/m/Y', $row[55])->startOfDay();
                 } catch (\Exception $e) {
-                    throw new \Exception("Data de início do estágio inválida para o estagiário '$nomeCompletoEstagiario' na linha $rowNumber.");
+                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Data de início do estágio inválida."];
+                    continue;
                 }
             }
 
@@ -362,11 +352,13 @@ class SyncDataController extends Controller
             $totalWeeklyHours = array_sum($weeklyHours);
 
             if ($totalWeeklyHours > 30) {
-                throw new \Exception("A carga horária semanal do estagiário '$nomeCompletoEstagiario' na linha $rowNumber excede o limite de 30 horas. Total informado: {$totalWeeklyHours} horas.");
+                $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Carga horária semanal excede o limite de 30 horas. Total informado: {$totalWeeklyHours} horas."];
+                continue;
             }
 
             if ($totalWeeklyHours <= 0) {
-                throw new \Exception("A carga horária semanal do estagiário '$nomeCompletoEstagiario' na linha $rowNumber deve ser maior que zero.");
+                $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "A carga horária semanal deve ser maior que zero."];
+                continue;
             }
 
             // Calcula a data de fim do estágio com base na carga horária total e semanal.
@@ -379,7 +371,8 @@ class SyncDataController extends Controller
                         $requiredHours
                     );
                 } catch (\Exception $e) {
-                    throw new \Exception("Erro ao calcular data de fim do estágio para '$nomeCompletoEstagiario' na linha $rowNumber: ".$e->getMessage());
+                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Erro ao calcular data de fim do estágio: ".$e->getMessage()];
+                    continue;
                 }
             }
 
@@ -389,103 +382,107 @@ class SyncDataController extends Controller
             $estagioRemunerado = strtolower($estagioRemunerado) === 'sim';
             $maiorDe18 = strtolower($maiorDe18) === 'sim';
 
-            // Cria o registro de estágio no banco de dados.
-            Internship::create([
-                // Dados do estudante
-                'student_name' => $nomeCompletoEstagiario,
-                'student_email' => $emailEstagiario,
-                'student_registration_number' => $matricula,
-                'student_year_semester' => $anoSemestre,
-                'student_birth_date' => $dataNascimento,
-                'student_is_adult' => $maiorDe18,
-                'student_rg' => $rg,
-                'student_rg_issuer' => $rgOrgaoExpedidor,
-                'student_rg_issue_date' => $rgDataExpedicao,
-                'student_cpf' => $cpfEstagiario,
-                'student_phone' => $telefoneEstagiario,
-                'student_address_street' => $enderecoRuaEstagiario,
-                'student_address_number' => $enderecoNumeroEstagiario,
-                'student_address_neighborhood' => $enderecoBairroEstagiario,
-                'student_address_city' => $cidadeEstagiario,
-                'student_address_state' => $ufEstagiario,
-                'student_address_zip' => $cepEstagiario,
+            try {
+                // Cria o registro de estágio no banco de dados.
+                Internship::create([
+                    // Dados do estudante
+                    'student_name' => $nomeCompletoEstagiario,
+                    'student_email' => $emailEstagiario,
+                    'student_registration_number' => $matricula,
+                    'student_year_semester' => $anoSemestre,
+                    'student_birth_date' => $dataNascimento,
+                    'student_is_adult' => $maiorDe18,
+                    'student_rg' => $rg,
+                    'student_rg_issuer' => $rgOrgaoExpedidor,
+                    'student_rg_issue_date' => $rgDataExpedicao,
+                    'student_cpf' => $cpfEstagiario,
+                    'student_phone' => $telefoneEstagiario,
+                    'student_address_street' => $enderecoRuaEstagiario,
+                    'student_address_number' => $enderecoNumeroEstagiario,
+                    'student_address_neighborhood' => $enderecoBairroEstagiario,
+                    'student_address_city' => $cidadeEstagiario,
+                    'student_address_state' => $ufEstagiario,
+                    'student_address_zip' => $cepEstagiario,
 
-                // Dados do responsável legal
-                'legal_guardian_name' => $nomeResponsavelLegal,
-                'legal_guardian_cpf' => $cpfResponsavelLegal,
-                'legal_guardian_kinship' => $parentescoResponsavelLegal,
-                'legal_guardian_email' => $emailResponsavelLegal,
+                    // Dados do responsável legal
+                    'legal_guardian_name' => $nomeResponsavelLegal,
+                    'legal_guardian_cpf' => $cpfResponsavelLegal,
+                    'legal_guardian_kinship' => $parentescoResponsavelLegal,
+                    'legal_guardian_email' => $emailResponsavelLegal,
 
-                // Dados do estágio
-                'internship_type_name' => $internshipTypeName,
-                'internship_sector' => $setorEstagio,
-                'activities' => $atividadesPrevistas,
-                'start_date' => $dataInicioEstagio,
-                'end_date' => $dataFimEstagio,
-                'status' => InternshipStatus::PENDING,
-                'notes' => $observacoes,
-                'required_hours' => $requiredHours,
-                'internship_type_weight' => $internshipTypeWeight,
-                'great_value' => $internshipType->great_value,
-                'very_good_value' => $internshipType->very_good_value,
-                'good_value' => $internshipType->good_value,
-                'satisfactory_value' => $internshipType->satisfactory_value,
-                'unsatisfactory_value' => $internshipType->unsatisfactory_value,
+                    // Dados do estágio
+                    'internship_type_name' => $internshipTypeName,
+                    'internship_sector' => $setorEstagio,
+                    'activities' => $atividadesPrevistas,
+                    'start_date' => $dataInicioEstagio,
+                    'end_date' => $dataFimEstagio,
+                    'status' => InternshipStatus::PENDING,
+                    'notes' => $observacoes,
+                    'required_hours' => $requiredHours,
+                    'internship_type_weight' => $internshipTypeWeight,
+                    'great_value' => $internshipType->great_value,
+                    'very_good_value' => $internshipType->very_good_value,
+                    'good_value' => $internshipType->good_value,
+                    'satisfactory_value' => $internshipType->satisfactory_value,
+                    'unsatisfactory_value' => $internshipType->unsatisfactory_value,
 
-                // Dados do supervisor
-                'supervisor_name' => $nomeSupervisor,
-                'supervisor_phone' => $telefoneSupervisor,
-                'supervisor_email' => $emailSupervisor,
-                'supervisor_role' => $cargoSupervisor,
-                'supervisor_qualification' => $formacaoSupervisorPossui,
-                'supervisor_training' => $formacaoDescricaoSupervisor,
-                'supervisor_experience' => $experienciaSupervisor,
+                    // Dados do supervisor
+                    'supervisor_name' => $nomeSupervisor,
+                    'supervisor_phone' => $telefoneSupervisor,
+                    'supervisor_email' => $emailSupervisor,
+                    'supervisor_role' => $cargoSupervisor,
+                    'supervisor_qualification' => $formacaoSupervisorPossui,
+                    'supervisor_training' => $formacaoDescricaoSupervisor,
+                    'supervisor_experience' => $experienciaSupervisor,
 
-                // Carga Horária
-                'hours_sunday' => $horasDomingo,
-                'hours_monday' => $horasSegunda,
-                'hours_tuesday' => $horasTerca,
-                'hours_wednesday' => $horasQuarta,
-                'hours_thursday' => $horasQuinta,
-                'hours_friday' => $horasSexta,
-                'hours_saturday' => $horasSabado,
+                    // Carga Horária
+                    'hours_sunday' => $horasDomingo,
+                    'hours_monday' => $horasSegunda,
+                    'hours_tuesday' => $horasTerca,
+                    'hours_wednesday' => $horasQuarta,
+                    'hours_thursday' => $horasQuinta,
+                    'hours_friday' => $horasSexta,
+                    'hours_saturday' => $horasSabado,
 
-                // Remuneração
-                'is_remunerated' => $estagioRemunerado,
-                'grant_value' => $valorBolsa,
-                'transportation_allowance' => $valorAuxilioTransporte,
+                    // Remuneração
+                    'is_remunerated' => $estagioRemunerado,
+                    'grant_value' => $valorBolsa,
+                    'transportation_allowance' => $valorAuxilioTransporte,
 
-                // Dados da parte concedente
-                'company_legal_identifier' => $identificadorLegal,
-                'company_name' => $razaoSocialConcedente,
-                'company_phone' => $telefoneConcedente,
-                'company_email' => $emailConcedente,
-                'company_address_street' => $enderecoRuaConcedente,
-                'company_address_number' => $enderecoNumeroConcedente,
-                'company_address_neighborhood' => $enderecoBairroConcedente,
-                'company_address_city' => $cidadeConcedente,
-                'company_address_state' => $ufConcedente,
-                'company_address_zip' => $cepConcedente,
-                'company_representative_name' => $nomeRepresentanteConcedente,
-                'company_representative_role' => $cargoRepresentanteConcedente,
-                'field_of_activity' => $areaDeAtuacao,
-                'professional_council' => $registroConselhoProfissional,
-                'council_registration_number' => $numeroRegistroConselho,
-                'process_number' => $numeroProcesso,
+                    // Dados da parte concedente
+                    'company_legal_identifier' => $identificadorLegal,
+                    'company_name' => $razaoSocialConcedente,
+                    'company_phone' => $telefoneConcedente,
+                    'company_email' => $emailConcedente,
+                    'company_address_street' => $enderecoRuaConcedente,
+                    'company_address_number' => $enderecoNumeroConcedente,
+                    'company_address_neighborhood' => $enderecoBairroConcedente,
+                    'company_address_city' => $cidadeConcedente,
+                    'company_address_state' => $ufConcedente,
+                    'company_address_zip' => $cepConcedente,
+                    'company_representative_name' => $nomeRepresentanteConcedente,
+                    'company_representative_role' => $cargoRepresentanteConcedente,
+                    'field_of_activity' => $areaDeAtuacao,
+                    'professional_council' => $registroConselhoProfissional,
+                    'council_registration_number' => $numeroRegistroConselho,
+                    'process_number' => $numeroProcesso,
 
-                // Chaves Estrangeiras
-                'advisor_id' => $orientador->id,
-                'course_id' => $curso->id,
-            ]);
+                    // Chaves Estrangeiras
+                    'advisor_id' => $orientador->id,
+                    'course_id' => $curso->id,
+                ]);
 
-            $processedCount++;
+                $processedCount++;
 
-            // Adiciona a linha para o batchUpdate da planilha
-            $updateRange = "'Respostas ao formulário 1'!BJ".$rowNumber;
-            $updateData[] = new \Google_Service_Sheets_ValueRange([
-                'range' => $updateRange,
-                'values' => [[1]],
-            ]);
+                // Adiciona a linha para o batchUpdate da planilha
+                $updateRange = "'Respostas ao formulário 1'!BJ".$rowNumber;
+                $updateData[] = new \Google_Service_Sheets_ValueRange([
+                    'range' => $updateRange,
+                    'values' => [[1]],
+                ]);
+            } catch (\Exception $e) {
+                $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Falha ao salvar no banco: " . $e->getMessage()];
+            }
         }
 
         // Executa todas as atualizações na planilha em uma única requisição (Batch Update)
@@ -497,7 +494,7 @@ class SyncDataController extends Controller
             $service->spreadsheets_values->batchUpdate($spreadsheetId, $batchUpdateRequest);
         }
 
-        return $processedCount;
+        return ['processed' => $processedCount, 'errors' => $rowErrors];
     }
 
     /**
@@ -512,7 +509,7 @@ class SyncDataController extends Controller
      *
      * @throws \Exception Se o ID da planilha não estiver configurado.
      */
-    private function syncSupervisorEvaluations(GoogleApiService $googleService): int
+    private function syncSupervisorEvaluations(GoogleApiService $googleService): array
     {
         $spreadsheetId = config('services.google.sheets.supervisor_evaluation_id');
 
@@ -535,6 +532,7 @@ class SyncDataController extends Controller
         $processedCount = 0;
         $updateData = [];
         $evaluationsToInsert = [];
+        $rowErrors = [];
 
         foreach ($rows as $index => $row) {
             // Se a coluna de controle 'Z' (índice 25) estiver marcada com '1', pula a linha.
@@ -575,49 +573,47 @@ class SyncDataController extends Controller
             // Usa o cargo que estiver preenchido, com prioridade para o primeiro campo.
             $jobRole = ! empty($jobRole1) ? $jobRole1 : $jobRole2;
 
-            // Acumula o registro para inserção em batch (ao invés de create() individual).
-            $evaluationsToInsert[] = [
-                'supervisor_email' => $supervisorEmail,
-                'student_name' => $studentName,
-                'supervisor_name' => $supervisorName,
-                'has_academic_background' => $hasAcademicBackground,
-                'completed_workload' => $completedWorkload,
-                'training_course' => $trainingCourse,
-                'education_level' => $educationLevel,
-                'job_role' => $jobRole,
-                'experience_time' => $experienceTime,
-                'performance' => $performance,
-                'comprehension' => $comprehension,
-                'technical_knowledge' => $technicalKnowledge,
-                'organization' => $organization,
-                'initiative' => $initiative,
-                'attendance' => $attendance,
-                'discipline' => $discipline,
-                'sociability' => $sociability,
-                'cooperation' => $cooperation,
-                'responsibility' => $responsibility,
-                'considerations' => $considerations,
-                'suggestions_to_institution' => $suggestionsToInstitution,
-                'performance_issues' => $performanceIssues,
-                'other_observations' => $otherObservations,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-
-            // Adiciona a linha para o batchUpdate da planilha
             $rowNumber = $index + 2;
-            $updateRange = "'Respostas ao formulário 1'!Z{$rowNumber}";
-            $updateData[] = new \Google_Service_Sheets_ValueRange([
-                'range' => $updateRange,
-                'values' => [[1]],
-            ]);
 
-            $processedCount++;
-        }
+            try {
+                // Cria o registro individualmente para tratar falhas por linha
+                SupervisorEvaluation::create([
+                    'supervisor_email' => $supervisorEmail,
+                    'student_name' => $studentName,
+                    'supervisor_name' => $supervisorName,
+                    'has_academic_background' => $hasAcademicBackground,
+                    'completed_workload' => $completedWorkload,
+                    'training_course' => $trainingCourse,
+                    'education_level' => $educationLevel,
+                    'job_role' => $jobRole,
+                    'experience_time' => $experienceTime,
+                    'performance' => $performance,
+                    'comprehension' => $comprehension,
+                    'technical_knowledge' => $technicalKnowledge,
+                    'organization' => $organization,
+                    'initiative' => $initiative,
+                    'attendance' => $attendance,
+                    'discipline' => $discipline,
+                    'sociability' => $sociability,
+                    'cooperation' => $cooperation,
+                    'responsibility' => $responsibility,
+                    'considerations' => $considerations,
+                    'suggestions_to_institution' => $suggestionsToInstitution,
+                    'performance_issues' => $performanceIssues,
+                    'other_observations' => $otherObservations,
+                ]);
 
-        // Insere todas as avaliações em uma única operação de batch.
-        if (! empty($evaluationsToInsert)) {
-            SupervisorEvaluation::insert($evaluationsToInsert);
+                // Adiciona a linha para o batchUpdate da planilha se a inserção for bem sucedida
+                $updateRange = "'Respostas ao formulário 1'!Z{$rowNumber}";
+                $updateData[] = new \Google_Service_Sheets_ValueRange([
+                    'range' => $updateRange,
+                    'values' => [[1]],
+                ]);
+
+                $processedCount++;
+            } catch (\Exception $e) {
+                $rowErrors[] = ['line' => $rowNumber, 'student' => $studentName ?: 'Desconhecido', 'reason' => "Falha ao salvar no banco: " . $e->getMessage()];
+            }
         }
 
         // Executa todas as atualizações na planilha em uma única requisição (Batch Update)
@@ -629,7 +625,7 @@ class SyncDataController extends Controller
             $service->spreadsheets_values->batchUpdate($spreadsheetId, $batchUpdateRequest);
         }
 
-        return $processedCount;
+        return ['processed' => $processedCount, 'errors' => $rowErrors];
     }
 
     /**

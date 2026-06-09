@@ -314,4 +314,168 @@
             </div>
         </div>
     </div>
+
+    {{-- Sincronização Feedback --}}
+    @if(session('sync_result'))
+        @php
+            $sync = session('sync_result');
+            $totalProcessed = ($sync['internships']['processed'] ?? 0) + ($sync['evaluations']['processed'] ?? 0);
+            $totalErrors = count($sync['internships']['errors'] ?? []) + count($sync['evaluations']['errors'] ?? []);
+        @endphp
+
+        @if($totalProcessed === 0 && $totalErrors === 0 && empty($sync['form']))
+            {{-- Toast --}}
+            <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+                <div id="syncToast" class="toast align-items-center text-white bg-info border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            Nenhum dado novo para sincronizar.
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var toastEl = document.getElementById('syncToast');
+                    var toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+                });
+            </script>
+        @else
+            {{-- Modal --}}
+            @php
+                $headerClass = 'bg-success text-white'; // No errors
+                if ($totalErrors > 0 && $totalProcessed > 0) {
+                    $headerClass = 'bg-warning text-dark'; // Mixed
+                } elseif ($totalErrors > 0 && $totalProcessed === 0) {
+                    $headerClass = 'bg-danger text-white'; // All failed
+                }
+            @endphp
+            <div class="modal fade" id="syncModal" tabindex="-1" aria-labelledby="syncModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header {{ $headerClass }}">
+                            <h5 class="modal-title" id="syncModalLabel">Resultado da Sincronização</h5>
+                            <button type="button" class="btn-close {{ $headerClass === 'bg-warning text-dark' ? '' : 'btn-close-white' }}" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <style>
+                                .sync-error-container {
+                                    background-color: #f8f9fa;
+                                    border: 1px solid #e9ecef;
+                                    border-radius: 0.5rem;
+                                    padding: 1rem;
+                                }
+                                .sync-error-grid {
+                                    display: grid;
+                                    grid-template-columns: 80px 1.5fr 2.5fr;
+                                    column-gap: 1rem;
+                                    row-gap: 0.5rem;
+                                    align-items: center;
+                                }
+                                .sync-error-header {
+                                    font-size: 0.8rem;
+                                    font-weight: 700;
+                                    text-transform: uppercase;
+                                    color: #6c757d;
+                                    border-bottom: 2px solid #dee2e6;
+                                    padding-bottom: 0.5rem;
+                                    margin-bottom: 0.5rem;
+                                }
+                                .sync-error-row {
+                                    display: contents;
+                                }
+                                .sync-error-cell {
+                                    padding: 0.5rem 0;
+                                    font-size: 0.9rem;
+                                    border-bottom: 1px dashed #dee2e6;
+                                }
+                                .sync-error-row:last-child .sync-error-cell {
+                                    border-bottom: none;
+                                }
+                                .sync-error-reason {
+                                    color: #dc3545;
+                                    background-color: rgba(220, 53, 69, 0.1);
+                                    padding: 0.35rem 0.65rem;
+                                    border-radius: 0.375rem;
+                                    font-size: 0.85rem;
+                                    display: inline-block;
+                                }
+                            </style>
+                            
+                            {{-- Estágios --}}
+                            <h6>Estágios sincronizados</h6>
+                            <p>{{ $sync['internships']['processed'] ?? 0 }} registro(s) importado(s) com sucesso.</p>
+                            @if(count($sync['internships']['errors'] ?? []) > 0)
+                                <div class="sync-error-container mb-4">
+                                    <div class="sync-error-grid">
+                                        <div class="sync-error-header">Linha</div>
+                                        <div class="sync-error-header">Estagiário</div>
+                                        <div class="sync-error-header">Motivo do Erro</div>
+
+                                        @foreach($sync['internships']['errors'] as $err)
+                                            <div class="sync-error-row">
+                                                <div class="sync-error-cell">
+                                                    <span class="badge bg-secondary rounded-pill">#{{ $err['line'] ?? '-' }}</span>
+                                                </div>
+                                                <div class="sync-error-cell fw-semibold text-dark">
+                                                    {{ $err['student'] ?? '-' }}
+                                                </div>
+                                                <div class="sync-error-cell">
+                                                    <span class="sync-error-reason"><i class="bi bi-exclamation-triangle me-1"></i> {{ $err['reason'] ?? '-' }}</span>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Avaliações --}}
+                            <h6 class="mt-4">Avaliações sincronizadas</h6>
+                            <p>{{ $sync['evaluations']['processed'] ?? 0 }} avaliação(ões) importada(s) com sucesso.</p>
+                            @if(count($sync['evaluations']['errors'] ?? []) > 0)
+                                <div class="sync-error-container mb-4">
+                                    <div class="sync-error-grid">
+                                        <div class="sync-error-header">Linha</div>
+                                        <div class="sync-error-header">Estagiário</div>
+                                        <div class="sync-error-header">Motivo do Erro</div>
+
+                                        @foreach($sync['evaluations']['errors'] as $err)
+                                            <div class="sync-error-row">
+                                                <div class="sync-error-cell">
+                                                    <span class="badge bg-secondary rounded-pill">#{{ $err['line'] ?? '-' }}</span>
+                                                </div>
+                                                <div class="sync-error-cell fw-semibold text-dark">
+                                                    {{ $err['student'] ?? '-' }}
+                                                </div>
+                                                <div class="sync-error-cell">
+                                                    <span class="sync-error-reason"><i class="bi bi-exclamation-triangle me-1"></i> {{ $err['reason'] ?? '-' }}</span>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Form --}}
+                            @if(!empty($sync['form']))
+                                <h6 class="mt-4">Formulário</h6>
+                                <p>Lista de orientadores atualizada.</p>
+                            @endif
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var myModal = new bootstrap.Modal(document.getElementById('syncModal'));
+                    myModal.show();
+                });
+            </script>
+        @endif
+    @endif
 @endsection
