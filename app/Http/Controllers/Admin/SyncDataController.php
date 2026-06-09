@@ -45,8 +45,8 @@ class SyncDataController extends Controller
         $this->authorize('viewAny', Internship::class);
 
         $syncResult = [
-            'internships' => ['processed' => 0, 'errors' => []],
-            'evaluations' => ['processed' => 0, 'errors' => []],
+            'internships' => ['processed' => 0, 'errors' => [], 'warnings' => []],
+            'evaluations' => ['processed' => 0, 'errors' => [], 'warnings' => []],
             'form'        => false,
         ];
 
@@ -121,6 +121,7 @@ class SyncDataController extends Controller
         $processedCount = 0;
         $updateData = [];
         $rowErrors = [];
+        $rowWarnings = [];
 
         foreach ($rows as $index => $row) {
             $rowNumber = $index + 2; // A contagem de linhas começa em 2.
@@ -258,6 +259,7 @@ class SyncDataController extends Controller
 
             if ($advisorWarning) {
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '').$advisorWarning;
+                $rowWarnings[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'message' => $advisorWarning];
             }
 
             // Busca os dados da parte concedente (empresa) na coleção pré-carregada (sem query).
@@ -302,13 +304,15 @@ class SyncDataController extends Controller
                 $numeroProcesso = $parteConcedente->process_number ?? null;
             } elseif ($partesConcedentes->count() > 1) {
                 // Múltiplos resultados: adiciona um aviso.
-                $observacoes = ($observacoes ? $observacoes."\n\n" : '').
-                    "ATENÇÃO: Múltiplas empresas encontradas com o CNPJ/CPF {$identificadorLegal}. Seleção manual necessária.";
+                $warningMsg = "Múltiplas empresas encontradas com o CNPJ/CPF {$identificadorLegal}. Seleção manual necessária.";
+                $observacoes = ($observacoes ? $observacoes."\n\n" : '')."ATENÇÃO: ".$warningMsg;
+                $rowWarnings[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'message' => $warningMsg];
             } else {
                 // Nenhum resultado: adiciona um aviso.
                 $nomeEmpresaForm = $row[28] ?? 'Não informado';
-                $observacoes = ($observacoes ? $observacoes."\n\n" : '').
-                    "ATENÇÃO: Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário. Nome informado: {$nomeEmpresaForm}";
+                $warningMsg = "Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário. Nome informado: {$nomeEmpresaForm}";
+                $observacoes = ($observacoes ? $observacoes."\n\n" : '')."ATENÇÃO: ".$warningMsg;
+                $rowWarnings[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'message' => $warningMsg];
             }
 
             if ($row[12]) {
@@ -494,7 +498,7 @@ class SyncDataController extends Controller
             $service->spreadsheets_values->batchUpdate($spreadsheetId, $batchUpdateRequest);
         }
 
-        return ['processed' => $processedCount, 'errors' => $rowErrors];
+        return ['processed' => $processedCount, 'errors' => $rowErrors, 'warnings' => $rowWarnings];
     }
 
     /**
@@ -533,6 +537,7 @@ class SyncDataController extends Controller
         $updateData = [];
         $evaluationsToInsert = [];
         $rowErrors = [];
+        $rowWarnings = [];
 
         foreach ($rows as $index => $row) {
             // Se a coluna de controle 'Z' (índice 25) estiver marcada com '1', pula a linha.
@@ -625,7 +630,7 @@ class SyncDataController extends Controller
             $service->spreadsheets_values->batchUpdate($spreadsheetId, $batchUpdateRequest);
         }
 
-        return ['processed' => $processedCount, 'errors' => $rowErrors];
+        return ['processed' => $processedCount, 'errors' => $rowErrors, 'warnings' => $rowWarnings];
     }
 
     /**
