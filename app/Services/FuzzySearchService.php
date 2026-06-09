@@ -46,18 +46,47 @@ class FuzzySearchService
         $exactQuery = clone $query;
         if (DB::getDriverName() === 'pgsql') {
             $exactQuery = SearchHelper::applyUnaccentSearchIfSupported($exactQuery, $searchTerm, $searchField);
-            $exactMatch = $exactQuery->first();
+            $likeMatches = $exactQuery->get();
         } else {
-            $exactMatch = $exactQuery->where($searchField, 'LIKE', "%{$searchTerm}%")->first();
+            $likeMatches = $exactQuery->where($searchField, 'LIKE', "%{$searchTerm}%")->get();
         }
 
-        // Se encontrou uma correspondência direta no banco, retorna imediatamente.
-        if ($exactMatch) {
-            return [
-                'entity' => $exactMatch,
-                'warning' => null,
-                'exact_match' => true,
-            ];
+        // Se encontrou correspondências diretas ou parciais no banco
+        if ($likeMatches->count() > 0) {
+            $normalizedSearchTerm = SearchHelper::normalize($searchTerm);
+            
+            // Verifica se alguma correspondência é exata (ignorando case e acentos)
+            $exactMatches = $likeMatches->filter(function ($entity) use ($searchField, $normalizedSearchTerm) {
+                return SearchHelper::normalize($entity->{$searchField}) === $normalizedSearchTerm;
+            });
+
+            // Se achou exatamente 1 match perfeito, retorna ele sem aviso.
+            if ($exactMatches->count() === 1) {
+                return [
+                    'entity' => $exactMatches->first(),
+                    'warning' => null,
+                    'exact_match' => true,
+                ];
+            } elseif ($exactMatches->count() > 1) {
+                // Ambiguidade severa (múltiplas pessoas com o mesmíssimo nome). Falha proposital.
+                return null;
+            }
+
+            // Se não houve match 100% exato, mas houve match parcial (substring):
+            if ($likeMatches->count() === 1) {
+                $bestMatch = $likeMatches->first();
+                $originalField = $bestMatch->{$searchField};
+                return [
+                    'entity' => $bestMatch,
+                    'warning' => "O nome informado ('$searchTerm') foi vinculado ao orientador '$originalField'.",
+                    'exact_match' => false,
+                    'similarity' => 1.0,
+                ];
+            } elseif ($likeMatches->count() > 1) {
+                // Múltiplos orientadores contém o termo (ex: "cleiton" bate em "Cleiton Silva" e "Cleiton Moura").
+                // Como não sabemos qual é o correto, consideramos ambíguo e forçamos o erro.
+                return null;
+            }
         }
 
         // Etapa 2: busca por pedaços do termo (ex: "João Silva" vira ["João", "Silva"]).
