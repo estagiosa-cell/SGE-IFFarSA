@@ -29,11 +29,11 @@ class GetGoogleFormIdsCommand extends Command
         // Ativa a flag no cache
         Cache::put('google_id_route_enabled', true);
 
-        $this->info("=== Rota Temporária Liberada ===");
-        $this->info("A rota para visualizar os IDs das perguntas do formulário está ATIVA.");
-        $this->info("Acesse no seu navegador (logado como administrador):");
-        $this->line(url('/idform') . "\n");
-        $this->warn("Pressione Ctrl+C para encerrar o comando e desativar a rota.");
+        $this->info('=== Rota Temporária Liberada ===');
+        $this->info('A rota para visualizar os IDs das perguntas do formulário está ATIVA.');
+        $this->info('Acesse no seu navegador (logado como administrador):');
+        $this->line(url('/idform')."\n");
+        $this->warn('Pressione Ctrl+C para encerrar o comando e desativar a rota.');
 
         // Registra o tratador de sinal para remover o cache quando o usuário pressionar Ctrl+C
         $this->trap([SIGINT, SIGTERM], function () {

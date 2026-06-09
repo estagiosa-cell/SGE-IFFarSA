@@ -660,7 +660,7 @@ class SyncDataController extends Controller
         foreach ($form->getItems() as $index => $item) {
             if ($item->getItemId() == $questionId) {
                 $itemIndex = $index;
-                
+
                 // Extrai as opções atuais para evitar atualizações redundantes
                 $questionItem = $item->getQuestionItem();
                 if ($questionItem && $questionItem->getQuestion() && $questionItem->getQuestion()->getChoiceQuestion()) {
@@ -690,7 +690,7 @@ class SyncDataController extends Controller
             return false;
         }
 
-        // Se a lista do formulário já for exatamente igual à lista do banco, 
+        // Se a lista do formulário já for exatamente igual à lista do banco,
         // aborta a atualização para economizar cota e tempo da API.
         if ($currentOptions === $advisors) {
             return true;

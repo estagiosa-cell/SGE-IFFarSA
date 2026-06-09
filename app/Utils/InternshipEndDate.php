@@ -17,7 +17,7 @@ class InternshipEndDate
      *
      * Inclui feriados nacionais fixos e móveis (baseados na Páscoa).
      *
-     * @param int $year O ano para o qual calcular os feriados.
+     * @param  int  $year  O ano para o qual calcular os feriados.
      * @return array Array de objetos Carbon representando os feriados.
      */
     public static function getBrazilianHolidays(int $year): array
@@ -52,7 +52,7 @@ class InternshipEndDate
     /**
      * Calcula a data da Páscoa para um ano específico usando o algoritmo de Meeus/Jones/Butcher.
      *
-     * @param int $year O ano para o qual calcular a Páscoa.
+     * @param  int  $year  O ano para o qual calcular a Páscoa.
      * @return \Carbon\Carbon A data da Páscoa.
      */
     public static function calculateEaster(int $year): Carbon
@@ -79,7 +79,7 @@ class InternshipEndDate
     /**
      * Verifica se uma data é feriado brasileiro.
      *
-     * @param \Carbon\Carbon $date A data a ser verificada.
+     * @param  \Carbon\Carbon  $date  A data a ser verificada.
      * @return bool True se for feriado, false caso contrário.
      */
     public static function isHoliday(Carbon $date): bool
@@ -104,10 +104,11 @@ class InternshipEndDate
      * - Distribuição das horas por dia da semana
      * - Adiciona uma semana extra como margem de segurança
      *
-     * @param \Carbon\Carbon $startDate Data de início do estágio.
-     * @param array $weeklyHours Array com as horas por dia da semana [domingo, segunda, ..., sábado].
-     * @param int $requiredHours Total de horas necessárias para completar o estágio.
+     * @param  \Carbon\Carbon  $startDate  Data de início do estágio.
+     * @param  array  $weeklyHours  Array com as horas por dia da semana [domingo, segunda, ..., sábado].
+     * @param  int  $requiredHours  Total de horas necessárias para completar o estágio.
      * @return \Carbon\Carbon A data calculada de término do estágio.
+     *
      * @throws \InvalidArgumentException Se a carga horária for inválida.
      */
     public static function calculateInternshipEndDate(Carbon $startDate, array $weeklyHours, int $requiredHours): Carbon
@@ -144,7 +145,7 @@ class InternshipEndDate
 
             // Só adiciona horas se não for feriado e houver horas definidas para esse dia.
             // Permite estágio em fins de semana se houver horas configuradas.
-            if (!self::isHoliday($currentDate) && $hoursForDay > 0) {
+            if (! self::isHoliday($currentDate) && $hoursForDay > 0) {
                 $accumulatedHours += $hoursForDay;
             }
 
@@ -163,7 +164,7 @@ class InternshipEndDate
             $hoursForDay = $dayToHoursMap[$dayOfWeek];
 
             // Se o dia tem carga horária configurada e não é feriado, pode terminar aqui.
-            if ($hoursForDay > 0 && !self::isHoliday($endDate)) {
+            if ($hoursForDay > 0 && ! self::isHoliday($endDate)) {
                 break;
             }
 

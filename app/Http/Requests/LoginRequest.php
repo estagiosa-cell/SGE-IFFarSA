@@ -42,7 +42,6 @@ class LoginRequest extends FormRequest
      *
      * Verifica se as credenciais são válidas e se o usuário está ativo no sistema.
      *
-     * @return void
      * @throws \Illuminate\Validation\ValidationException Se as credenciais forem inválidas ou o usuário estiver desativado.
      */
     public function authenticate(): void

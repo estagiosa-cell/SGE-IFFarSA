@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Backup;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class CreateBackupRequest extends FormRequest
 {

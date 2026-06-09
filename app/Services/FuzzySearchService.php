@@ -64,9 +64,9 @@ class FuzzySearchService
         $nameParts = array_filter(preg_split('/\s+/', $searchTerm));
         $possibleEntities = collect();
 
-        $validParts = array_filter($nameParts, fn($part) => mb_strlen($part) > 2);
+        $validParts = array_filter($nameParts, fn ($part) => mb_strlen($part) > 2);
 
-        if (!empty($validParts)) {
+        if (! empty($validParts)) {
             $q = $model::query();
 
             foreach ($additionalWhere as $field => $value) {
@@ -76,7 +76,7 @@ class FuzzySearchService
             $q->where(function ($query) use ($validParts, $searchField) {
                 foreach ($validParts as $index => $part) {
                     $method = $index === 0 ? 'where' : 'orWhere';
-                    
+
                     if (DB::getDriverName() === 'pgsql') {
                         $query->{$method}(function ($sub) use ($part, $searchField) {
                             SearchHelper::applyUnaccentSearchIfSupported($sub, $part, $searchField);

@@ -45,11 +45,11 @@ class TeachingDirectorController extends Controller
 
         // Inicia a query com os relacionamentos necessários
         $query = Internship::select([
-                'id', 'student_name', 'student_email', 'student_registration_number',
-                'status', 'start_date', 'end_date',
-                'advisor_id', 'course_id', 'company_name',
-                'company_legal_identifier', 'deleted_at', 'updated_at', 'internship_type_name',
-            ])
+            'id', 'student_name', 'student_email', 'student_registration_number',
+            'status', 'start_date', 'end_date',
+            'advisor_id', 'course_id', 'company_name',
+            'company_legal_identifier', 'deleted_at', 'updated_at', 'internship_type_name',
+        ])
             ->with(['advisor:id,name', 'course:id,name']);
 
         // Aplica os filtros padrão da requisição
@@ -123,10 +123,10 @@ class TeachingDirectorController extends Controller
         $internship = Internship::select([
             'id', 'student_name', 'student_registration_number', 'student_email', 'student_year_semester',
             'status', 'start_date', 'end_date', 'required_hours', 'internship_type_name',
-            'advisor_id', 'course_id', 'company_name', 'company_address_city'
+            'advisor_id', 'course_id', 'company_name', 'company_address_city',
         ])
-        ->with(['advisor:id,name', 'course:id,name'])
-        ->findOrFail($id);
+            ->with(['advisor:id,name', 'course:id,name'])
+            ->findOrFail($id);
 
         $this->authorize('view', $internship);
 

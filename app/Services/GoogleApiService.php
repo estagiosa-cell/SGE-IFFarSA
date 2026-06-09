@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use Google_Client;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Serviço para gerenciar a integração com as APIs do Google.
@@ -16,8 +16,6 @@ class GoogleApiService
 {
     /**
      * Instância do cliente da API do Google.
-     *
-     * @var \Google_Client
      */
     public Google_Client $client;
 
@@ -30,7 +28,7 @@ class GoogleApiService
      */
     public function __construct()
     {
-        $this->client = new Google_Client();
+        $this->client = new Google_Client;
         $this->client->setClientId(config('services.google.client_id'));
         $this->client->setClientSecret(config('services.google.client_secret'));
         $this->client->setRedirectUri(config('services.google.redirect'));
@@ -52,8 +50,6 @@ class GoogleApiService
      *
      * Tenta obter um novo access_token usando o refresh_token armazenado.
      * Se a renovação falhar, chama o método de tratamento de falha.
-     *
-     * @return void
      */
     protected function refreshToken(): void
     {
@@ -63,7 +59,7 @@ class GoogleApiService
             // Tenta obter um novo access_token com o refresh_token.
             $newToken = $this->client->fetchAccessTokenWithRefreshToken($refreshToken);
 
-            if (!isset($newToken['error'])) {
+            if (! isset($newToken['error'])) {
                 // Preserva o refresh_token no novo token, pois nem sempre é retornado.
                 $newToken['refresh_token'] = $refreshToken;
                 $this->client->setAccessToken($newToken);
@@ -82,8 +78,6 @@ class GoogleApiService
      *
      * Desloga o usuário, invalida a sessão e redireciona para a página de login
      * com uma mensagem informando que a sessão do Google expirou.
-     *
-     * @return void
      */
     protected function handleTokenFailure(): void
     {

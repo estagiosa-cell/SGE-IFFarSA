@@ -39,8 +39,6 @@ class InternshipViewController extends Controller
         $statusOptions = InternshipStatus::options();
         $orderBy = $request->get('order_by', 'status_priority'); // Padrão: ordenação por prioridade de status
 
-
-
         if ($user->can('is-orientador')) {
             // Orientadores veem apenas os estágios que eles orientam.
             $query = $user->advisedInternships();
@@ -52,11 +50,11 @@ class InternshipViewController extends Controller
 
             // Aplica ordenação
             $query = $query->select([
-                    'id', 'student_name', 'student_email', 'student_registration_number',
-                    'status', 'start_date', 'end_date',
-                    'advisor_id', 'course_id', 'company_name',
-                    'company_legal_identifier', 'updated_at', 'supervisor_name',
-                ])
+                'id', 'student_name', 'student_email', 'student_registration_number',
+                'status', 'start_date', 'end_date',
+                'advisor_id', 'course_id', 'company_name',
+                'company_legal_identifier', 'updated_at', 'supervisor_name',
+            ])
                 ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);
 
@@ -88,11 +86,11 @@ class InternshipViewController extends Controller
 
             // Aplica ordenação
             $query = $query->select([
-                    'id', 'student_name', 'student_email', 'student_registration_number',
-                    'status', 'start_date', 'end_date',
-                    'advisor_id', 'course_id', 'company_name',
-                    'company_legal_identifier', 'updated_at', 'supervisor_name',
-                ])
+                'id', 'student_name', 'student_email', 'student_registration_number',
+                'status', 'start_date', 'end_date',
+                'advisor_id', 'course_id', 'company_name',
+                'company_legal_identifier', 'updated_at', 'supervisor_name',
+            ])
                 ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);
 
@@ -136,8 +134,6 @@ class InternshipViewController extends Controller
 
         return view('internship-view.index', compact('internships', 'advisors', 'courses', 'statusOptions', 'orderBy', 'activeFiltersCount'));
     }
-
-
 
     /**
      * Exibe os detalhes de um estágio específico.

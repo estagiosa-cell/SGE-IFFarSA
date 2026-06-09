@@ -83,11 +83,11 @@ class ReportController extends Controller
         );
 
         $query = Internship::select([
-                'id', 'student_name', 'student_registration_number',
-                'company_name', 'company_legal_identifier',
-                'start_date', 'end_date', 'status', 'evaluation_grade',
-                'supervisor_name', 'advisor_id', 'course_id',
-            ])
+            'id', 'student_name', 'student_registration_number',
+            'company_name', 'company_legal_identifier',
+            'start_date', 'end_date', 'status', 'evaluation_grade',
+            'supervisor_name', 'advisor_id', 'course_id',
+        ])
             ->with(['course:id,name', 'advisor:id,name']);
 
         // Aplica a lógica de filtragem com base no perfil do usuário.

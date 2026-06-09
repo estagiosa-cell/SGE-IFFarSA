@@ -17,7 +17,7 @@ class LoginRedirectService
      * Este método verifica as permissões do usuário na ordem definida no array $routes
      * e retorna a primeira rota correspondente ao perfil encontrado.
      *
-     * @param Authenticatable $user O usuário autenticado
+     * @param  Authenticatable  $user  O usuário autenticado
      * @return string Nome da rota para redirecionamento
      *
      * @note A ordem das permissões no array importa - verifica da primeira para a última

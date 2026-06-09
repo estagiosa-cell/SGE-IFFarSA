@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Enums\InternshipStatus;
-use App\Models\Internship;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;

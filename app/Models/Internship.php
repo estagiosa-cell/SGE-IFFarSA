@@ -231,7 +231,6 @@ class Internship extends Model
      * Aplica ordenação padrão na query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  string|null  $orderBy
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeApplyStandardOrdering($query, ?string $orderBy = 'status_priority')

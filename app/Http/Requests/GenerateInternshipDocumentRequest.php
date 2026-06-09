@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Internship;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;

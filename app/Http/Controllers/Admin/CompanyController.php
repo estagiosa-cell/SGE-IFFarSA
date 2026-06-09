@@ -193,7 +193,7 @@ class CompanyController extends Controller
 
             // Lê o arquivo CSV linha a linha em vez de carregar tudo na memória
             $handle = fopen($path, 'r');
-            
+
             // Pula a primeira linha (cabeçalho)
             if ($handle !== false) {
                 fgetcsv($handle);
@@ -203,7 +203,7 @@ class CompanyController extends Controller
 
             while (($row = fgetcsv($handle)) !== false) {
                 $lineNumber++;
-                
+
                 // Pula linhas que estejam completamente vazias no CSV.
                 if (empty(array_filter($row))) {
                     continue;
@@ -217,6 +217,7 @@ class CompanyController extends Controller
 
                 if (! empty($validation['errors'])) {
                     $errors = array_merge($errors, $validation['errors']);
+
                     continue; // Pula para a próxima linha se houver erros.
                 }
 
@@ -235,7 +236,7 @@ class CompanyController extends Controller
             }
 
             // Insere qualquer registro remanescente que não alcançou 100.
-            if (!empty($batch)) {
+            if (! empty($batch)) {
                 Company::insert($batch);
                 $imported += count($batch);
             }
@@ -243,7 +244,7 @@ class CompanyController extends Controller
             if ($handle !== false) {
                 fclose($handle);
             }
-            
+
             $message = "Importação concluída! {$imported} empresas importadas.";
 
             // Se houver erros de validação, retorna com uma mensagem de aviso e a lista de erros.

@@ -20,7 +20,7 @@ class SearchHelper
      *
      * Utilizado para melhorar a busca, tornando-a insensível a acentos e maiúsculas.
      *
-     * @param string $string A string a ser normalizada.
+     * @param  string  $string  A string a ser normalizada.
      * @return string A string normalizada.
      */
     public static function normalize(string $string): string
@@ -43,9 +43,8 @@ class SearchHelper
     /**
      * Aplica busca por unaccent no Postgres para um ou mais campos.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $searchTerm
-     * @param array|string $fields
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  array|string  $fields
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public static function applyUnaccentSearch($query, string $searchTerm, $fields)
@@ -80,10 +79,7 @@ class SearchHelper
     /**
      * Filtra uma Collection comparando palavras normalizadas contra um campo.
      *
-     * @param \Illuminate\Support\Collection $items
-     * @param string $searchTerm
-     * @param callable|array|string $field
-     * @return \Illuminate\Support\Collection
+     * @param  callable|array|string  $field
      */
     public static function filterCollectionByNormalizedWords(Collection $items, string $searchTerm, $field): Collection
     {
@@ -137,13 +133,8 @@ class SearchHelper
     /**
      * Aplica a busca e pagina, usando unaccent no Postgres ou fallback em Collection.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param \Illuminate\Http\Request $request
-     * @param string|null $searchTerm
-     * @param callable|array|string $fields
-     * @param int $perPage
-     * @param string $pageName
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  callable|array|string  $fields
      */
     public static function searchAndPaginate($query, Request $request, ?string $searchTerm, $fields, int $perPage = 100, string $pageName = 'page'): LengthAwarePaginator
     {
@@ -167,9 +158,8 @@ class SearchHelper
     /**
      * Aplica unaccent quando o driver suporta.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $searchTerm
-     * @param array|string $fields
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  array|string  $fields
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public static function applyUnaccentSearchIfSupported($query, string $searchTerm, $fields)
@@ -191,12 +181,6 @@ class SearchHelper
 
     /**
      * Cria um paginador para uma Collection preservando a pagina atual.
-     *
-     * @param \Illuminate\Support\Collection $items
-     * @param int $perPage
-     * @param \Illuminate\Http\Request $request
-     * @param string $pageName
-     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public static function paginateCollection(Collection $items, int $perPage, Request $request, string $pageName = 'page'): LengthAwarePaginator
     {

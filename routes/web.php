@@ -3,13 +3,13 @@
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GoogleFormQuestionIdController;
 use App\Http\Controllers\Admin\InternshipController;
 use App\Http\Controllers\Admin\InternshipDocumentController;
 use App\Http\Controllers\Admin\InternshipTypeController;
 use App\Http\Controllers\Admin\SupervisorEvaluationController;
 use App\Http\Controllers\Admin\SyncDataController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\GoogleFormQuestionIdController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\BackupController;

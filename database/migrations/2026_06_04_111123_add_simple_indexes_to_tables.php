@@ -19,7 +19,6 @@ return new class extends Migration
             $table->index('student_name');
         });
 
-
     }
 
     /**
@@ -34,7 +33,6 @@ return new class extends Migration
         Schema::table('supervisor_evaluations', function (Blueprint $table) {
             $table->dropIndex(['student_name']);
         });
-
 
     }
 };

@@ -175,7 +175,7 @@ class SupervisorEvaluationController extends Controller
                 ]);
 
                 // Envia e-mail ao estagiário informando a conclusão da avaliação e a nota atribuída.
-                if (!empty($internship->student_email)) {
+                if (! empty($internship->student_email)) {
                     $internship->load('course:id,name');
                     Mail::to($internship->student_email)->send(new AvaliacaoEstagioConcluida($internship));
                 }

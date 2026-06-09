@@ -216,7 +216,7 @@ class UserController extends Controller
             ];
         }
 
-        if (!empty($usersToInsert)) {
+        if (! empty($usersToInsert)) {
             User::insert($usersToInsert);
         }
 

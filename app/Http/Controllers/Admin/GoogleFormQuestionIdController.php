@@ -15,13 +15,13 @@ class GoogleFormQuestionIdController extends Controller
 {
     public function __invoke(GoogleApiService $googleService): JsonResponse
     {
-        if (!Cache::get('google_id_route_enabled')) {
+        if (! Cache::get('google_id_route_enabled')) {
             abort(404, 'Rota temporariamente desativada. Rode o comando "php artisan google:form-ids" para ativá-la.');
         }
 
         $formId = config('services.google.forms.data_collection_id');
-        
-        if (!$formId) {
+
+        if (! $formId) {
             return response()->json(['error' => 'ID do formulário não configurado no .env'], 400);
         }
 
@@ -29,7 +29,7 @@ class GoogleFormQuestionIdController extends Controller
             $client = $googleService->getClient();
             $service = new \Google_Service_Forms($client);
             $form = $service->forms->get($formId);
-            
+
             $itemsList = [];
             foreach ($form->getItems() as $item) {
                 $itemsList[] = [
@@ -40,7 +40,7 @@ class GoogleFormQuestionIdController extends Controller
 
             return response()->json([
                 'form_title' => $form->info->title ?? 'Sem Título',
-                'items' => $itemsList
+                'items' => $itemsList,
             ], 200, [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
