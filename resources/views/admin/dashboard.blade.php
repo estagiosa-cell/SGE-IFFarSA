@@ -515,9 +515,15 @@
                             @endif
 
                             {{-- Form --}}
-                            @if(!empty($sync['form']))
-                                <h6 class="mt-4">Formulário</h6>
-                                <p>Lista de orientadores atualizada.</p>
+                            @if(isset($sync['form']) && $sync['form'] !== 'disabled')
+                                <h6 class="mt-4">Sincronização do Formulário</h6>
+                                @if($sync['form'] === 'updated')
+                                    <p class="text-success mb-0"><i class="bi bi-check-circle me-1"></i> Lista de orientadores atualizada com sucesso no formulário do Google.</p>
+                                @elseif($sync['form'] === 'up_to_date')
+                                    <p class="text-secondary mb-0"><i class="bi bi-info-circle me-1"></i> A lista de orientadores no formulário já estava idêntica ao banco de dados.</p>
+                                @elseif($sync['form'] === 'error')
+                                    <p class="text-danger mb-0"><i class="bi bi-exclamation-triangle me-1"></i> Ocorreu uma falha ao tentar atualizar a lista de orientadores no formulário.</p>
+                                @endif
                             @endif
                         </div>
                         <div class="modal-footer">

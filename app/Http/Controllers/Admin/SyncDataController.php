@@ -47,7 +47,7 @@ class SyncDataController extends Controller
         $syncResult = [
             'internships' => ['processed' => 0, 'errors' => [], 'warnings' => []],
             'evaluations' => ['processed' => 0, 'errors' => [], 'warnings' => []],
-            'form'        => false,
+            'form'        => 'disabled',
         ];
 
         // Tenta sincronizar os dados de estágios.
@@ -66,12 +66,10 @@ class SyncDataController extends Controller
 
         // Tenta sincronizar a lista de orientadores no formulário.
         try {
-            if ($this->syncAdvisorsToForm($googleService)) {
-                $syncResult['form'] = true;
-            }
+            $syncResult['form'] = $this->syncAdvisorsToForm($googleService);
         } catch (\Exception $e) {
             // Apenas registra falso se falhar a sincronização do form
-            $syncResult['form'] = false;
+            $syncResult['form'] = 'error';
         }
 
         return redirect()->route('admin.dashboard')->with('sync_result', $syncResult);
@@ -637,17 +635,17 @@ class SyncDataController extends Controller
      * Sincroniza a lista de orientadores/coordenadores com o formulário do Google.
      *
      * @param  \App\Services\GoogleApiService  $googleService  Serviço para interagir com a API do Google.
-     * @return bool True se a atualização foi bem-sucedida, false se as configs não existirem.
+     * @return string O status da sincronização ('updated', 'up_to_date', 'disabled').
      *
      * @throws \Exception Se a pergunta não for encontrada no formulário ou houver falha na API.
      */
-    private function syncAdvisorsToForm(GoogleApiService $googleService): bool
+    private function syncAdvisorsToForm(GoogleApiService $googleService): string
     {
         $formId = config('services.google.forms.data_collection_id');
         $questionId = config('services.google.forms.advisors_question_id');
 
         if (! $formId || ! $questionId) {
-            return false;
+            return 'disabled';
         }
 
         $client = $googleService->getClient();
@@ -688,13 +686,13 @@ class SyncDataController extends Controller
             ->toArray();
 
         if (empty($advisors)) {
-            return false;
+            return 'disabled';
         }
 
         // Se a lista do formulário já for exatamente igual à lista do banco,
         // aborta a atualização para economizar cota e tempo da API.
         if ($currentOptions === $advisors) {
-            return true;
+            return 'up_to_date';
         }
 
         $options = array_map(function ($name) {
@@ -727,7 +725,7 @@ class SyncDataController extends Controller
 
         $service->forms->batchUpdate($formId, $batchUpdateRequest);
 
-        return true;
+        return 'updated';
     }
 
     /**
