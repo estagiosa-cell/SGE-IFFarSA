@@ -24,15 +24,15 @@
                     <form method="GET" action="{{ route('admin.email-logs.index') }}">
                         <div class="row m-0 g-2 align-items-end">
                             <div class="col-md-9 col-lg-9">
-                                <label for="search" class="form-label mb-0 small">Buscar (E-mail ou Aluno)</label>
+                                <label for="search" class="form-label mb-0 small">Buscar por nome</label>
                                 <input type="text" class="form-control form-control-sm" id="search" name="search"
-                                    value="{{ request('search') }}" placeholder="Ex: joao@email.com ou João Silva">
+                                    value="{{ request('search') }}" placeholder="Nome do estagiário">
                             </div>
 
                             <div class="col-md-3 col-lg-3">
                                 <div class="d-flex gap-1">
                                     <button type="submit" class="btn btn-outline-primary btn-sm flex-fill">
-                                        <i class="bi bi-search"></i> Buscar
+                                        <i class="bi bi-funnel"></i> Filtrar
                                     </button>
                                     <a href="{{ route('admin.email-logs.index') }}"
                                         class="btn btn-outline-secondary btn-sm">
@@ -76,55 +76,50 @@
                 </div>
             </div>
         @else
-            <div class="card border-0 shadow-sm">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="border-0 ps-4">Destinatário</th>
-                                <th class="border-0">Assunto / Tipo</th>
-                                <th class="border-0">Estagiário</th>
-                                <th class="border-0">Status</th>
-                                <th class="border-0 pe-4">Data de Envio</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($logs as $log)
-                                <tr>
-                                    <td class="ps-4">
-                                        <div class="fw-semibold">{{ $log->recipient }}</div>
-                                    </td>
-                                    <td>
-                                        <span class="text-muted">{{ $log->subject_type ?? 'N/D' }}</span>
-                                    </td>
-                                    <td>
+            @foreach ($logs as $log)
+                <div class="card mb-3 shadow-sm border-0">
+                    <div class="card-body py-3 px-4">
+                        <div class="row m-0 align-items-center g-0">
+                            <div class="col-md-9">
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                    <h6 class="fw-bold text-dark mb-0">
                                         @if($log->internship)
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-person me-2 text-muted"></i>
-                                                {{ $log->internship->student_name }}
-                                            </div>
+                                            {{ $log->internship->student_name }}
                                         @else
-                                            <span class="text-muted fst-italic">Sem Vínculo</span>
+                                            Sem Vínculo
                                         @endif
-                                    </td>
-                                    <td>
-                                        @if($log->status)
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Enviado</span>
-                                        @else
-                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill">Falha</span>
-                                        @endif
-                                    </td>
-                                    <td class="pe-4 text-muted small">
-                                        {{ $log->created_at->format('d/m/Y H:i') }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                    </h6>
+                                    @if($log->status)
+                                        <span class="badge bg-success">Enviado</span>
+                                    @else
+                                        <span class="badge bg-danger">Falha</span>
+                                    @endif
+                                </div>
+                                <div class="row m-0 small text-muted">
+                                    <div class="col-md-6">
+                                        <div class="mb-1">
+                                            <i class="bi bi-tag me-1"></i>
+                                            <strong>Tipo:</strong> {{ $log->subject_type ?? 'N/D' }}
+                                        </div>
+                                        <div class="mb-1">
+                                            <i class="bi bi-calendar-plus me-1"></i>
+                                            <strong>Enviado em:</strong> {{ $log->created_at->format('d/m/Y H:i') }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-1">
+                                            <i class="bi bi-envelope me-1"></i>
+                                            <strong>Destinatário:</strong> {{ $log->recipient }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            @endforeach
 
-            <div class="mt-4">
+            <div class="mt-3">
                 {{ $logs->withQueryString()->links() }}
             </div>
         @endif

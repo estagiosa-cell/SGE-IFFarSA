@@ -15,27 +15,31 @@ class EmailLogController extends Controller
     /**
      * Exibe a listagem dos logs de e-mail.
      *
-     * @param Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
-        // Garante que somente admins podem ver.
         $this->authorize('is-admin');
 
         $query = EmailLog::query()
             ->with('internship:id,student_name')
-            ->leftJoin('internships', 'email_logs.internship_id', '=', 'internships.id')
-            ->select('email_logs.*')
-            ->orderBy('email_logs.created_at', 'desc');
+            ->orderBy('created_at', 'desc');
 
-        // Busca utilizando o SearchHelper nos campos da tabela local e relacionada
-        $logs = SearchHelper::searchAndPaginate(
-            $query,
-            $request,
-            $request->input('search'),
-            ['email_logs.recipient', 'internships.student_name']
-        );
+        // Busca pelo nome do aluno usando SearchHelper (mesmo padrão do InternshipController)
+        $search = $request->input('search');
+
+        if (filled($search)) {
+            $internshipIds = \App\Models\Internship::query()
+                ->tap(function ($q) use ($search) {
+                    SearchHelper::applyUnaccentSearchIfSupported($q, $search, 'student_name');
+                })
+                ->pluck('id');
+
+            $query->whereIn('internship_id', $internshipIds);
+        }
+
+        $logs = $query->paginate(100);
 
         return view('admin.email-logs.index', compact('logs'));
     }

@@ -21,8 +21,8 @@ class LogSentEmail
 
         // Só registramos se o Mailable tiver definido o metadata 'log_type'
         if ($logTypeHeader) {
-            $logType = $logTypeHeader->getBodyAsString();
-            $internshipId = $internshipIdHeader ? $internshipIdHeader->getBodyAsString() : null;
+            $logType = $logTypeHeader->getBody();
+            $internshipId = $internshipIdHeader ? $internshipIdHeader->getBody() : null;
 
             $recipients = $message->getTo();
             $recipientEmail = count($recipients) > 0 ? $recipients[0]->getAddress() : 'unknown';
