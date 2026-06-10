@@ -153,7 +153,7 @@ class SyncDataController extends Controller
             $enderecoNumeroEstagiario = $row[19] ?? null; // Coluna U
             $enderecoBairroEstagiario = $row[20] ?? null; // Coluna V
             $cidadeEstagiario = $row[21] ?? null; // Coluna W
-            $ufEstagiario = $row[22] ?? null; // Coluna X
+            $ufEstagiario = isset($row[22]) && $row[22] !== '' ? strtoupper(trim($row[22])) : null; // Coluna X
             $cepEstagiario = $row[23] ?? null; // Coluna Y
             $nomeOrientador = $row[24] ?? null; // Coluna Z
 
@@ -168,7 +168,7 @@ class SyncDataController extends Controller
             $enderecoNumeroConcedente = $row[32] ?? null; // Coluna AH
             $enderecoBairroConcedente = $row[33] ?? null; // Coluna AI
             $cidadeConcedente = $row[34] ?? null; // Coluna AJ
-            $ufConcedente = $row[35] ?? null; // Coluna AK
+            $ufConcedente = isset($row[35]) && $row[35] !== '' ? strtoupper(trim($row[35])) : null; // Coluna AK
             $cepConcedente = $row[36] ?? null; // Coluna AL
             $nomeRepresentanteConcedente = $row[37] ?? null; // Coluna AM
             $cargoRepresentanteConcedente = $row[38] ?? null; // Coluna AN
