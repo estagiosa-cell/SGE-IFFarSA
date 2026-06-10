@@ -89,6 +89,8 @@ class GoogleApiService
             ->with('message', 'Sua sessão do Google expirou. Faça login novamente.')
             ->with('messageType', 'warning')
             ->send();
+
+        exit;
     }
 
     /**

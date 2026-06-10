@@ -106,7 +106,7 @@ class SyncDataController extends Controller
         $rows = $response->getValues();
 
         if (empty($rows)) {
-            return 0; // Nenhum dado para sincronizar.
+            return ['processed' => 0, 'errors' => [], 'warnings' => []]; // Nenhum dado para sincronizar.
         }
 
         // Pré-carrega os dados de lookup antes do loop para evitar queries N+1.
@@ -264,7 +264,9 @@ class SyncDataController extends Controller
             $identificadorLegal = $cnpjConcedente ?? $cpfConcedente;
             $partesConcedentes = $allCompanies->get($identificadorLegal, collect());
 
-            // Valores padrão se empresa não for encontrada ou se houver múltiplas
+            // Os dados da empresa vindos da planilha são descartados intencionalmente.
+            // Quando a empresa é encontrada no banco, usamos os dados padronizados do cadastro local.
+            // Quando não é encontrada, um aviso é adicionado às observações para seleção manual.
             $razaoSocialConcedente = null;
             $telefoneConcedente = null;
             $emailConcedente = null;
@@ -312,6 +314,12 @@ class SyncDataController extends Controller
                 $observacoes = ($observacoes ? $observacoes."\n\n" : '')."ATENÇÃO: ".$warningMsg;
                 $rowWarnings[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'message' => $warningMsg];
             }
+
+            // Inicializa as variáveis de data para evitar uso de variáveis indefinidas
+            // quando as células correspondentes da planilha estão vazias.
+            $dataNascimento = null;
+            $rgDataExpedicao = null;
+            $dataInicioEstagio = null;
 
             if ($row[12]) {
                 try {
@@ -528,7 +536,7 @@ class SyncDataController extends Controller
         $rows = $response->getValues();
 
         if (empty($rows)) {
-            return 0; // Nenhuma avaliação para sincronizar.
+            return ['processed' => 0, 'errors' => [], 'warnings' => []]; // Nenhuma avaliação para sincronizar.
         }
 
         $processedCount = 0;

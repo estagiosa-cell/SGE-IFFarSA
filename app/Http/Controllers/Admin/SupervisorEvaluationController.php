@@ -229,7 +229,7 @@ class SupervisorEvaluationController extends Controller
     public function restore($id)
     {
         // Busca a avaliação na lixeira ou falha.
-        $evaluation = SupervisorEvaluation::withTrashed()->findOrFail($id);
+        $evaluation = SupervisorEvaluation::onlyTrashed()->findOrFail($id);
 
         $this->authorize('restore', $evaluation);
 

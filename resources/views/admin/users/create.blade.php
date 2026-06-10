@@ -59,7 +59,7 @@
         {{-- Mensagem de erro na importação --}}
         @if (session('importStatus'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>Erro na importação:</strong> {!! session('importStatus') !!}
+                <strong>Erro na importação:</strong> {!! nl2br(e(str_replace('<br>', "\n", session('importStatus')))) !!}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
             </div>
         @endif

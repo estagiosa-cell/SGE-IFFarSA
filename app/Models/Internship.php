@@ -285,26 +285,6 @@ class Internship extends Model
     }
 
     /**
-     * Verifica se o identificador legal da empresa é um CNPJ.
-     *
-     * @return bool True se for CNPJ, false caso contrário.
-     */
-    public function isCompanyCnpj(): bool
-    {
-        return $this->company_legal_identifier_type === 'CNPJ';
-    }
-
-    /**
-     * Verifica se o identificador legal da empresa é um CPF.
-     *
-     * @return bool True se for CPF, false caso contrário.
-     */
-    public function isCompanyCpf(): bool
-    {
-        return $this->company_legal_identifier_type === 'CPF';
-    }
-
-    /**
      * Verifica se o estudante precisa de responsável legal.
      *
      * @return bool True se o estudante for menor de idade, false caso contrário.
@@ -312,43 +292,6 @@ class Internship extends Model
     public function needsLegalGuardian(): bool
     {
         return ! $this->student_is_adult;
-    }
-
-    /**
-     * Verifica se o estágio possui avaliação do supervisor.
-     *
-     * @return bool True se houver avaliação, false caso contrário.
-     */
-    public function hasEvaluation(): bool
-    {
-        return ! is_null($this->evaluation_submitted_at);
-    }
-
-    /**
-     * Calcula a pontuação total da avaliação do supervisor.
-     *
-     * Soma os valores de todos os critérios de avaliação (10 questões).
-     *
-     * @return float Pontuação total da avaliação.
-     */
-    public function calculateEvaluationTotalScore(): float
-    {
-        if (! $this->hasEvaluation()) {
-            return 0.0;
-        }
-
-        return (float) (
-            ($this->evaluation_q1_performance ?? 0) +
-            ($this->evaluation_q2_comprehension ?? 0) +
-            ($this->evaluation_q3_technical_knowledge ?? 0) +
-            ($this->evaluation_q4_organization ?? 0) +
-            ($this->evaluation_q5_initiative ?? 0) +
-            ($this->evaluation_q6_attendance ?? 0) +
-            ($this->evaluation_q7_discipline ?? 0) +
-            ($this->evaluation_q8_sociability ?? 0) +
-            ($this->evaluation_q9_cooperation ?? 0) +
-            ($this->evaluation_q10_responsibility ?? 0)
-        );
     }
 
     /**
