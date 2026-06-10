@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EmailLogController;
 use App\Http\Controllers\Admin\GoogleFormQuestionIdController;
 use App\Http\Controllers\Admin\InternshipController;
 use App\Http\Controllers\Admin\InternshipDocumentController;
@@ -110,6 +111,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/backup', BackupController::class)->name('admin.backup');
         Route::post('/backup/create', [BackupController::class, 'createBackup'])->name('admin.backup.create');
 
+        // Rotas de Logs de E-mail
+        Route::get('/email-logs', [EmailLogController::class, 'index'])->name('admin.email-logs.index');
     });
 
     // Rotas para Coordenadores e Orientadores

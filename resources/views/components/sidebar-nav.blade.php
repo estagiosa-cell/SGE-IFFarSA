@@ -21,6 +21,10 @@
         <x-sidebar-nav-link route="admin.supervisor-evaluations.index" icon="clipboard-check">
             Avaliações do Supervisor
         </x-sidebar-nav-link>
+
+        <x-sidebar-nav-link route="admin.email-logs.index" icon="envelope-paper">
+            Logs de E-mails
+        </x-sidebar-nav-link>
     @endcan
 
     @cannot('is-direcao-ensino')

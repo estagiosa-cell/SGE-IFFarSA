@@ -66,9 +66,9 @@ class AvaliacaoEstagioConcluida extends Mailable
     public function headers(): \Illuminate\Mail\Mailables\Headers
     {
         return new \Illuminate\Mail\Mailables\Headers(
-            metadata: [
-                'log_type' => 'Avaliação de Estágio Concluída',
-                'internship_id' => $this->internship->id,
+            text: [
+                'X-Metadata-log_type' => 'Avaliação de Estágio Concluída',
+                'X-Metadata-internship_id' => (string) $this->internship->id,
             ],
         );
     }
