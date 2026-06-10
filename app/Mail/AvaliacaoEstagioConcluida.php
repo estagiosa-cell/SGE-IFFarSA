@@ -59,4 +59,17 @@ class AvaliacaoEstagioConcluida extends Mailable
             ],
         );
     }
+
+    /**
+     * Define os cabeçalhos do e-mail, incluindo metadados para auditoria/logs.
+     */
+    public function headers(): \Illuminate\Mail\Mailables\Headers
+    {
+        return new \Illuminate\Mail\Mailables\Headers(
+            metadata: [
+                'log_type' => 'Avaliação de Estágio Concluída',
+                'internship_id' => $this->internship->id,
+            ],
+        );
+    }
 }
