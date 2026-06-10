@@ -414,7 +414,14 @@
                             
                             {{-- Estágios --}}
                             <h6>Estágios sincronizados</h6>
-                            <p>{{ $sync['internships']['processed'] ?? 0 }} registro(s) importado(s) com sucesso.</p>
+                            @php $processedInternships = $sync['internships']['processed'] ?? 0; @endphp
+                            @if($processedInternships === 0)
+                                <p>Nenhum novo registro importado.</p>
+                            @elseif($processedInternships === 1)
+                                <p>1 registro importado com sucesso.</p>
+                            @else
+                                <p>{{ $processedInternships }} registros importados com sucesso.</p>
+                            @endif
                             @if(count($sync['internships']['errors'] ?? []) > 0)
                                 <div class="sync-error-container mb-4">
                                     <div class="sync-error-grid">
@@ -465,7 +472,14 @@
 
                             {{-- Avaliações --}}
                             <h6 class="mt-4">Avaliações sincronizadas</h6>
-                            <p>{{ $sync['evaluations']['processed'] ?? 0 }} avaliação(ões) importada(s) com sucesso.</p>
+                            @php $processedEvaluations = $sync['evaluations']['processed'] ?? 0; @endphp
+                            @if($processedEvaluations === 0)
+                                <p>Nenhuma nova avaliação importada.</p>
+                            @elseif($processedEvaluations === 1)
+                                <p>1 avaliação importada com sucesso.</p>
+                            @else
+                                <p>{{ $processedEvaluations }} avaliações importadas com sucesso.</p>
+                            @endif
                             @if(count($sync['evaluations']['errors'] ?? []) > 0)
                                 <div class="sync-error-container mb-4">
                                     <div class="sync-error-grid">
