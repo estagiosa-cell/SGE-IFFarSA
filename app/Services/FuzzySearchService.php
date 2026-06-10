@@ -54,7 +54,7 @@ class FuzzySearchService
         // Se encontrou correspondências diretas ou parciais no banco
         if ($likeMatches->count() > 0) {
             $normalizedSearchTerm = SearchHelper::normalize($searchTerm);
-            
+
             // Verifica se alguma correspondência é exata (ignorando case e acentos)
             $exactMatches = $likeMatches->filter(function ($entity) use ($searchField, $normalizedSearchTerm) {
                 return SearchHelper::normalize($entity->{$searchField}) === $normalizedSearchTerm;
@@ -76,6 +76,7 @@ class FuzzySearchService
             if ($likeMatches->count() === 1) {
                 $bestMatch = $likeMatches->first();
                 $originalField = $bestMatch->{$searchField};
+
                 return [
                     'entity' => $bestMatch,
                     'warning' => "O nome informado ('$searchTerm') foi vinculado ao orientador '$originalField'.",

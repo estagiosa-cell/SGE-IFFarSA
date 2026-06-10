@@ -47,7 +47,7 @@ class SyncDataController extends Controller
         $syncResult = [
             'internships' => ['processed' => 0, 'errors' => [], 'warnings' => []],
             'evaluations' => ['processed' => 0, 'errors' => [], 'warnings' => []],
-            'form'        => 'disabled',
+            'form' => 'disabled',
         ];
 
         // Tenta sincronizar os dados de estágios.
@@ -231,10 +231,12 @@ class SyncDataController extends Controller
                     $internshipTypeWeight = $internshipType->weight;
                 } else {
                     $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Nenhum tipo de estágio encontrado para o curso '$nomeCurso'."];
+
                     continue;
                 }
             } else {
                 $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Curso '$nomeCurso' não encontrado."];
+
                 continue;
             }
 
@@ -245,6 +247,7 @@ class SyncDataController extends Controller
 
             if (! $result) {
                 $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Orientador '$nomeOrientador' não encontrado."];
+
                 continue;
             }
 
@@ -305,13 +308,13 @@ class SyncDataController extends Controller
             } elseif ($partesConcedentes->count() > 1) {
                 // Múltiplos resultados: adiciona um aviso.
                 $warningMsg = "Múltiplas empresas encontradas com o CNPJ/CPF {$identificadorLegal}. Seleção manual necessária.";
-                $observacoes = ($observacoes ? $observacoes."\n\n" : '')."ATENÇÃO: ".$warningMsg;
+                $observacoes = ($observacoes ? $observacoes."\n\n" : '').'ATENÇÃO: '.$warningMsg;
                 $rowWarnings[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'message' => $warningMsg];
             } else {
                 // Nenhum resultado: adiciona um aviso.
                 $nomeEmpresaForm = $row[28] ?? 'Não informado';
                 $warningMsg = "Nenhuma empresa encontrada com o CNPJ/CPF {$identificadorLegal}. Cadastro da empresa necessário. Nome informado: {$nomeEmpresaForm}";
-                $observacoes = ($observacoes ? $observacoes."\n\n" : '')."ATENÇÃO: ".$warningMsg;
+                $observacoes = ($observacoes ? $observacoes."\n\n" : '').'ATENÇÃO: '.$warningMsg;
                 $rowWarnings[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'message' => $warningMsg];
             }
 
@@ -325,7 +328,8 @@ class SyncDataController extends Controller
                 try {
                     $dataNascimento = Carbon::createFromFormat('d/m/Y', $row[12])->startOfDay();
                 } catch (\Exception $e) {
-                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Data de nascimento inválida."];
+                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => 'Data de nascimento inválida.'];
+
                     continue;
                 }
             }
@@ -334,7 +338,8 @@ class SyncDataController extends Controller
                 try {
                     $rgDataExpedicao = Carbon::createFromFormat('d/m/Y', $row[15])->startOfDay();
                 } catch (\Exception $e) {
-                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Data de expedição do RG inválida."];
+                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => 'Data de expedição do RG inválida.'];
+
                     continue;
                 }
             }
@@ -343,7 +348,8 @@ class SyncDataController extends Controller
                 try {
                     $dataInicioEstagio = Carbon::createFromFormat('d/m/Y', $row[55])->startOfDay();
                 } catch (\Exception $e) {
-                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Data de início do estágio inválida."];
+                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => 'Data de início do estágio inválida.'];
+
                     continue;
                 }
             }
@@ -363,11 +369,13 @@ class SyncDataController extends Controller
 
             if ($totalWeeklyHours > 30) {
                 $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Carga horária semanal excede o limite de 30 horas. Total informado: {$totalWeeklyHours} horas."];
+
                 continue;
             }
 
             if ($totalWeeklyHours <= 0) {
-                $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "A carga horária semanal deve ser maior que zero."];
+                $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => 'A carga horária semanal deve ser maior que zero.'];
+
                 continue;
             }
 
@@ -381,7 +389,8 @@ class SyncDataController extends Controller
                         $requiredHours
                     );
                 } catch (\Exception $e) {
-                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Erro ao calcular data de fim do estágio: ".$e->getMessage()];
+                    $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => 'Erro ao calcular data de fim do estágio: '.$e->getMessage()];
+
                     continue;
                 }
             }
@@ -491,7 +500,7 @@ class SyncDataController extends Controller
                     'values' => [[1]],
                 ]);
             } catch (\Exception $e) {
-                $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Falha ao salvar no banco: " . $e->getMessage()];
+                $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => 'Falha ao salvar no banco: '.$e->getMessage()];
             }
         }
 
@@ -623,7 +632,7 @@ class SyncDataController extends Controller
 
                 $processedCount++;
             } catch (\Exception $e) {
-                $rowErrors[] = ['line' => $rowNumber, 'student' => $studentName ?: 'Desconhecido', 'reason' => "Falha ao salvar no banco: " . $e->getMessage()];
+                $rowErrors[] = ['line' => $rowNumber, 'student' => $studentName ?: 'Desconhecido', 'reason' => 'Falha ao salvar no banco: '.$e->getMessage()];
             }
         }
 
