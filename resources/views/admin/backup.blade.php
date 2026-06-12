@@ -29,11 +29,10 @@
 
                 <p><strong>Instruções para Restauração:</strong></p>
                 <ol>
-                    <li><strong>Crie um banco de dados vazio</strong> no seu ambiente, definindo as configurações adequadas.
-                        Por exemplo, para MySQL:
+                    <li><strong>Crie um banco de dados vazio</strong> no seu ambiente PostgreSQL definindo a codificação UTF-8.
+                        Por exemplo:
                         <ul>
-                            <li><code>CREATE DATABASE nome_do_banco CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;</code>
-                            </li>
+                            <li><code>CREATE DATABASE nome_do_banco WITH ENCODING='UTF8';</code></li>
                         </ul>
                     </li>
                     <li><strong>Extraia o arquivo .zip</strong> que você baixou.</li>
@@ -41,12 +40,9 @@
                         haverá um arquivo com final <code>.sql</code>. <strong>Este é o seu backup do banco de
                             dados.</strong></li>
                     <li>Importe o arquivo <code>.sql</code> para o banco de dados vazio utilizando um cliente SQL ou
-                        ferramenta apropriada. Por exemplo:
+                        a ferramenta psql. Por exemplo:
                         <ul>
-                            <li>Para MySQL: <code>mysql -u usuario -p nome_do_banco < caminho/do/arquivo.sql</code>
-                            </li>
-                            <li>Para PostgreSQL: <code>psql -U usuario -d nome_do_banco -f caminho/do/arquivo.sql</code>
-                            </li>
+                            <li><code>psql -U usuario -d nome_do_banco -f caminho/do/arquivo.sql</code></li>
                         </ul>
                     </li>
                 </ol>
