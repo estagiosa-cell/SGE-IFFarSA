@@ -66,47 +66,21 @@
         </div>
 
         @if ($evaluations->isEmpty())
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-center py-5">
-                        <div class="mb-4">
-                            @if (request('show_deleted') == '1')
-                                <i class="bi bi-trash text-muted display-3"></i>
-                            @elseif (request()->hasAny(['search', 'workload']))
-                                <i class="bi bi-search text-muted display-3"></i>
-                            @else
-                                <i class="bi bi-clipboard-check text-muted display-3"></i>
-                            @endif
-                        </div>
-                        @if (request('show_deleted') == '1')
-                            <h4 class="text-muted mb-3">Nenhuma avaliação deletada</h4>
-                            <p class="text-muted mb-4">
-                                Não há avaliações deletadas no momento.<br>
-                                Você pode alternar para ver as ativas.
-                            </p>
-                            <a href="{{ route('admin.supervisor-evaluations.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
-                                class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Avaliações Ativas
-                            </a>
-                        @elseif (request()->hasAny(['search', 'workload']))
-                            <h4 class="text-muted mb-3">Nenhuma avaliação encontrada</h4>
-                            <p class="text-muted mb-4">
-                                Não foram encontradas avaliações com os filtros aplicados.<br>
-                                Tente ajustar os critérios de busca.
-                            </p>
-                            <a href="{{ route('admin.supervisor-evaluations.index') }}" class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Todas as Avaliações
-                            </a>
-                        @else
-                            <h4 class="text-muted mb-3">Nenhuma avaliação pendente</h4>
-                            <p class="text-muted mb-4">
-                                Não há avaliações de supervisor pendentes de associação.<br>
-                                As avaliações aparecerão aqui após a sincronização.
-                            </p>
-                        @endif
-                    </div>
-                </div>
-            </div>
+            <x-ui.empty-state 
+                icon="{{ request('show_deleted') == '1' ? 'bi-trash' : (request()->hasAny(['search', 'workload']) ? 'bi-search' : 'bi-clipboard-check') }}"
+                title="{{ request('show_deleted') == '1' ? 'Nenhuma avaliação deletada' : (request()->hasAny(['search', 'workload']) ? 'Nenhuma avaliação encontrada' : 'Nenhuma avaliação pendente') }}"
+                description="{!! request('show_deleted') == '1' ? 'Não há avaliações deletadas no momento.<br>Você pode alternar para ver as ativas.' : (request()->hasAny(['search', 'workload']) ? 'Não foram encontradas avaliações com os filtros aplicados.<br>Tente ajustar os critérios de busca.' : 'Não há avaliações de supervisor pendentes de associação.<br>As avaliações aparecerão aqui após a sincronização.') !!}"
+            >
+                @if (request('show_deleted') == '1')
+                    <a href="{{ route('admin.supervisor-evaluations.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Avaliações Ativas
+                    </a>
+                @elseif (request()->hasAny(['search', 'workload']))
+                    <a href="{{ route('admin.supervisor-evaluations.index') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Todas as Avaliações
+                    </a>
+                @endif
+            </x-ui.empty-state>
         @else
             <div class="text-muted small mb-3">
                 Mostrando de <strong>{{ $evaluations->firstItem() }}</strong> a <strong>{{ $evaluations->lastItem() }}</strong> de <strong>{{ $evaluations->total() }}</strong> resultados
