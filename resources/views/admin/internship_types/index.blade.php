@@ -73,50 +73,25 @@
         </div>
 
         @if ($internshipTypes->isEmpty())
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-center py-5">
-                        <div class="mb-4">
-                            @if ($showDeleted)
-                                <i class="bi bi-trash text-muted display-3"></i>
-                            @elseif (request()->hasAny(['search', 'course_id']))
-                                <i class="bi bi-search text-muted display-3"></i>
-                            @else
-                                <i class="bi bi-tags text-muted display-3"></i>
-                            @endif
-                        </div>
-                        @if ($showDeleted)
-                            <h4 class="text-muted mb-3">Nenhum tipo de estágio deletado</h4>
-                            <p class="text-muted mb-4">
-                                Não há tipos de estágio deletados no momento.<br>
-                                Você pode alternar para ver os ativos.
-                            </p>
-                            <a href="{{ route('admin.internship-types.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}"
-                                class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Tipos de Estágio Ativos
-                            </a>
-                        @elseif (request()->hasAny(['search', 'course_id']))
-                            <h4 class="text-muted mb-3">Nenhum tipo de estágio encontrado</h4>
-                            <p class="text-muted mb-4">
-                                Não foram encontrados tipos de estágio com os filtros aplicados.<br>
-                                Tente ajustar os critérios de busca.
-                            </p>
-                            <a href="{{ route('admin.internship-types.index') }}" class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Todos os Tipos de Estágio
-                            </a>
-                        @else
-                            <h4 class="text-muted mb-3">Nenhum tipo de estágio encontrado</h4>
-                            <p class="text-muted mb-4">
-                                Ainda não existem tipos de estágio cadastrados.<br>
-                                Comece adicionando o primeiro tipo de estágio.
-                            </p>
-                            <a href="{{ route('admin.internship-types.create') }}" class="btn btn-primary btn-lg">
-                                <i class="bi bi-plus-circle me-2"></i>Cadastrar Tipo de Estágio
-                            </a>
-                        @endif
-                    </div>
-                </div>
-            </div>
+            <x-ui.empty-state 
+                icon="{{ $showDeleted ? 'bi-trash' : (request()->hasAny(['search', 'course_id']) ? 'bi-search' : 'bi-tags') }}"
+                title="{{ $showDeleted ? 'Nenhum tipo de estágio deletado' : 'Nenhum tipo de estágio encontrado' }}"
+                description="{!! $showDeleted ? 'Não há tipos de estágio deletados no momento.<br>Você pode alternar para ver os ativos.' : (request()->hasAny(['search', 'course_id']) ? 'Não foram encontrados tipos de estágio com os filtros aplicados.<br>Tente ajustar os critérios de busca.' : 'Ainda não existem tipos de estágio cadastrados.<br>Comece adicionando o primeiro tipo de estágio.') !!}"
+            >
+                @if ($showDeleted)
+                    <a href="{{ route('admin.internship-types.index', array_merge(request()->except('show_deleted'), ['show_deleted' => 0])) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Tipos de Estágio Ativos
+                    </a>
+                @elseif (request()->hasAny(['search', 'course_id']))
+                    <a href="{{ route('admin.internship-types.index') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Todos os Tipos de Estágio
+                    </a>
+                @else
+                    <a href="{{ route('admin.internship-types.create') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Cadastrar Tipo de Estágio
+                    </a>
+                @endif
+            </x-ui.empty-state>
         @else
             <div class="text-muted small mb-3">
                 Mostrando de <strong>{{ $internshipTypes->firstItem() }}</strong> a <strong>{{ $internshipTypes->lastItem() }}</strong> de <strong>{{ $internshipTypes->total() }}</strong> resultados

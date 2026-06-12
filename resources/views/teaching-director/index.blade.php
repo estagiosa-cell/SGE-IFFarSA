@@ -143,32 +143,17 @@
         </div>
 
         @if ($internships->isEmpty())
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-center py-5">
-                        <div class="mb-4">
-                            @if (request()->hasAny(['search', 'status', 'course_id', 'advisor_id', 'registration', 'end_date_from', 'end_date_to']))
-                                <i class="bi bi-search text-muted display-3"></i>
-                            @else
-                                <i class="bi bi-briefcase text-muted display-3"></i>
-                            @endif
-                        </div>
-                        <h4 class="text-muted mb-3">Nenhum estágio encontrado</h4>
-                        <p class="text-muted mb-4">
-                            @if (request()->hasAny(['search', 'status', 'course_id', 'advisor_id', 'registration', 'end_date_from', 'end_date_to']))
-                                Não encontramos estágios com os filtros aplicados.
-                                <br>
-                                <a href="{{ route('teaching-director.index') }}"
-                                    class="btn btn-sm btn-outline-primary mt-2">
-                                    <i class="bi bi-arrow-clockwise me-1"></i>Limpar filtros
-                                </a>
-                            @else
-                                Não há estágios cadastrados no sistema.
-                            @endif
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <x-ui.empty-state 
+                icon="{{ request()->hasAny(['search', 'status', 'course_id', 'advisor_id', 'registration', 'end_date_from', 'end_date_to']) ? 'bi-search' : 'bi-briefcase' }}"
+                title="Nenhum estágio encontrado"
+                description="{!! request()->hasAny(['search', 'status', 'course_id', 'advisor_id', 'registration', 'end_date_from', 'end_date_to']) ? 'Não encontramos estágios com os filtros aplicados.<br>Tente ajustar os critérios de busca.' : 'Não há estágios cadastrados no sistema.' !!}"
+            >
+                @if (request()->hasAny(['search', 'status', 'course_id', 'advisor_id', 'registration', 'end_date_from', 'end_date_to']))
+                    <a href="{{ route('teaching-director.index') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Todos os Estágios
+                    </a>
+                @endif
+            </x-ui.empty-state>
         @else
             <div class="text-muted small mb-3">
                 Mostrando de <strong>{{ $internships->firstItem() }}</strong> a <strong>{{ $internships->lastItem() }}</strong> de <strong>{{ $internships->total() }}</strong> resultados

@@ -47,34 +47,17 @@
         </div>
 
         @if ($logs->isEmpty())
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-center py-5">
-                        <div class="mb-4">
-                            @if (request()->has('search') && request('search') != '')
-                                <i class="bi bi-search text-muted display-3"></i>
-                            @else
-                                <i class="bi bi-envelope-paper text-muted display-3"></i>
-                            @endif
-                        </div>
-                        @if (request()->has('search') && request('search') != '')
-                            <h4 class="text-muted mb-3">Nenhum log encontrado</h4>
-                            <p class="text-muted mb-4">
-                                Não foram encontrados registros com os filtros aplicados.<br>
-                                Tente ajustar os critérios de busca.
-                            </p>
-                            <a href="{{ route('admin.email-logs.index') }}" class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left me-2"></i>Ver Todos os Logs
-                            </a>
-                        @else
-                            <h4 class="text-muted mb-3">Nenhum e-mail registrado</h4>
-                            <p class="text-muted mb-4">
-                                O sistema ainda não possui registros de e-mails enviados.
-                            </p>
-                        @endif
-                    </div>
-                </div>
-            </div>
+            <x-ui.empty-state 
+                icon="{{ request()->has('search') && request('search') != '' ? 'bi-search' : 'bi-envelope-paper' }}"
+                title="{{ request()->has('search') && request('search') != '' ? 'Nenhum log encontrado' : 'Nenhum e-mail registrado' }}"
+                description="{!! request()->has('search') && request('search') != '' ? 'Não foram encontrados registros com os filtros aplicados.<br>Tente ajustar os critérios de busca.' : 'O sistema ainda não possui registros de e-mails enviados.' !!}"
+            >
+                @if (request()->has('search') && request('search') != '')
+                    <a href="{{ route('admin.email-logs.index') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Ver Todos os Logs
+                    </a>
+                @endif
+            </x-ui.empty-state>
         @else
             <div class="text-muted small mb-3">
                 Mostrando de <strong>{{ $logs->firstItem() }}</strong> a <strong>{{ $logs->lastItem() }}</strong> de <strong>{{ $logs->total() }}</strong> resultados
