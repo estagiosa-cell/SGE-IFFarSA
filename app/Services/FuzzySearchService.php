@@ -28,8 +28,10 @@ class FuzzySearchService
      * @param  array  $additionalWhere  Filtros extras no formato ['campo' => 'valor']
      * @return array|null Array com ['entity', 'warning', 'exact_match', 'similarity'] ou null se não encontrar
      */
-    public function fuzzyFind(string $model, string $searchField, string $searchTerm, float $minSimilarity = 0.6, array $additionalWhere = [])
+    public function fuzzyFind(string $model, string $searchField, string $searchTerm, float $minSimilarity = 0.6, array $additionalWhere = []): ?array
     {
+        $searchTerm = trim($searchTerm);
+
         if (! $searchTerm) {
             return null;
         }
@@ -66,6 +68,7 @@ class FuzzySearchService
                     'entity' => $exactMatches->first(),
                     'warning' => null,
                     'exact_match' => true,
+                    'similarity' => 1.0,
                 ];
             } elseif ($exactMatches->count() > 1) {
                 // Ambiguidade severa (múltiplas pessoas com o mesmíssimo nome). Falha proposital.
@@ -79,9 +82,9 @@ class FuzzySearchService
 
                 return [
                     'entity' => $bestMatch,
-                    'warning' => "O nome informado ('$searchTerm') foi vinculado ao orientador '$originalField'.",
+                    'warning' => "O termo informado '$searchTerm' foi associado a '$originalField'. Verifique se está correto.",
                     'exact_match' => false,
-                    'similarity' => 1.0,
+                    'similarity' => $this->calculateSimilarity($searchTerm, $originalField),
                 ];
             } elseif ($likeMatches->count() > 1) {
                 // Múltiplos orientadores contém o termo (ex: "cleiton" bate em "Cleiton Silva" e "Cleiton Moura").
@@ -117,7 +120,7 @@ class FuzzySearchService
                 }
             });
 
-            $entities = $q->get(['id', $searchField]);
+            $entities = $q->get();
             foreach ($entities as $entity) {
                 $possibleEntities->push($entity);
             }
@@ -150,7 +153,7 @@ class FuzzySearchService
             if ($highestScore >= $minSimilarity) {
                 return [
                     'entity' => $bestMatch,
-                    'warning' => "Termo '$searchTerm' possivelmente corrigido para '$originalField'. Verifique se está correto.",
+                    'warning' => "O termo informado '$searchTerm' foi associado a '$originalField'. Verifique se está correto.",
                     'exact_match' => false,
                     'similarity' => $highestScore,
                 ];
@@ -171,11 +174,11 @@ class FuzzySearchService
      * @param  string  $str2  Segunda string para comparação.
      * @return float Valor entre 0 e 1 representando a similaridade.
      */
-    public function calculateSimilarity($str1, $str2)
+    public function calculateSimilarity(string $str1, string $str2): float
     {
         // Normaliza as strings usando SearchHelper (remove acentos, lower, trim).
-        $str1 = SearchHelper::normalize((string) $str1);
-        $str2 = SearchHelper::normalize((string) $str2);
+        $str1 = SearchHelper::normalize($str1);
+        $str2 = SearchHelper::normalize($str2);
 
         // Calcula a distância de Levenshtein entre as strings.
         $levenshtein = levenshtein($str1, $str2);
