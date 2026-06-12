@@ -370,7 +370,7 @@
                         <div class="row m-0 g-3 mb-4">
                             @foreach ($chunks as $chunk)
                                 <div class="col-md-6">
-                                    <div class="row m-0 m-0">
+                                    <div class="row m-0">
                                         @foreach ($chunk as $field => $label)
                                             @if ($internship->{$field})
                                                 <div class="col-md-12 mb-3">

@@ -60,11 +60,11 @@
                     <div class="d-flex justify-content-between mt-3">
                         <button type="button" class="btn btn-success" data-bs-toggle="modal"
                             data-bs-target="#associateModal">
-                            <i class="fas fa-check"></i> Associar e Arquivar Avaliação
+                            <i class="bi bi-check2-circle"></i> Associar e Arquivar Avaliação
                         </button>
                         <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
                             data-bs-target="#deleteEvaluationModal">
-                            <i class="fas fa-trash"></i> Excluir Avaliação
+                            <i class="bi bi-trash"></i> Excluir Avaliação
                         </button>
                     </div>
                 </form>
@@ -85,7 +85,7 @@
 
                     {{-- Informações Básicas --}}
                     <h5 class="text-primary mb-3">Informações Básicas</h5>
-                    <div class="row m-0 m-0">
+                    <div class="row m-0">
                         <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <input type="text" name="student_name" id="student_name" class="form-control"
@@ -114,7 +114,7 @@
 
                     {{-- Dados do Supervisor --}}
                     <h5 class="text-primary mb-3 mt-4">Dados do Supervisor</h5>
-                    <div class="row m-0 m-0">
+                    <div class="row m-0">
                         <div class="col-md-3 mb-3">
                             <div class="form-floating">
                                 <select name="has_academic_background" id="has_academic_background" class="form-select">
@@ -154,7 +154,7 @@
                         </div>
                     </div>
 
-                    <div class="row m-0 m-0">
+                    <div class="row m-0">
                         <div class="col-md-6 mb-3">
                             <div class="form-floating">
                                 <input type="text" name="experience_time" id="experience_time" class="form-control"
@@ -219,14 +219,14 @@
                         $options = ['Ótimo', 'Muito Bom', 'Bom', 'Satisfatório', 'Insatisfatório'];
                     @endphp
 
-                    <div class="row m-0 m-0">
+                    <div class="row m-0">
                         @php
                             $chunks = array_chunk($criteria, 5, true);
                         @endphp
 
                         @foreach ($chunks as $chunk)
                             <div class="col-md-6">
-                                <div class="row m-0 m-0">
+                                <div class="row m-0">
                                     @foreach ($chunk as $field => $label)
                                         <div class="col-md-12 mb-3">
                                             <div class="form-floating">
@@ -284,7 +284,7 @@
 
                     <div class="d-flex justify-content-end mt-4">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Salvar Alterações
+                            <i class="bi bi-save"></i> Salvar Alterações
                         </button>
                     </div>
                 </form>
@@ -299,7 +299,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="associateModalLabel">
-                        <i class="fas fa-link"></i> Confirmar Associação
+                        <i class="bi bi-link-45deg"></i> Confirmar Associação
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -307,24 +307,24 @@
                 <div class="modal-body">
                     <p class="mb-2">Tem certeza que deseja associar esta avaliação ao estágio selecionado?</p>
                     <div class="alert alert-warning mb-3" role="alert">
-                        <i class="fas fa-exclamation-triangle"></i>
+                        <i class="bi bi-exclamation-triangle"></i>
                         <strong>Atenção:</strong> Esta ação não pode ser desfeita facilmente. A avaliação será arquivada e
                         vinculada permanentemente ao estágio.
                     </div>
                     @if ($evaluation->hasCompletedWorkload())
                         <div class="alert alert-info mb-0" role="alert">
-                            <i class="fas fa-envelope"></i>
+                            <i class="bi bi-envelope"></i>
                             <strong>Notificação por E-mail:</strong> Como a carga horária foi cumprida, um e-mail de notificação com a avaliação e a nota final calculada será enviado automaticamente ao estagiário.
                         </div>
                     @endif
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times"></i> Cancelar
+                        <i class="bi bi-x-circle"></i> Cancelar
                     </button>
                     <button type="button" class="btn btn-success spinner-trigger"
                         onclick="document.getElementById('associateForm').submit();">
-                        <i class="fas fa-check"></i> Confirmar Associação
+                        <i class="bi bi-check2-circle"></i> Confirmar Associação
                     </button>
                 </div>
             </div>
@@ -338,7 +338,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title" id="deleteEvaluationModalLabel">
-                        <i class="fas fa-trash"></i> Confirmar Exclusão
+                        <i class="bi bi-trash"></i> Confirmar Exclusão
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -352,7 +352,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash"></i> Confirmar Exclusão
+                            <i class="bi bi-trash"></i> Confirmar Exclusão
                         </button>
                     </form>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

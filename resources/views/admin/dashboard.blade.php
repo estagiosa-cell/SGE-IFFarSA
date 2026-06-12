@@ -127,7 +127,7 @@
                         <h6 class="m-0 fw-bold text-primary">Estágios por Status</h6>
                     </div>
                     <div class="card-body">
-                        <div class="row m-0 m-0">
+                        <div class="row m-0">
                             <div class="col-md-6 mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="text-muted">Pendente</span>
@@ -239,7 +239,7 @@
         </div>
 
         {{-- Estágios Recentes --}}
-        <div class="row m-0 m-0">
+        <div class="row m-0">
             <div class="col-12">
                 <div class="card shadow mb-4">
                     <div class="card-header bg-light py-2">
@@ -249,7 +249,7 @@
                         <div class="list-group list-group-flush">
                             {{-- Cabeçalho Desktop --}}
                             <div class="list-group-item bg-light d-none d-lg-block text-muted fw-bold">
-                                <div class="row m-0 m-0">
+                                <div class="row m-0">
                                     <div class="col-lg-2">Aluno</div>
                                     <div class="col-lg-2">Empresa</div>
                                     <div class="col-lg-2">Curso</div>
@@ -360,57 +360,6 @@
                             <button type="button" class="btn-close {{ $headerClass === 'bg-warning text-dark' ? '' : 'btn-close-white' }}" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <style>
-                                .sync-error-container {
-                                    background-color: #f8f9fa;
-                                    border: 1px solid #e9ecef;
-                                    border-radius: 0.5rem;
-                                    padding: 1rem;
-                                }
-                                .sync-error-grid {
-                                    display: grid;
-                                    grid-template-columns: 80px 1.5fr 2.5fr;
-                                    column-gap: 1rem;
-                                    row-gap: 0.5rem;
-                                    align-items: center;
-                                }
-                                .sync-error-header {
-                                    font-size: 0.8rem;
-                                    font-weight: 700;
-                                    text-transform: uppercase;
-                                    color: #6c757d;
-                                    border-bottom: 2px solid #dee2e6;
-                                    padding-bottom: 0.5rem;
-                                    margin-bottom: 0.5rem;
-                                }
-                                .sync-error-row {
-                                    display: contents;
-                                }
-                                .sync-error-cell {
-                                    padding: 0.5rem 0;
-                                    font-size: 0.9rem;
-                                    border-bottom: 1px dashed #dee2e6;
-                                }
-                                .sync-error-row:last-child .sync-error-cell {
-                                    border-bottom: none;
-                                }
-                                .sync-error-reason {
-                                    color: #dc3545;
-                                    background-color: rgba(220, 53, 69, 0.1);
-                                    padding: 0.35rem 0.65rem;
-                                    border-radius: 0.375rem;
-                                    font-size: 0.85rem;
-                                    display: inline-block;
-                                }
-                                .sync-warning-reason {
-                                    color: #856404;
-                                    background-color: rgba(255, 193, 7, 0.2);
-                                    padding: 0.35rem 0.65rem;
-                                    border-radius: 0.375rem;
-                                    font-size: 0.85rem;
-                                    display: inline-block;
-                                }
-                            </style>
                             
                             {{-- Estágios --}}
                             <h6>Estágios sincronizados</h6>
@@ -423,52 +372,62 @@
                                 <p>{{ $processedInternships }} registros importados com sucesso.</p>
                             @endif
                             @if(count($sync['internships']['errors'] ?? []) > 0)
-                                <div class="sync-error-container mb-4">
-                                    <div class="sync-error-grid">
-                                        <div class="sync-error-header">Linha</div>
-                                        <div class="sync-error-header">Estagiário</div>
-                                        <div class="sync-error-header">Motivo do Erro</div>
-
-                                        @foreach($sync['internships']['errors'] as $err)
-                                            <div class="sync-error-row">
-                                                <div class="sync-error-cell">
-                                                    <span class="badge bg-secondary rounded-pill">#{{ $err['line'] ?? '-' }}</span>
-                                                </div>
-                                                <div class="sync-error-cell fw-semibold text-dark">
-                                                    {{ $err['student'] ?? '-' }}
-                                                </div>
-                                                <div class="sync-error-cell">
-                                                    <span class="sync-error-reason"><i class="bi bi-exclamation-triangle me-1"></i> {{ $err['reason'] ?? '-' }}</span>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
+                                 <div class="list-group mb-4">
+                                     <div class="list-group-item bg-light text-uppercase fw-bold text-secondary py-2" style="font-size: 0.75rem;">
+                                         <div class="row g-2">
+                                             <div class="col-2 col-sm-1">Linha</div>
+                                             <div class="col-4 col-sm-4">Estagiário</div>
+                                             <div class="col-6 col-sm-7">Motivo do Erro</div>
+                                         </div>
+                                     </div>
+                                     @foreach($sync['internships']['errors'] as $err)
+                                         <div class="list-group-item py-2">
+                                             <div class="row g-2 align-items-center">
+                                                 <div class="col-2 col-sm-1">
+                                                     <span class="badge bg-secondary rounded-pill">#{{ $err['line'] ?? '-' }}</span>
+                                                 </div>
+                                                 <div class="col-4 col-sm-4 fw-semibold text-dark text-truncate" title="{{ $err['student'] ?? '-' }}">
+                                                     {{ $err['student'] ?? '-' }}
+                                                 </div>
+                                                 <div class="col-6 col-sm-7">
+                                                     <div class="bg-danger-subtle text-danger border border-danger-subtle rounded px-2 py-1 text-wrap">
+                                                         <i class="bi bi-exclamation-triangle me-1"></i> {{ $err['reason'] ?? '-' }}
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     @endforeach
+                                 </div>
+                             @endif
 
                             @if(count($sync['internships']['warnings'] ?? []) > 0)
-                                <div class="sync-error-container mb-4">
-                                    <div class="sync-error-grid">
-                                        <div class="sync-error-header">Linha</div>
-                                        <div class="sync-error-header">Estagiário</div>
-                                        <div class="sync-error-header">Aviso</div>
-
-                                        @foreach($sync['internships']['warnings'] as $warn)
-                                            <div class="sync-error-row">
-                                                <div class="sync-error-cell">
-                                                    <span class="badge bg-secondary rounded-pill">#{{ $warn['line'] ?? '-' }}</span>
-                                                </div>
-                                                <div class="sync-error-cell fw-semibold text-dark">
-                                                    {{ $warn['student'] ?? '-' }}
-                                                </div>
-                                                <div class="sync-error-cell">
-                                                    <span class="sync-warning-reason"><i class="bi bi-info-circle me-1"></i> {{ $warn['message'] ?? '-' }}</span>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
+                                 <div class="list-group mb-4">
+                                     <div class="list-group-item bg-light text-uppercase fw-bold text-secondary py-2" style="font-size: 0.75rem;">
+                                         <div class="row g-2">
+                                             <div class="col-2 col-sm-1">Linha</div>
+                                             <div class="col-4 col-sm-4">Estagiário</div>
+                                             <div class="col-6 col-sm-7">Aviso</div>
+                                         </div>
+                                     </div>
+                                     @foreach($sync['internships']['warnings'] as $warn)
+                                         <div class="list-group-item py-2">
+                                             <div class="row g-2 align-items-center">
+                                                 <div class="col-2 col-sm-1">
+                                                     <span class="badge bg-secondary rounded-pill">#{{ $warn['line'] ?? '-' }}</span>
+                                                 </div>
+                                                 <div class="col-4 col-sm-4 fw-semibold text-dark text-truncate" title="{{ $warn['student'] ?? '-' }}">
+                                                     {{ $warn['student'] ?? '-' }}
+                                                 </div>
+                                                 <div class="col-6 col-sm-7">
+                                                     <div class="bg-warning-subtle text-dark border border-warning-subtle rounded px-2 py-1 text-wrap">
+                                                         <i class="bi bi-info-circle me-1"></i> {{ $warn['message'] ?? '-' }}
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     @endforeach
+                                 </div>
+                             @endif
 
                             {{-- Avaliações --}}
                             <h6 class="mt-4">Avaliações sincronizadas</h6>
@@ -481,50 +440,60 @@
                                 <p>{{ $processedEvaluations }} avaliações importadas com sucesso.</p>
                             @endif
                             @if(count($sync['evaluations']['errors'] ?? []) > 0)
-                                <div class="sync-error-container mb-4">
-                                    <div class="sync-error-grid">
-                                        <div class="sync-error-header">Linha</div>
-                                        <div class="sync-error-header">Estagiário</div>
-                                        <div class="sync-error-header">Motivo do Erro</div>
-
-                                        @foreach($sync['evaluations']['errors'] as $err)
-                                            <div class="sync-error-row">
-                                                <div class="sync-error-cell">
+                                <div class="list-group mb-4">
+                                    <div class="list-group-item bg-light text-uppercase fw-bold text-secondary py-2" style="font-size: 0.75rem;">
+                                        <div class="row g-2">
+                                            <div class="col-2 col-sm-1">Linha</div>
+                                            <div class="col-4 col-sm-4">Estagiário</div>
+                                            <div class="col-6 col-sm-7">Motivo do Erro</div>
+                                        </div>
+                                    </div>
+                                    @foreach($sync['evaluations']['errors'] as $err)
+                                        <div class="list-group-item py-2">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-2 col-sm-1">
                                                     <span class="badge bg-secondary rounded-pill">#{{ $err['line'] ?? '-' }}</span>
                                                 </div>
-                                                <div class="sync-error-cell fw-semibold text-dark">
+                                                <div class="col-4 col-sm-4 fw-semibold text-dark text-truncate" title="{{ $err['student'] ?? '-' }}">
                                                     {{ $err['student'] ?? '-' }}
                                                 </div>
-                                                <div class="sync-error-cell">
-                                                    <span class="sync-error-reason"><i class="bi bi-exclamation-triangle me-1"></i> {{ $err['reason'] ?? '-' }}</span>
+                                                <div class="col-6 col-sm-7">
+                                                    <div class="bg-danger-subtle text-danger border border-danger-subtle rounded px-2 py-1 text-wrap">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i> {{ $err['reason'] ?? '-' }}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                    </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             @endif
 
                             @if(count($sync['evaluations']['warnings'] ?? []) > 0)
-                                <div class="sync-error-container mb-4">
-                                    <div class="sync-error-grid">
-                                        <div class="sync-error-header">Linha</div>
-                                        <div class="sync-error-header">Estagiário</div>
-                                        <div class="sync-error-header">Aviso</div>
-
-                                        @foreach($sync['evaluations']['warnings'] as $warn)
-                                            <div class="sync-error-row">
-                                                <div class="sync-error-cell">
+                                <div class="list-group mb-4">
+                                    <div class="list-group-item bg-light text-uppercase fw-bold text-secondary py-2" style="font-size: 0.75rem;">
+                                        <div class="row g-2">
+                                            <div class="col-2 col-sm-1">Linha</div>
+                                            <div class="col-4 col-sm-4">Estagiário</div>
+                                            <div class="col-6 col-sm-7">Aviso</div>
+                                        </div>
+                                    </div>
+                                    @foreach($sync['evaluations']['warnings'] as $warn)
+                                        <div class="list-group-item py-2">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-2 col-sm-1">
                                                     <span class="badge bg-secondary rounded-pill">#{{ $warn['line'] ?? '-' }}</span>
                                                 </div>
-                                                <div class="sync-error-cell fw-semibold text-dark">
+                                                <div class="col-4 col-sm-4 fw-semibold text-dark text-truncate" title="{{ $warn['student'] ?? '-' }}">
                                                     {{ $warn['student'] ?? '-' }}
                                                 </div>
-                                                <div class="sync-error-cell">
-                                                    <span class="sync-warning-reason"><i class="bi bi-info-circle me-1"></i> {{ $warn['message'] ?? '-' }}</span>
+                                                <div class="col-6 col-sm-7">
+                                                    <div class="bg-warning-subtle text-dark border border-warning-subtle rounded px-2 py-1 text-wrap">
+                                                         <i class="bi bi-info-circle me-1"></i> {{ $warn['message'] ?? '-' }}
+                                                     </div>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                    </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             @endif
 
