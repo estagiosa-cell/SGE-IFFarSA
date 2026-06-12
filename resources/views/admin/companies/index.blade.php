@@ -93,6 +93,9 @@
                 @endif
             </x-ui.empty-state>
         @else
+            <div class="text-muted small mb-3">
+                Mostrando de <strong>{{ $companies->firstItem() }}</strong> a <strong>{{ $companies->lastItem() }}</strong> de <strong>{{ $companies->total() }}</strong> resultados
+            </div>
             @foreach ($companies as $company)
                 <div class="card mb-3 shadow-sm border-0">
                     <div class="card-body py-3 px-4">

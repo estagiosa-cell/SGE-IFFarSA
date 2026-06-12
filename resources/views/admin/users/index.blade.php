@@ -105,6 +105,9 @@
                 @endif
             </x-ui.empty-state>
         @else
+            <div class="text-muted small mb-3">
+                Mostrando de <strong>{{ $users->firstItem() }}</strong> a <strong>{{ $users->lastItem() }}</strong> de <strong>{{ $users->total() }}</strong> resultados
+            </div>
             @foreach ($users as $user)
                 <div class="card mb-3 shadow-sm border-0">
                     <div class="card-body py-3 px-4">

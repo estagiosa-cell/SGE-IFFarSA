@@ -76,6 +76,9 @@
                 </div>
             </div>
         @else
+            <div class="text-muted small mb-3">
+                Mostrando de <strong>{{ $logs->firstItem() }}</strong> a <strong>{{ $logs->lastItem() }}</strong> de <strong>{{ $logs->total() }}</strong> resultados
+            </div>
             @foreach ($logs as $log)
                 <div class="card mb-3 shadow-sm border-0">
                     <div class="card-body py-3 px-4">
