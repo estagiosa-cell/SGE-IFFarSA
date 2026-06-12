@@ -15,7 +15,6 @@ class EmailLogController extends Controller
     /**
      * Exibe a listagem dos logs de e-mail.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
     public function index(Request $request)
