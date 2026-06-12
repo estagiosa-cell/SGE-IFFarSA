@@ -13,7 +13,7 @@
                 <form action="{{ route('reports.internships.export') }}" method="POST" class="needs-validation no-spinner" novalidate>
                     @csrf
 
-                    <div class="row m-0 m-0">
+                    <div class="row m-0">
                         {{-- Filtro de Cursos para Admin e Coordenador --}}
                         @if (Auth::user()->can('is-admin') || Auth::user()->can('is-coordenador'))
                             <div class="col-md-4 mb-3">
