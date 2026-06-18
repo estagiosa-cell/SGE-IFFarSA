@@ -1,4 +1,4 @@
-w@extends('layouts.auth')
+@extends('layouts.auth')
 
 @section('title', 'Editar Parte Concedente')
 
