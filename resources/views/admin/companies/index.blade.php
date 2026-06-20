@@ -104,12 +104,14 @@
                             <div class="col-md-4 small text-muted">
 
                                 @php
-                                    $doc = preg_replace('/\D/', '', $company->legal_identifier);
+                                    // Remove apenas os separadores da máscara para contar os caracteres.
+                                    // Preserva letras do CNPJ alfanumérico.
+                                    $docClean = strtoupper(preg_replace('/[.\-\/\s]/', '', $company->legal_identifier));
                                 @endphp
-                                @if (strlen($doc) === 11)
-                                    <strong>CPF: </strong>{{ App\Utils\Formatter::formatCPF($doc) }}
-                                @elseif(strlen($doc) === 14)
-                                    <strong>CNPJ: </strong>{{ App\Utils\Formatter::formatCNPJ($doc) }}
+                                @if (strlen($docClean) === 11 && ctype_digit($docClean))
+                                    <strong>CPF: </strong>{{ App\Utils\Formatter::formatCPF($docClean) }}
+                                @elseif(strlen($docClean) === 14)
+                                    <strong>CNPJ: </strong>{{ App\Utils\Formatter::formatCNPJ($docClean) }}
                                 @else
                                     <strong>CPF/CNPJ: </strong>{{ $company->legal_identifier }}
                                 @endif

@@ -168,6 +168,10 @@ class InternshipController extends Controller
             return response()->json([]);
         }
 
+        // Normaliza o identificador: remove separadores da máscara e converte para maiúsculas.
+        // Isso garante compatibilidade com o novo CNPJ alfanumérico (IN RFB nº 2.229/2024).
+        $identificador = strtoupper(preg_replace('/[.\-\/\s]/', '', $identificador));
+
         // Busca empresas que correspondem ao CPF/CNPJ fornecido.
         $companies = Company::where('legal_identifier', $identificador)
             ->get([

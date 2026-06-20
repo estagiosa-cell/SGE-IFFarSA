@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Utils\Formatter;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -27,7 +28,29 @@ class UpdateCompanyRequest extends FormRequest
         return [
             // Identificação (Obrigatórios)
             'name' => ['required', 'string', 'max:255'],
-            'legal_identifier' => ['required', 'string', 'regex:/^[0-9]+$/', 'min:11', 'max:14'], // Apenas números, 11 (CPF) ou 14 (CNPJ)
+            'legal_identifier' => [
+                'required',
+                'string',
+                // Formato: 11 dígitos (CPF numérico) ou 14 chars alfanuméricos com DVs numéricos (CNPJ)
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    // Remove apenas a máscara para não apagar letras do CNPJ alfanumérico.
+                    $clean = strtoupper(preg_replace('/[.\-\/\s]/', '', $value));
+
+                    if (strlen($clean) === 11 && ctype_digit($clean)) {
+                        // CPF: valida os dígitos verificadores.
+                        if (! Formatter::validateCpf($clean)) {
+                            $fail('O CPF informado é inválido.');
+                        }
+                    } elseif (strlen($clean) === 14) {
+                        // CNPJ (numérico ou alfanumérico): valida os dígitos verificadores.
+                        if (! Formatter::validateCnpj($clean)) {
+                            $fail('O CNPJ informado é inválido.');
+                        }
+                    } else {
+                        $fail('O campo CPF/CNPJ deve ter 11 dígitos (CPF) ou 14 caracteres (CNPJ).');
+                    }
+                },
+            ],
 
             // Endereço (Obrigatórios)
             'address_street' => ['required', 'string', 'max:255'],
