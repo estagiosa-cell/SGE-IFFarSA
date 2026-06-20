@@ -47,8 +47,10 @@ class CompanyController extends Controller
 
         // Aplica o filtro de busca por CPF/CNPJ, se ele existir.
         if ($searchLegalIdentifier) {
-            // Usa 'like' para permitir a busca mesmo que o usuário não digite a máscara completa.
-            $query->where('legal_identifier', 'like', '%'.$searchLegalIdentifier.'%');
+            // Remove a máscara da string de busca e converte para maiúsculo (para o CNPJ alfanumérico)
+            $cleanSearchIdentifier = strtoupper(preg_replace('/[.\-\/\s]/', '', $searchLegalIdentifier));
+            // Usa 'like' para permitir a busca parcial.
+            $query->where('legal_identifier', 'like', '%'.$cleanSearchIdentifier.'%');
         }
 
         $orderedQuery = $query->orderBy('name');
@@ -329,11 +331,12 @@ class CompanyController extends Controller
             }
         }
 
-        // Valida o formato do CPF/CNPJ (deve conter 11 ou 14 dígitos).
+        // Valida o formato do CPF/CNPJ (deve ter 11 ou 14 caracteres, podendo conter letras para CNPJ alfanumérico).
         if (! empty($data['legal_identifier'])) {
-            $cleaned = preg_replace('/[^0-9]/', '', $data['legal_identifier']);
+            // Remove apenas a máscara (pontos, barra, traço) para contar os caracteres.
+            $cleaned = preg_replace('/[.\-\/\s]/', '', $data['legal_identifier']);
             if (strlen($cleaned) !== 11 && strlen($cleaned) !== 14) {
-                $errors[] = "Linha {$lineNumber}: CPF/CNPJ deve ter 11 ou 14 dígitos.";
+                $errors[] = "Linha {$lineNumber}: CPF/CNPJ deve ter 11 ou 14 caracteres.";
             }
         }
 
@@ -346,14 +349,18 @@ class CompanyController extends Controller
     }
 
     /**
-     * Limpa e formata o CPF/CNPJ, removendo caracteres não numéricos.
+     * Limpa e normaliza o CPF/CNPJ, removendo apenas os separadores da máscara.
+     *
+     * Preserva letras maiúsculas para suportar o novo formato alfanumérico de CNPJ
+     * (Resolução DREI nº 81/2024).
      *
      * @param  string  $value  O valor do CPF/CNPJ.
-     * @return string O valor limpo.
+     * @return string O valor limpo (sem máscara, em maiúsculas).
      */
     private function cleanLegalIdentifier($value)
     {
-        return preg_replace('/[^0-9]/', '', $value);
+        // Remove apenas a máscara (pontos, barra, traço, espaços) e converte para maiúsculas.
+        return strtoupper(preg_replace('/[.\-\/\s]/', '', trim($value)));
     }
 
     /**

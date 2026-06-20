@@ -240,7 +240,7 @@
                         <div class="col-md-6 mb-3">
                             <div class="d-flex gap-2 align-items-start">
                                 <div class="flex-grow-1">
-                                    <x-form.input name="company_legal_identifier" value="{{ $internship->company_legal_identifier }}" label="CNPJ/CPF *" placeholder="CNPJ/CPF" required />
+                                    <x-form.input name="company_legal_identifier" value="{{ $internship->company_legal_identifier }}" label="CNPJ/CPF *" placeholder="CPF (11 dígitos) ou CNPJ (14 caracteres)" required />
                                 </div>
                                 <button type="button" class="btn btn-outline-primary" style="height: 58px;" onclick="buscarDadosConcedente()" title="Buscar Dados">
                                     <i class="bi bi-arrow-clockwise"></i>
@@ -598,13 +598,14 @@
             let companiesData = [];
 
             function buscarDadosConcedente() {
-                // Remove qualquer formatação (pontos, traços, barras) do valor antes de buscar
+                // Remove apenas os separadores da máscara (pontos, barras, traços).
+                // Preserva letras maiúsculas para suportar o novo CNPJ alfanumérico.
                 let inputEl = document.getElementById('company_legal_identifier');
                 if (!inputEl) return;
 
-                let identificador = inputEl.value.replace(/\D/g, '');
-                
-                // Atualiza o valor no input para refletir os números limpos
+                let identificador = inputEl.value.replace(/[.\-\/\s]/g, '').toUpperCase();
+
+                // Atualiza o valor no input para refletir o valor normalizado.
                 inputEl.value = identificador;
 
                 if (!identificador) {

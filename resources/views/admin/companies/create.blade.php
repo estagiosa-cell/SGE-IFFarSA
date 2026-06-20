@@ -55,7 +55,7 @@
                                     <x-form.input name="name" label="Nome / Razão Social *" placeholder="Ex: Empresa Exemplo Ltda" required feedback="O campo nome é obrigatório." />
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <x-form.input name="legal_identifier" label="CPF / CNPJ *" placeholder="CPF ou CNPJ (apenas números)" required feedback="O campo CPF/CNPJ é obrigatório." />
+                                    <x-form.input name="legal_identifier" label="CPF / CNPJ *" placeholder="CPF (11 dígitos) ou CNPJ (14 caracteres)" required feedback="O campo CPF/CNPJ é obrigatório." />
                                 </div>
                             </div>
 
@@ -136,6 +136,7 @@
                             <x-form-info-alert>
                                 <li>Os campos marcados com * são obrigatórios.</li>
                                 <li>O CPF/CNPJ deve ser inserido sem pontos, traços ou barras.</li>
+                                <li>O CNPJ pode ser no formato alfanumérico (novo padrão Resolução DREI nº 81/2024).</li>
                                 <li>Para casos como escolas estaduais, cadastre cada escola individualmente, mesmo que o
                                     CNPJ seja o mesmo da Secretaria de Educação.</li>
                                 <li>O campo "Nº do Processo / Credenciamento" é utilizado para formalizar estágios em

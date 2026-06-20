@@ -746,11 +746,15 @@ class SyncDataController extends Controller
     }
 
     /**
-     * Formata um CPF ou CNPJ garantindo o número correto de dígitos.
+     * Formata um CPF ou CNPJ vindo da planilha do Google.
      *
-     * Este método auxiliar garante que CPFs tenham 11 dígitos e CNPJs tenham 14 dígitos,
-     * preenchendo com zeros à esquerda quando necessário. Isso é importante porque
-     * o Google Sheets pode remover zeros iniciais ao retornar valores numéricos.
+     * Para CPF (length=11): remove caracteres não numéricos e preenche com zeros
+     * à esquerda (o Google Sheets pode remover zeros iniciais em valores numéricos).
+     *
+     * Para CNPJ (length=14): remove apenas os separadores da máscara (pontos, barra,
+     * traço) e converte para maiúsculas, preservando letras do novo formato alfanumérico
+     * (Resolução DREI nº 81/2024). Não aplica str_pad pois letras não devem ser
+     * substituídas por zeros.
      *
      * @param  string|null  $value  O valor a ser formatado.
      * @param  int  $length  O tamanho esperado (11 para CPF, 14 para CNPJ).
@@ -762,11 +766,16 @@ class SyncDataController extends Controller
             return null;
         }
 
-        // Remove caracteres não numéricos
-        $cleaned = preg_replace('/[^0-9]/', '', $value);
+        if ($length === 11) {
+            // CPF: apenas dígitos numéricos, preenche zeros à esquerda.
+            $cleaned = preg_replace('/[^0-9]/', '', $value);
 
-        // Preenche com zeros à esquerda até atingir o tamanho esperado
-        return str_pad($cleaned, $length, '0', STR_PAD_LEFT);
+            return str_pad($cleaned, $length, '0', STR_PAD_LEFT);
+        }
+
+        // CNPJ: remove apenas separadores da máscara e converte para maiúsculas.
+        // Preserva letras para o formato alfanumérico.
+        return strtoupper(preg_replace('/[.\-\/\s]/', '', trim($value)));
     }
 
     /**
