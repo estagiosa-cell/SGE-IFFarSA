@@ -12,6 +12,9 @@
                     <i class="bi bi-trash{{ $showDeleted ? '' : '-fill' }} me-2"></i>
                     {{ $showDeleted ? 'Ver Ativos' : 'Ver Deletados' }}
                 </a>
+                <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#exportModal">
+                    <i class="bi bi-filetype-csv me-2"></i>Exportar CSV
+                </button>
                 <a href="{{ route('admin.companies.create') }}" class="btn btn-primary">
                     <i class="bi bi-plus-circle me-2"></i>Nova Parte Concedente
                 </a>
@@ -143,5 +146,36 @@
                 {{ $companies->withQueryString()->links() }}
             </div>
         @endif
+    </div>
+
+    <!-- Modal Exportar CSV -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{{ route('admin.companies.export') }}" method="GET" class="no-spinner">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exportModalLabel"><i class="bi bi-filetype-csv me-2"></i>Exportar Empresas</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted small mb-3">O arquivo gerado conterá Nome da empresa, Cidade, Telefone e E-mail.</p>
+                        
+                        <div class="form-floating mb-3">
+                            <select class="form-select" name="address_city" id="export_city" aria-label="Filtrar por Cidade">
+                                <option value="">Todas as Cidades</option>
+                                @foreach($availableCities as $city)
+                                    <option value="{{ $city }}" {{ request('address_city') == $city ? 'selected' : '' }}>{{ $city }}</option>
+                                @endforeach
+                            </select>
+                            <label for="export_city">Filtrar por Cidade</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Gerar Arquivo CSV</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 @endsection

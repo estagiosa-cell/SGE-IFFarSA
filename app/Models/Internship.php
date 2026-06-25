@@ -301,7 +301,7 @@ class Internship extends Model
      * @param  array  $data  Dados adicionais/sobrescritos (ex: do request)
      * @return float A nota final calculada.
      */
-    public function calculateEvaluationGrade(array $data = []): float
+    public function calculateEvaluationGrade(array $data = []): ?float
     {
         $criteria = [
             'evaluation_performance',
@@ -327,7 +327,7 @@ class Internship extends Model
             }
         }
 
-        return $count > 0 ? $totalScore / $count : 0.0;
+        return $count > 0 ? $totalScore / $count : null;
     }
 
     /**

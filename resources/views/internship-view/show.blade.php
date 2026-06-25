@@ -241,7 +241,7 @@
         </div>
 
         {{-- Avaliação do Supervisor --}}
-        @if ($internship->evaluation_performance)
+        @if ($internship->evaluation_grade !== null || $internship->evaluation_supervisor_name || $internship->evaluation_performance)
             @php
                 // Resolve numeric value for a textual concept using internship stored values when present
                 $getNumericValue = function ($value) use ($internship) {
@@ -390,7 +390,7 @@
                         </div>
                     @endcan
                     {{-- Nota Final --}}
-                    @if ($internship->evaluation_grade)
+                    @if ($internship->evaluation_grade !== null)
                         <div class="row m-0 g-3 mb-4">
                             <div class="col-12">
                                 <div class="alert alert-success mb-0" role="alert">
