@@ -98,6 +98,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/estagios/{internshipId}/gerar-documento', InternshipDocumentController::class)->name('admin.internships.documents.generate');
 
         // rotas de partes concendentes
+        Route::get('/companies/export', [CompanyController::class, 'exportCsv'])->name('admin.companies.export');
         Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies.index');
         Route::get('/companies/create', [CompanyController::class, 'create'])->name('admin.companies.create');
         Route::post('/companies', [CompanyController::class, 'store'])->name('admin.companies.store');
