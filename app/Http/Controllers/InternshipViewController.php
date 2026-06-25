@@ -54,6 +54,7 @@ class InternshipViewController extends Controller
                 'status', 'start_date', 'end_date',
                 'advisor_id', 'course_id', 'company_name',
                 'company_legal_identifier', 'updated_at', 'supervisor_name',
+                'evaluation_grade', 'internship_type_weight',
             ])
                 ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);
@@ -90,6 +91,7 @@ class InternshipViewController extends Controller
                 'status', 'start_date', 'end_date',
                 'advisor_id', 'course_id', 'company_name',
                 'company_legal_identifier', 'updated_at', 'supervisor_name',
+                'evaluation_grade', 'internship_type_weight',
             ])
                 ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);
