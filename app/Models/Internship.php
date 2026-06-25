@@ -184,6 +184,14 @@ class Internship extends Model
     }
 
     /**
+     * Relacionamento: retorna os aditivos do estágio.
+     */
+    public function amendments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InternshipAmendment::class);
+    }
+
+    /**
      * Aplica filtros padrão de listagem de estágios na query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query

@@ -71,6 +71,7 @@ class DashboardController extends Controller
         // Coleta estatísticas sobre as avaliações de supervisor.
         $totalEvaluations = SupervisorEvaluation::count();
         $deletedEvaluations = SupervisorEvaluation::onlyTrashed()->count();
+        $associatedEvaluations = Internship::whereNotNull('evaluation_performance')->count();
 
         $internshipSelect = [
             'id', 'student_name', 'status', 'start_date', 'end_date',
@@ -97,6 +98,10 @@ class DashboardController extends Controller
         // Combina as listas garantindo que todos os pendentes fiquem no topo (primeiro) seguidos pelos demais
         $recentInternships = $pendingInternships->concat($otherInternships);
 
+        // Métricas de Aditivos
+        $totalInternshipsWithAmendments = Internship::has('amendments')->count();
+        $totalActiveAmendments = \App\Models\InternshipAmendment::count();
+
         // Retorna a view do dashboard com todas as estatísticas coletadas.
         return view('admin.dashboard', compact(
             'totalInternships',
@@ -112,7 +117,10 @@ class DashboardController extends Controller
             'deletedCourses',
             'totalEvaluations',
             'deletedEvaluations',
-            'recentInternships'
+            'associatedEvaluations',
+            'recentInternships',
+            'totalInternshipsWithAmendments',
+            'totalActiveAmendments'
         ));
     }
 }
