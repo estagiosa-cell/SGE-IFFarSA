@@ -17,7 +17,7 @@
         {{-- Estatísticas Gerais --}}
         <div class="row m-0 mb-4">
             {{-- Total de Estágios --}}
-            <div class="col-xl col-md-6 mb-4">
+            <div class="col-xl-4 col-md-6 mb-3">
                 <div class="card border-start border-primary border-4 shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row m-0 no-gutters align-items-center">
@@ -26,7 +26,7 @@
                                     Total de Estágios
                                 </div>
                                 <div class="h5 mb-0 fw-bold text-gray-800">{{ $totalInternships }}</div>
-                                <small class="text-muted">{{ $deletedInternships }} Excluído(s)</small>
+                                <small class="text-muted">{{ $deletedInternships }} Excluído{{ $deletedInternships != 1 ? 's' : '' }}</small>
                             </div>
                             <div class="col-auto">
                                 <i class="bi bi-briefcase fs-2 text-gray-300"></i>
@@ -37,7 +37,7 @@
             </div>
 
             {{-- Total de Partes Concedentes --}}
-            <div class="col-xl col-md-6 mb-4">
+            <div class="col-xl-4 col-md-6 mb-3">
                 <div class="card border-start border-success border-4 shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row m-0 no-gutters align-items-center">
@@ -46,8 +46,7 @@
                                     Partes Concedentes
                                 </div>
                                 <div class="h5 mb-0 fw-bold text-gray-800">{{ $totalCompanies }}</div>
-                                <small class="text-muted">{{ $deletedCompanies }} Excluída(s) | {{ $activeCompanies }} com
-                                    estágio(s) ativo(s)</small>
+                                <small class="text-muted">{{ $deletedCompanies }} Excluída{{ $deletedCompanies != 1 ? 's' : '' }} | {{ $activeCompanies }} com estágio{{ $activeCompanies != 1 ? 's' : '' }} ativo{{ $activeCompanies != 1 ? 's' : '' }}</small>
                             </div>
                             <div class="col-auto">
                                 <i class="bi bi-building fs-2 text-gray-300"></i>
@@ -58,7 +57,7 @@
             </div>
 
             {{-- Total de Usuários --}}
-            <div class="col-xl col-md-6 mb-4">
+            <div class="col-xl-4 col-md-6 mb-3">
                 <div class="card border-start border-info border-4 shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row m-0 no-gutters align-items-center">
@@ -67,7 +66,7 @@
                                     Total de Usuários
                                 </div>
                                 <div class="h5 mb-0 fw-bold text-gray-800">{{ $totalUsers }}</div>
-                                <small class="text-muted">{{ $deletedUsers }} Excluído(s)</small>
+                                <small class="text-muted">{{ $deletedUsers }} Excluído{{ $deletedUsers != 1 ? 's' : '' }}</small>
                             </div>
                             <div class="col-auto">
                                 <i class="bi bi-people fs-2 text-gray-300"></i>
@@ -78,7 +77,7 @@
             </div>
 
             {{-- Total de Cursos --}}
-            <div class="col-xl col-md-6 mb-4">
+            <div class="col-xl-4 col-md-6 mb-3">
                 <div class="card border-start border-warning border-4 shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row m-0 no-gutters align-items-center">
@@ -87,7 +86,7 @@
                                     Total de Cursos
                                 </div>
                                 <div class="h5 mb-0 fw-bold text-gray-800">{{ $totalCourses }}</div>
-                                <small class="text-muted">{{ $deletedCourses }} Excluído(s)</small>
+                                <small class="text-muted">{{ $deletedCourses }} Excluído{{ $deletedCourses != 1 ? 's' : '' }}</small>
                             </div>
                             <div class="col-auto">
                                 <i class="bi bi-book fs-2 text-gray-300"></i>
@@ -98,7 +97,7 @@
             </div>
 
             {{-- Total de Avaliações do Supervisor --}}
-            <div class="col-xl col-md-6 mb-4">
+            <div class="col-xl-4 col-md-6 mb-3">
                 <div class="card border-start border-secondary border-4 shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row m-0 no-gutters align-items-center">
@@ -107,10 +106,30 @@
                                     Avaliações do Supervisor
                                 </div>
                                 <div class="h5 mb-0 fw-bold text-gray-800">{{ $totalEvaluations }}</div>
-                                <small class="text-muted">{{ $deletedEvaluations }} Excluída(s)</small>
+                                <small class="text-muted">{{ $deletedEvaluations }} Excluída{{ $deletedEvaluations != 1 ? 's' : '' }}</small>
                             </div>
                             <div class="col-auto">
                                 <i class="bi bi-clipboard-check fs-2 text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Total de Estágios Aditivados --}}
+            <div class="col-xl-4 col-md-6 mb-3">
+                <div class="card border-start border-dark border-4 shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row m-0 no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs fw-bold text-dark text-uppercase mb-1">
+                                    Estágios Aditivados
+                                </div>
+                                <div class="h5 mb-0 fw-bold text-gray-800">{{ $totalInternshipsWithAmendments }}</div>
+                                <small class="text-muted">Total de {{ $totalActiveAmendments }} aditivo{{ $totalActiveAmendments != 1 ? 's' : '' }}</small>
+                            </div>
+                            <div class="col-auto">
+                                <i class="bi bi-file-earmark-plus fs-2 text-gray-300"></i>
                             </div>
                         </div>
                     </div>

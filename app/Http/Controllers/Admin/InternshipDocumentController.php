@@ -140,6 +140,11 @@ class InternshipDocumentController extends Controller
                 'status' => InternshipStatus::AWAITING_SIGNATURE->value,
             ]);
 
+            // Registra o aditivo no histórico se o documento for um termo aditivo
+            if (str_contains($documentType, 'aditivo')) {
+                $internship->amendments()->create();
+            }
+
             return redirect()->back()
                 ->with('message', 'Documento gerado com sucesso!')
                 ->with('messageType', 'success');

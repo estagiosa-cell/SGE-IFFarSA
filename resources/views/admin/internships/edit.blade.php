@@ -569,6 +569,60 @@
                         </div>
                     </div>
                 </x-ui.accordion-item>
+
+                @php
+                    $amendments = $internship->amendments()->withTrashed()->get();
+                @endphp
+                @if($amendments->isNotEmpty())
+                    <x-ui.accordion-item id="collapseAmendments" title="Histórico de Aditivos ({{ $amendments->count() }})" icon="bi-clock-history">
+                        <div class="d-flex justify-content-end mb-2 gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary active" onclick="filterAmendments('all', this)">Todos</button>
+                            <button type="button" class="btn btn-sm btn-outline-success" onclick="filterAmendments('active', this)">Válidos</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="filterAmendments('trashed', this)">Excluídos</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="10%">Status</th>
+                                        <th>Data</th>
+                                        <th width="20%" class="text-end">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($amendments as $amendment)
+                                        @php
+                                            $statusClass = $amendment->trashed() ? 'amendment-trashed' : 'amendment-active';
+                                        @endphp
+                                        <tr class="amendment-item {{ $statusClass }}">
+                                            <td class="align-middle" width="10%">
+                                                @if($amendment->trashed())
+                                                    <span class="badge bg-danger">Excluído</span>
+                                                @else
+                                                    <span class="badge bg-success">Válido</span>
+                                                @endif
+                                            </td>
+                                            <td class="align-middle">
+                                                Aditivo gerado em {{ $amendment->created_at->format('d/m/Y \à\s H:i') }}
+                                            </td>
+                                            <td class="text-end align-middle" width="20%">
+                                                @if ($amendment->trashed())
+                                                    <button type="button" class="btn btn-sm btn-outline-success py-0" title="Restaurar" onclick="document.getElementById('form-amendment-restore-{{ $amendment->id }}').submit();">
+                                                        <i class="bi bi-arrow-counterclockwise"></i> Restaurar
+                                                    </button>
+                                                @else
+                                                    <button type="button" class="btn btn-sm btn-outline-danger py-0" title="Excluir" onclick="if(confirm('Tem certeza que deseja excluir este aditivo do histórico?')) document.getElementById('form-amendment-destroy-{{ $amendment->id }}').submit();">
+                                                        <i class="bi bi-trash"></i> Excluir
+                                                    </button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </x-ui.accordion-item>
+                @endif
             </div>
 
             {{-- Botões de Ação --}}
@@ -593,6 +647,43 @@
                 </div>
             </div>
         </form>
+
+        @if(isset($amendments) && $amendments->isNotEmpty())
+            {{-- Formulários ocultos para as ações dos aditivos --}}
+            @foreach($amendments as $amendment)
+                @if ($amendment->trashed())
+                    <form id="form-amendment-restore-{{ $amendment->id }}" action="{{ route('admin.internship-amendments.restore', $amendment->id) }}" method="POST" class="d-none">
+                        @csrf
+                        @method('PATCH')
+                    </form>
+                @else
+                    <form id="form-amendment-destroy-{{ $amendment->id }}" action="{{ route('admin.internship-amendments.destroy', $amendment->id) }}" method="POST" class="d-none">
+                        @csrf
+                        @method('DELETE')
+                    </form>
+                @endif
+            @endforeach
+
+            <script>
+                function filterAmendments(filter, btn) {
+                    const items = document.querySelectorAll('.amendment-item');
+                    items.forEach(item => {
+                        if (filter === 'all') {
+                            item.style.display = '';
+                        } else if (filter === 'active') {
+                            item.style.display = item.classList.contains('amendment-active') ? '' : 'none';
+                        } else if (filter === 'trashed') {
+                            item.style.display = item.classList.contains('amendment-trashed') ? '' : 'none';
+                        }
+                    });
+
+                    // Atualiza botões
+                    const buttons = btn.parentElement.querySelectorAll('button');
+                    buttons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                }
+            </script>
+        @endif
 
         <script>
             let companiesData = [];
