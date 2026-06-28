@@ -6,7 +6,7 @@ Esta seção descreve os passos essenciais para implantar a aplicação em um se
 
 - **Servidor Web:** Nginx
 - **PHP 8.2 ou superior** com as seguintes extensões: Ctype, cURL, DOM, Fileinfo, Filter, Hash, Mbstring, OpenSSL, PCRE, PDO, Session, Tokenizer, XML.
-- **Banco de Dados:** MySQL, PostgreSQL, ou outro SGBD compatível.
+- **Banco de Dados:** PostgreSQL (Recomendado e padrão do sistema).
 - **Composer** (para gerenciamento de dependências PHP).
 - **Node.js & NPM** (para compilar os assets do frontend).
 - **Git** (para clonar o repositório).

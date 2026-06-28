@@ -6,7 +6,6 @@ use App\Enums\InternshipStatus;
 use App\Models\Course;
 use App\Models\Internship;
 use App\Models\User;
-use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -62,12 +61,9 @@ class TeachingDirectorController extends Controller
         // Aplica ordenação baseada no parâmetro
         $query->applyStandardOrdering($orderBy);
 
-        $internships = SearchHelper::searchAndPaginate(
-            $query,
-            $request,
-            $search,
-            'student_name'
-        );
+        $internships = $query->search($search, ['student_name'])
+            ->paginate(100)
+            ->withQueryString();
 
         // Obtém opções para os filtros
         $statusOptions = InternshipStatus::options();

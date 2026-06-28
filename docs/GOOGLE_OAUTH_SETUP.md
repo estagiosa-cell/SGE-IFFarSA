@@ -76,7 +76,7 @@ A configuração para o ambiente de produção é feita exclusivamente através 
    > 
    > Siga estes passos para liberar a rota temporariamente:
    > 1. Configure o `GOOGLE_FORM_ID_DATA_COLLECTION` no arquivo `.env`.
-   > 2. No terminal, rode o comando: `php artisan google:form-ids`
+   > 2. No terminal, rode o comando: `./vendor/bin/sail artisan google:form-ids`
    > 3. O comando irá liberar a rota e ficar travado ("rodando"). Não o feche ainda!
    > 4. Faça login na sua aplicação como Administrador e acesse a URL: `http://localhost:8000/idform` (ou a URL equivalente em produção).
    > 5. A tela mostrará um JSON com todos os títulos e seus respectivos IDs. Procure a pergunta de tipo Dropdown/Lista suspensa contendo os orientadores, copie o ID dela e insira na variável `GOOGLE_FORM_QUESTION_ID_ADVISORS` do seu `.env`.

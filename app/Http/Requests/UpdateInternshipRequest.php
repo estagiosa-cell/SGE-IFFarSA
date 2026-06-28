@@ -6,6 +6,7 @@ use App\Enums\InternshipStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\Rule;
 
 class UpdateInternshipRequest extends FormRequest
 {
@@ -95,13 +96,49 @@ class UpdateInternshipRequest extends FormRequest
             'activities' => 'required|string',
 
             // Carga Horária Semanal
-            'hours_sunday' => 'nullable|integer|min:0|max:6',
-            'hours_monday' => 'nullable|integer|min:0|max:6',
-            'hours_tuesday' => 'nullable|integer|min:0|max:6',
-            'hours_wednesday' => 'nullable|integer|min:0|max:6',
-            'hours_thursday' => 'nullable|integer|min:0|max:6',
-            'hours_friday' => 'nullable|integer|min:0|max:6',
-            'hours_saturday' => 'nullable|integer|min:0|max:6',
+            'has_workload_exception' => 'boolean',
+            'hours_sunday' => [
+                'nullable',
+                'integer',
+                'min:0',
+                Rule::when(! $this->boolean('has_workload_exception'), 'max:6'),
+            ],
+            'hours_monday' => [
+                'nullable',
+                'integer',
+                'min:0',
+                Rule::when(! $this->boolean('has_workload_exception'), 'max:6'),
+            ],
+            'hours_tuesday' => [
+                'nullable',
+                'integer',
+                'min:0',
+                Rule::when(! $this->boolean('has_workload_exception'), 'max:6'),
+            ],
+            'hours_wednesday' => [
+                'nullable',
+                'integer',
+                'min:0',
+                Rule::when(! $this->boolean('has_workload_exception'), 'max:6'),
+            ],
+            'hours_thursday' => [
+                'nullable',
+                'integer',
+                'min:0',
+                Rule::when(! $this->boolean('has_workload_exception'), 'max:6'),
+            ],
+            'hours_friday' => [
+                'nullable',
+                'integer',
+                'min:0',
+                Rule::when(! $this->boolean('has_workload_exception'), 'max:6'),
+            ],
+            'hours_saturday' => [
+                'nullable',
+                'integer',
+                'min:0',
+                Rule::when(! $this->boolean('has_workload_exception'), 'max:6'),
+            ],
 
             // Remuneração
             'is_remunerated' => 'nullable|boolean',

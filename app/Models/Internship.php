@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use App\Enums\InternshipStatus;
-use App\Utils\SearchHelper;
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,7 @@ use Illuminate\Http\Request;
  */
 class Internship extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
     /**
@@ -91,6 +93,7 @@ class Internship extends Model
         'internship_sector',
         'required_hours',
         'internship_type_weight',
+        'has_workload_exception',
 
         // Carga Horária
         'hours_sunday',
@@ -155,6 +158,7 @@ class Internship extends Model
         'end_date' => 'date',
         'status' => InternshipStatus::class,
         'is_remunerated' => 'boolean',
+        'has_workload_exception' => 'boolean',
         'grant_value' => 'decimal:2',
         'transportation_allowance' => 'decimal:2',
         'evaluation_grade' => 'decimal:2',
@@ -186,9 +190,17 @@ class Internship extends Model
     /**
      * Relacionamento: retorna os aditivos do estágio.
      */
-    public function amendments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function amendments(): HasMany
     {
         return $this->hasMany(InternshipAmendment::class);
+    }
+
+    /**
+     * Relacionamento: retorna os períodos de pausa do estágio.
+     */
+    public function pauses(): HasMany
+    {
+        return $this->hasMany(InternshipPause::class);
     }
 
     /**
@@ -205,7 +217,7 @@ class Internship extends Model
         $skipNameSearch = (bool) ($options['skip_name_search'] ?? false);
 
         if (! $skipNameSearch && $request->filled('search')) {
-            SearchHelper::applyUnaccentSearchIfSupported($query, $request->search, 'student_name');
+            $query->search($request->search, 'student_name');
         }
 
         if ($request->filled('status')) {

@@ -3,6 +3,7 @@
 namespace App\Utils;
 
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 /**
  * Utilitário para calcular datas de término de estágios.
@@ -96,6 +97,24 @@ class InternshipEndDate
     }
 
     /**
+     * Verifica se uma data está dentro de um período de pausa.
+     *
+     * @param  \Carbon\Carbon  $date  A data a ser verificada.
+     * @param  \Illuminate\Support\Collection|null  $pauses  Coleção de pausas (com start_date e end_date).
+     * @return bool True se a data estiver dentro de algum período de pausa.
+     */
+    public static function isInPausePeriod(Carbon $date, ?Collection $pauses): bool
+    {
+        if ($pauses === null || $pauses->isEmpty()) {
+            return false;
+        }
+
+        return $pauses->contains(function ($pause) use ($date) {
+            return $date->between($pause->start_date, $pause->end_date);
+        });
+    }
+
+    /**
      * Calcula a data de término do estágio baseada na data de início, horas semanais e horas totais necessárias.
      *
      * O cálculo considera:
@@ -111,12 +130,24 @@ class InternshipEndDate
      *
      * @throws \InvalidArgumentException Se a carga horária for inválida.
      */
-    public static function calculateInternshipEndDate(Carbon $startDate, array $weeklyHours, int $requiredHours): Carbon
+    public static function calculateInternshipEndDate(Carbon $startDate, array $weeklyHours, int $requiredHours, ?Collection $pauses = null, bool $hasWorkloadException = false): Carbon
+    {
+        $result = self::calculateInternshipEndDateWithLog($startDate, $weeklyHours, $requiredHours, $pauses, $hasWorkloadException);
+
+        return $result['end_date'];
+    }
+
+    /**
+     * Calcula a data de término do estágio e retorna um log detalhado dia a dia.
+     *
+     * @return array Array contendo 'end_date' (Carbon) e 'log' (array de detalhes de cada dia).
+     */
+    public static function calculateInternshipEndDateWithLog(Carbon $startDate, array $weeklyHours, int $requiredHours, ?Collection $pauses = null, bool $hasWorkloadException = false): array
     {
         $totalWeeklyHours = array_sum($weeklyHours);
 
         // Valida a carga horária semanal.
-        if ($totalWeeklyHours > 30) {
+        if ($totalWeeklyHours > 30 && ! $hasWorkloadException) {
             throw new \InvalidArgumentException('A carga horária semanal não pode exceder 30 horas.');
         }
 
@@ -126,6 +157,7 @@ class InternshipEndDate
 
         $currentDate = $startDate->copy();
         $accumulatedHours = 0;
+        $log = [];
 
         // Mapeia os dias da semana (0=domingo, 6=sábado) para as horas correspondentes.
         $dayToHoursMap = [
@@ -142,12 +174,29 @@ class InternshipEndDate
         while ($accumulatedHours < $requiredHours) {
             $dayOfWeek = $currentDate->dayOfWeek;
             $hoursForDay = $dayToHoursMap[$dayOfWeek];
+            $isHoliday = self::isHoliday($currentDate);
+            $isPause = self::isInPausePeriod($currentDate, $pauses);
 
-            // Só adiciona horas se não for feriado e houver horas definidas para esse dia.
-            // Permite estágio em fins de semana se houver horas configuradas.
-            if (! self::isHoliday($currentDate) && $hoursForDay > 0) {
+            $logEntry = [
+                'date' => $currentDate->copy(),
+                'type' => 'work_day',
+                'hours_credited' => 0,
+                'accumulated' => $accumulatedHours,
+            ];
+
+            if ($isHoliday) {
+                $logEntry['type'] = 'holiday';
+            } elseif ($isPause) {
+                $logEntry['type'] = 'pause';
+            } elseif ($hoursForDay == 0) {
+                $logEntry['type'] = 'weekend'; // ou dia sem carga horária
+            } else {
+                $logEntry['hours_credited'] = $hoursForDay;
                 $accumulatedHours += $hoursForDay;
+                $logEntry['accumulated'] = $accumulatedHours;
             }
+
+            $log[] = $logEntry;
 
             // Se ainda não completou as horas necessárias, avança para o próximo dia.
             if ($accumulatedHours < $requiredHours) {
@@ -156,22 +205,42 @@ class InternshipEndDate
         }
 
         // Adiciona uma semana extra como margem de segurança.
-        $endDate = $currentDate->copy()->addWeek();
+        $safetyMarginDays = 7;
+        for ($i = 0; $i < $safetyMarginDays; $i++) {
+            $currentDate->addDay();
+            $log[] = [
+                'date' => $currentDate->copy(),
+                'type' => 'safety_margin',
+                'hours_credited' => 0,
+                'accumulated' => $accumulatedHours,
+            ];
+        }
+        $endDate = $currentDate->copy();
 
         // Garante que a data de término caia em um dia útil com carga horária definida.
         while (true) {
             $dayOfWeek = $endDate->dayOfWeek;
             $hoursForDay = $dayToHoursMap[$dayOfWeek];
+            $isHoliday = self::isHoliday($endDate);
+            $isPause = self::isInPausePeriod($endDate, $pauses);
 
-            // Se o dia tem carga horária configurada e não é feriado, pode terminar aqui.
-            if ($hoursForDay > 0 && ! self::isHoliday($endDate)) {
+            // Se o dia tem carga horária configurada e não é feriado nem pausa, pode terminar aqui.
+            if ($hoursForDay > 0 && ! $isHoliday && ! $isPause) {
                 break;
             }
 
-            // Senão, avança para o próximo dia.
             $endDate->addDay();
+            $log[] = [
+                'date' => $endDate->copy(),
+                'type' => 'safety_margin', // Continua avançando por causa da margem
+                'hours_credited' => 0,
+                'accumulated' => $accumulatedHours,
+            ];
         }
 
-        return $endDate;
+        return [
+            'end_date' => $endDate,
+            'log' => $log,
+        ];
     }
 }

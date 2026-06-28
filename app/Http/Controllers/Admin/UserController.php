@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
-use App\Utils\SearchHelper;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -56,12 +55,9 @@ class UserController extends Controller
         }
 
         $orderedQuery = $query->latest();
-        $users = SearchHelper::searchAndPaginate(
-            $orderedQuery,
-            $request,
-            $request->input('search'),
-            ['name', 'email']
-        );
+        $users = $orderedQuery->search($request->input('search'), ['name', 'email'])
+            ->paginate(100)
+            ->withQueryString();
 
         // Pagina os resultados e busca todos os papéis para o formulário de filtro.
         $roles = UserRole::cases();

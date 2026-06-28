@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use App\Notifications\ResetPasswordNotification;
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -19,6 +21,8 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
+
+    use Searchable;
 
     /**
      * Os atributos que podem ser atribuídos em massa.
@@ -103,7 +107,7 @@ class User extends Authenticatable
     /**
      * Relacionamento: estágios onde este usuário é orientador.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function advisedInternships()
     {
@@ -113,7 +117,7 @@ class User extends Authenticatable
     /**
      * Relacionamento: cursos onde este usuário é coordenador.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function coordinatedCourses()
     {
@@ -123,7 +127,7 @@ class User extends Authenticatable
     /**
      * Relacionamento: cursos onde este usuário é coordenador secundário.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function secondaryCoordinatedCourses()
     {

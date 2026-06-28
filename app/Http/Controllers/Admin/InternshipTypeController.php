@@ -7,7 +7,6 @@ use App\Http\Requests\StoreInternshipTypeRequest;
 use App\Http\Requests\UpdateInternshipTypeRequest;
 use App\Models\Course;
 use App\Models\InternshipType;
-use App\Utils\SearchHelper;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -48,12 +47,9 @@ class InternshipTypeController extends Controller
         }
 
         $orderedQuery = $query->orderBy('name');
-        $internshipTypes = SearchHelper::searchAndPaginate(
-            $orderedQuery,
-            $request,
-            $request->input('search'),
-            'name'
-        );
+        $internshipTypes = $orderedQuery->search($request->input('search'), ['name'])
+            ->paginate(100)
+            ->withQueryString();
 
         // Carrega os cursos para preencher o dropdown de filtro.
         $courses = Course::orderBy('name')->get(['id', 'name']);

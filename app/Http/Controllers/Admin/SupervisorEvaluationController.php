@@ -9,7 +9,6 @@ use App\Http\Requests\UpdateSupervisorEvaluationRequest;
 use App\Mail\AvaliacaoEstagioConcluida;
 use App\Models\Internship;
 use App\Models\SupervisorEvaluation;
-use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -60,12 +59,9 @@ class SupervisorEvaluationController extends Controller
         }
 
         $orderedQuery = $query->orderBy('created_at', 'desc');
-        $evaluations = SearchHelper::searchAndPaginate(
-            $orderedQuery,
-            $request,
-            $request->input('search'),
-            'student_name'
-        );
+        $evaluations = $orderedQuery->search($request->input('search'), ['student_name'])
+            ->paginate(100)
+            ->withQueryString();
 
         $activeFiltersCount = collect([
             $request->input('search'),

@@ -11,6 +11,7 @@ class InternshipAmendmentController extends Controller
     {
         $amendment = InternshipAmendment::findOrFail($id);
         $amendment->delete();
+
         return back()->with('message', 'Aditivo removido com sucesso!')->with('messageType', 'success');
     }
 
@@ -18,6 +19,7 @@ class InternshipAmendmentController extends Controller
     {
         $amendment = InternshipAmendment::withTrashed()->findOrFail($id);
         $amendment->restore();
+
         return back()->with('message', 'Aditivo restaurado com sucesso!')->with('messageType', 'success');
     }
 }

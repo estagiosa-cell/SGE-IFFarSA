@@ -2,33 +2,37 @@
 
 namespace App\Services;
 
-use App\Utils\SearchHelper;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Serviço para realizar buscas tolerantes a erros de digitação.
  *
  * Implementa busca fuzzy (aproximada) usando o algoritmo de distância de Levenshtein
- * para encontrar resultados mesmo quando o usuário comete erros de digitação.
+ * para encontrar resultados mesmo quando o usuário comete erros de digitação,
+ * combinando com extensões nativas do PostgreSQL (pg_trgm, unaccent) quando disponíveis.
  */
 class FuzzySearchService
 {
     /**
-     * Busca no banco de dados tolerando erros de digitação.
-     *
-     * Realiza uma busca em três etapas:
-     * 1. Busca exata (mais rápida)
-     * 2. Busca por partes do termo (divide palavras)
-     * 3. Calcula similaridade e retorna a melhor correspondência
+     * Normaliza uma string removendo acentos e convertendo para minúsculas.
+     */
+    public function normalize(string $string): string
+    {
+        return mb_strtolower(trim(Str::ascii($string)));
+    }
+
+    /**
+     * Busca no banco de dados tolerando erros de digitação e abreviações (ex: Magnos R. Pizzoni).
      *
      * @param  string  $model  Classe do modelo (ex: User::class)
      * @param  string  $searchField  Campo no qual buscar (ex: 'name')
      * @param  string  $searchTerm  Texto digitado para buscar
-     * @param  float  $minSimilarity  Mínimo de similaridade (0.6 = 60%)
-     * @param  array  $additionalWhere  Filtros extras no formato ['campo' => 'valor']
+     * @param  float  $minSimilarity  Mínimo de similaridade (0.4 = 40%)
+     * @param  \Closure|null  $queryModifier  Função para adicionar filtros extras na query
      * @return array|null Array com ['entity', 'warning', 'exact_match', 'similarity'] ou null se não encontrar
      */
-    public function fuzzyFind(string $model, string $searchField, string $searchTerm, float $minSimilarity = 0.6, array $additionalWhere = []): ?array
+    public function fuzzyFind(string $model, string $searchField, string $searchTerm, float $minSimilarity = 0.4, ?\Closure $queryModifier = null): ?array
     {
         $searchTerm = trim($searchTerm);
 
@@ -36,160 +40,134 @@ class FuzzySearchService
             return null;
         }
 
-        // Etapa 1: busca exata (ou por ILIKE/unaccent quando suportado).
         $query = $model::query();
-
-        // Aplica filtros adicionais à query.
-        foreach ($additionalWhere as $field => $value) {
-            $query->where($field, $value);
+        if ($queryModifier) {
+            $queryModifier($query);
         }
 
-        // Tenta correspondência mais próxima no banco (usando unaccent/ILIKE se disponível).
-        $exactQuery = clone $query;
-        if (DB::getDriverName() === 'pgsql') {
-            $exactQuery = SearchHelper::applyUnaccentSearchIfSupported($exactQuery, $searchTerm, $searchField);
-            $likeMatches = $exactQuery->get();
+        $isPgsql = DB::getDriverName() === 'pgsql';
+
+        // --- Etapa 1: Busca via pg_trgm (PostgreSQL) ou LIKE (SQLite) ---
+        if ($isPgsql) {
+            // Busca candidatos usando similaridade >= 0.3 ou substring com unaccent
+            $candidatesQuery = (clone $query)->select('*')
+                ->selectRaw("similarity(unaccent({$searchField}), unaccent(?)) as sim_score", [$searchTerm])
+                ->where(function ($q) use ($searchField, $searchTerm) {
+                    $q->whereRaw("similarity(unaccent({$searchField}), unaccent(?)) > 0.3", [$searchTerm])
+                        ->orWhereRaw("unaccent({$searchField}) ILIKE unaccent(?)", ["%{$searchTerm}%"]);
+                })
+                ->orderByRaw("similarity(unaccent({$searchField}), unaccent(?)) DESC", [$searchTerm]);
+
+            $matches = $candidatesQuery->get();
         } else {
-            $likeMatches = $exactQuery->where($searchField, 'LIKE', "%{$searchTerm}%")->get();
+            $matches = (clone $query)->where($searchField, 'LIKE', "%{$searchTerm}%")->get();
         }
 
-        // Se encontrou correspondências diretas ou parciais no banco
-        if ($likeMatches->count() > 0) {
-            $normalizedSearchTerm = SearchHelper::normalize($searchTerm);
-
-            // Verifica se alguma correspondência é exata (ignorando case e acentos)
-            $exactMatches = $likeMatches->filter(function ($entity) use ($searchField, $normalizedSearchTerm) {
-                return SearchHelper::normalize($entity->{$searchField}) === $normalizedSearchTerm;
-            });
-
-            // Se achou exatamente 1 match perfeito, retorna ele sem aviso.
-            if ($exactMatches->count() === 1) {
-                return [
-                    'entity' => $exactMatches->first(),
-                    'warning' => null,
-                    'exact_match' => true,
-                    'similarity' => 1.0,
-                ];
-            } elseif ($exactMatches->count() > 1) {
-                // Ambiguidade severa (múltiplas pessoas com o mesmíssimo nome). Falha proposital.
-                return null;
-            }
-
-            // Se não houve match 100% exato, mas houve match parcial (substring):
-            if ($likeMatches->count() === 1) {
-                $bestMatch = $likeMatches->first();
-                $originalField = $bestMatch->{$searchField};
-
-                return [
-                    'entity' => $bestMatch,
-                    'warning' => "O termo informado '$searchTerm' foi associado a '$originalField'. Verifique se está correto.",
-                    'exact_match' => false,
-                    'similarity' => $this->calculateSimilarity($searchTerm, $originalField),
-                ];
-            } elseif ($likeMatches->count() > 1) {
-                // Múltiplos orientadores contém o termo (ex: "cleiton" bate em "Cleiton Silva" e "Cleiton Moura").
-                // Como não sabemos qual é o correto, consideramos ambíguo e forçamos o erro.
-                return null;
-            }
-        }
-
-        // Etapa 2: busca por pedaços do termo (ex: "João Silva" vira ["João", "Silva"]).
-        $nameParts = array_filter(preg_split('/\s+/', $searchTerm));
+        $normalizedSearchTerm = $this->normalize($searchTerm);
         $possibleEntities = collect();
 
-        $validParts = array_filter($nameParts, fn ($part) => mb_strlen($part) > 2);
+        // Adiciona os resultados da primeira etapa aos possíveis candidatos
+        foreach ($matches as $match) {
+            // Se for PostgreSQL, podemos já validar a similaridade do banco
+            if ($isPgsql && isset($match->sim_score)) {
+                if ($this->normalize($match->{$searchField}) === $normalizedSearchTerm) {
+                    // Match perfeito! Ignora qualquer outra coisa.
+                    return ['entity' => $match, 'warning' => null, 'exact_match' => true, 'similarity' => 1.0];
+                }
+            }
+            $possibleEntities->push($match);
+        }
+
+        // --- Etapa 2: Busca por pedaços do termo (ideal para abreviações como "Magnos R. Pizzoni") ---
+        $nameParts = array_filter(preg_split('/\s+/', $searchTerm));
+        $validParts = array_filter($nameParts, fn ($part) => mb_strlen($part) > 2); // ignora 'de', 'do', 'R.' etc sozinho
 
         if (! empty($validParts)) {
-            $q = $model::query();
-
-            foreach ($additionalWhere as $field => $value) {
-                $q->where($field, $value);
-            }
-
-            $q->where(function ($query) use ($validParts, $searchField) {
+            $q = clone $query;
+            $q->where(function ($subQuery) use ($validParts, $searchField, $isPgsql) {
                 foreach ($validParts as $index => $part) {
-                    $method = $index === 0 ? 'where' : 'orWhere';
+                    $method = $index === 0 ? 'whereRaw' : 'orWhereRaw';
+                    $methodFallback = $index === 0 ? 'where' : 'orWhere';
 
-                    if (DB::getDriverName() === 'pgsql') {
-                        $query->{$method}(function ($sub) use ($part, $searchField) {
-                            SearchHelper::applyUnaccentSearchIfSupported($sub, $part, $searchField);
-                        });
+                    if ($isPgsql) {
+                        $subQuery->{$method}("unaccent({$searchField}) ILIKE unaccent(?)", ["%{$part}%"]);
                     } else {
-                        $query->{$method}($searchField, 'LIKE', "%{$part}%");
+                        $subQuery->{$methodFallback}($searchField, 'LIKE', "%{$part}%");
                     }
                 }
             });
-
-            $entities = $q->get();
-            foreach ($entities as $entity) {
+            $entitiesFromParts = $q->get();
+            foreach ($entitiesFromParts as $entity) {
                 $possibleEntities->push($entity);
             }
         }
 
-        // Remove duplicados (mesma entidade retornada por diferentes partes).
+        // Remove duplicados
         $possibleEntities = $possibleEntities->unique(function ($e) {
             return get_class($e).':'.$e->getKey();
         })->values();
 
-        // Etapa 3: escolhe o candidato mais parecido com o termo original.
+        // --- Etapa 3: Calcula Levenshtein Similarity e avalia ambiguidade ---
         if ($possibleEntities->count() > 0) {
             $bestMatch = null;
+            $secondBestMatch = null;
             $highestScore = 0;
+            $secondHighestScore = 0;
             $originalField = '';
 
-            // Calcula a similaridade de cada candidato com o termo de busca.
             foreach ($possibleEntities as $entity) {
                 $fieldValue = $entity->{$searchField};
+                // Calcula similaridade híbrida (considera abreviações melhor)
                 $score = $this->calculateSimilarity($searchTerm, $fieldValue);
 
                 if ($score > $highestScore) {
+                    $secondHighestScore = $highestScore;
+                    $secondBestMatch = $bestMatch;
+
                     $highestScore = $score;
                     $bestMatch = $entity;
                     $originalField = $fieldValue;
+                } elseif ($score > $secondHighestScore) {
+                    $secondHighestScore = $score;
+                    $secondBestMatch = $entity;
                 }
             }
 
-            // Só aceita o resultado se tiver no mínimo a similaridade especificada.
             if ($highestScore >= $minSimilarity) {
+                // Checa ambiguidade (se a diferença de score para o 2º lugar for mínima e não for match exato)
+                if ($secondBestMatch && $highestScore < 0.95 && ($highestScore - $secondHighestScore) < 0.15) {
+                    return null; // Ambíguo
+                }
+
+                $isExactMatch = $highestScore >= 0.99;
+
                 return [
                     'entity' => $bestMatch,
-                    'warning' => "O termo informado '$searchTerm' foi associado a '$originalField'. Verifique se está correto.",
-                    'exact_match' => false,
+                    'warning' => $isExactMatch ? null : "O termo informado '$searchTerm' foi associado a '$originalField'. Verifique se está correto.",
+                    'exact_match' => $isExactMatch,
                     'similarity' => $highestScore,
                 ];
             }
         }
 
-        // Não encontrou nada com similaridade suficiente.
         return null;
     }
 
     /**
-     * Calcula a similaridade entre duas strings (0 = totalmente diferentes, 1 = idênticas).
-     *
-     * Usa o algoritmo de distância de Levenshtein, que conta quantas operações
-     * (inserção, remoção ou substituição) são necessárias para transformar uma string em outra.
-     *
-     * @param  string  $str1  Primeira string para comparação.
-     * @param  string  $str2  Segunda string para comparação.
-     * @return float Valor entre 0 e 1 representando a similaridade.
+     * Calcula a similaridade entre duas strings usando Levenshtein.
      */
     public function calculateSimilarity(string $str1, string $str2): float
     {
-        // Normaliza as strings usando SearchHelper (remove acentos, lower, trim).
-        $str1 = SearchHelper::normalize($str1);
-        $str2 = SearchHelper::normalize($str2);
+        $str1 = $this->normalize($str1);
+        $str2 = $this->normalize($str2);
 
-        // Calcula a distância de Levenshtein entre as strings.
         $levenshtein = levenshtein($str1, $str2);
         $maxLength = max(mb_strlen($str1), mb_strlen($str2));
 
-        // Se ambas as strings são vazias, considera como idênticas.
         if ($maxLength === 0) {
             return 1.0;
         }
 
-        // Converte a distância em um índice de similaridade (quanto menor a distância, maior a similaridade).
         return 1.0 - ($levenshtein / $maxLength);
     }
 }

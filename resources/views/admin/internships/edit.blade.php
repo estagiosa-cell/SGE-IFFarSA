@@ -408,6 +408,15 @@
 
                     {{-- Carga Horária Semanal --}}
                     <h6 class="mb-3 mt-4 border-bottom pb-2">Carga Horária Semanal</h6>
+                    
+                    <div class="row m-0 mb-3">
+                        <div class="col-md-12">
+                            <input type="hidden" name="has_workload_exception" value="0">
+                            <x-form.switch name="has_workload_exception" label="Liberar exceção de limite máximo de carga horária" id="has_workload_exception" onchange="toggleWorkloadException()" value="1" :checked="old('has_workload_exception', $internship->has_workload_exception) == '1' || old('has_workload_exception', $internship->has_workload_exception) === true" />
+                            <small class="text-muted d-block ms-5">Isso desativa as travas de horas diárias (máx. 6h) e semanais (máx. 30h) no sistema.</small>
+                        </div>
+                    </div>
+
                     <div class="row m-0">
                         @foreach(['sunday' => 'Domingo', 'monday' => 'Segunda', 'tuesday' => 'Terça', 'wednesday' => 'Quarta'] as $day => $label)
                             <div class="col-md-3 col-6 mb-3">
@@ -426,7 +435,7 @@
                                 <input type="text" class="form-control bg-light" id="total_weekly_hours"
                                     value="{{ old('hours_sunday', $internship->hours_sunday ?? 0) + old('hours_monday', $internship->hours_monday ?? 0) + old('hours_tuesday', $internship->hours_tuesday ?? 0) + old('hours_wednesday', $internship->hours_wednesday ?? 0) + old('hours_thursday', $internship->hours_thursday ?? 0) + old('hours_friday', $internship->hours_friday ?? 0) + old('hours_saturday', $internship->hours_saturday ?? 0) }}h"
                                     readonly>
-                                <label for="total_weekly_hours">Total Semanal (máx. 30h)</label>
+                                <label id="total_weekly_hours_label" for="total_weekly_hours">Total Semanal (máx. 30h)</label>
                             </div>
                         </div>
                     </div>
@@ -570,6 +579,53 @@
                     </div>
                 </x-ui.accordion-item>
 
+                {{-- Períodos de Pausa --}}
+                <x-ui.accordion-item id="collapsePauses" title="Períodos de Pausa ({{ $internship->pauses->count() }})" icon="bi-pause-circle">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Pausas Cadastradas</h6>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addPauseModal">
+                            <i class="bi bi-plus-circle me-1"></i> Adicionar Nova Pausa
+                        </button>
+                    </div>
+
+                    @if ($internship->pauses->isNotEmpty())
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Período</th>
+                                        <th>Motivo</th>
+                                        <th width="15%" class="text-end">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($internship->pauses->sortBy('start_date') as $pause)
+                                        <tr>
+                                            <td class="align-middle">
+                                                <i class="bi bi-calendar-range me-1 text-muted"></i>
+                                                {{ $pause->start_date->format('d/m/Y') }} — {{ $pause->end_date->format('d/m/Y') }}
+                                            </td>
+                                            <td class="align-middle text-muted">
+                                                {{ $pause->reason ?? '—' }}
+                                            </td>
+                                            <td class="text-end align-middle">
+                                                <button type="button" class="btn btn-sm btn-outline-danger py-0" title="Excluir"
+                                                    data-bs-toggle="modal" data-bs-target="#deletePauseModal-{{ $pause->id }}">
+                                                    <i class="bi bi-trash"></i> Excluir
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-muted text-center py-3">
+                            <i class="bi bi-info-circle me-1"></i> Nenhuma pausa cadastrada para este estágio.
+                        </div>
+                    @endif
+                </x-ui.accordion-item>
+
                 @php
                     $amendments = $internship->amendments()->withTrashed()->get();
                 @endphp
@@ -648,6 +704,8 @@
             </div>
         </form>
 
+
+
         @if(isset($amendments) && $amendments->isNotEmpty())
             {{-- Formulários ocultos para as ações dos aditivos --}}
             @foreach($amendments as $amendment)
@@ -686,6 +744,30 @@
         @endif
 
         <script>
+            // Validação de datas do modal de pausa
+            document.addEventListener('DOMContentLoaded', function() {
+                const startDateInput = document.getElementById('modal_pause_start_date');
+                const endDateInput = document.getElementById('modal_pause_end_date');
+
+                function validatePauseDates() {
+                    if (startDateInput && endDateInput) {
+                        const startDate = startDateInput.value;
+                        const endDate = endDateInput.value;
+                        
+                        if (startDate && endDate && endDate < startDate) {
+                            endDateInput.setCustomValidity('A data de fim deve ser posterior ou igual à data de início.');
+                        } else {
+                            endDateInput.setCustomValidity('');
+                        }
+                    }
+                }
+
+                if (startDateInput && endDateInput) {
+                    startDateInput.addEventListener('change', validatePauseDates);
+                    endDateInput.addEventListener('change', validatePauseDates);
+                }
+            });
+
             let companiesData = [];
 
             function buscarDadosConcedente() {
@@ -761,7 +843,7 @@
                     setVal('field_of_activity', selectedCompany.field_of_activity);
                     setVal('company_address_street', selectedCompany.address_street);
                     setVal('company_address_number', selectedCompany.address_number);
-                    setVal('company_address_neighborhood', selectedCompany.address_neighborhood);
+                                            setVal('company_address_neighborhood', selectedCompany.address_neighborhood);
                     setVal('company_address_city', selectedCompany.address_city);
                     setVal('company_address_state', selectedCompany.address_state);
                     setVal('company_address_zip', selectedCompany.address_zip);
@@ -772,25 +854,47 @@
             }
 
             function toggleRemunerationFields() {
-                const checkbox = document.getElementById('is_remunerated');
-                const grant_value_field = document.getElementById('grant_value');
-                const transportation_allowance_field = document.getElementById('transportation_allowance');
+                const isRemunerated = document.getElementById('is_remunerated').checked;
+                const grantValueInput = document.getElementById('grant_value');
+                const transportAllowanceInput = document.getElementById('transportation_allowance');
 
-                if (!checkbox || !grant_value_field || !transportation_allowance_field) return;
-
-                if (checkbox.checked) {
-                    grant_value_field.readOnly = false;
-                    grant_value_field.required = true;
-                    transportation_allowance_field.readOnly = false;
-                    transportation_allowance_field.required = true;
+                if (isRemunerated) {
+                    grantValueInput.removeAttribute('readonly');
+                    transportAllowanceInput.removeAttribute('readonly');
                 } else {
-                    grant_value_field.value = '';
-                    grant_value_field.readOnly = true;
-                    grant_value_field.required = false;
-                    transportation_allowance_field.value = '';
-                    transportation_allowance_field.readOnly = true;
-                    transportation_allowance_field.required = false;
+                    grantValueInput.setAttribute('readonly', 'readonly');
+                    transportAllowanceInput.setAttribute('readonly', 'readonly');
+                    grantValueInput.value = '';
+                    transportAllowanceInput.value = '';
                 }
+            }
+
+            function toggleWorkloadException() {
+                const hasException = document.getElementById('has_workload_exception').checked;
+                const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                const label = document.getElementById('total_weekly_hours_label');
+
+                days.forEach(day => {
+                    const input = document.getElementById('hours_' + day);
+                    if (input) {
+                        if (hasException) {
+                            input.removeAttribute('max');
+                        } else {
+                            input.setAttribute('max', '6');
+                        }
+                    }
+                });
+
+                if (label) {
+                    if (hasException) {
+                        label.innerText = 'Total Semanal (Exceção Ativa)';
+                    } else {
+                        label.innerText = 'Total Semanal (máx. 30h)';
+                    }
+                }
+                
+                // Recalculate to remove/add visual alert
+                calculateTotalWeeklyHours();
             }
 
             function toggleLegalGuardianFields() {
@@ -874,13 +978,14 @@
                 });
 
                 const totalField = document.getElementById('total_weekly_hours');
+                const hasException = document.getElementById('has_workload_exception')?.checked;
                 
                 if (!totalField) return;
 
                 totalField.value = total + 'h';
 
-                // Adiciona indicador visual se ultrapassar o limite
-                if (total > maxWeeklyHours) {
+                // Adiciona indicador visual se ultrapassar o limite (e não possuir exceção liberada)
+                if (total > maxWeeklyHours && !hasException) {
                     totalField.classList.add('text-danger', 'fw-bold');
                     totalField.classList.remove('bg-light');
                     totalField.classList.add('bg-danger', 'bg-opacity-10');
@@ -904,6 +1009,7 @@
 
             // Inicializar os campos quando a página carregar
             document.addEventListener('DOMContentLoaded', function() {
+                toggleWorkloadException();
                 toggleRemunerationFields();
                 toggleLegalGuardianFields();
                 setupEvaluationWorkloadSwitch();
@@ -930,7 +1036,7 @@
                             <div class="mb-3">
                                 <div class="form-floating">
                                     <input type="date" class="form-control" id="calc_start_date" name="calc_start_date"
-                                        value="{{ old('calc_start_date', now()->format('Y-m-d')) }}" min="{{ $internship->start_date ? $internship->start_date->format('Y-m-d') : '' }}" required>
+                                        value="{{ old('calc_start_date', $internship->start_date && $internship->start_date->isFuture() ? $internship->start_date->format('Y-m-d') : now()->format('Y-m-d')) }}" min="{{ $internship->start_date ? $internship->start_date->format('Y-m-d') : '' }}" required>
                                     <label for="calc_start_date">Data de referência para o cálculo *</label>
                                 </div>
                                 <small class="text-muted">
@@ -966,11 +1072,164 @@
             </div>
         </div>
 
+        {{-- Modal Adicionar Pausa --}}
+        <div class="modal fade" id="addPauseModal" tabindex="-1" aria-labelledby="addPauseModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form id="addPauseForm" action="{{ route('admin.internships.pauses.store', $internship->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="addPauseModalLabel">
+                                <i class="bi bi-pause-circle me-2"></i>Adicionar Nova Pausa
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <input type="date" class="form-control" id="modal_pause_start_date" name="start_date"
+                                        value="{{ old('start_date', $internship->start_date && $internship->start_date->isFuture() ? $internship->start_date->format('Y-m-d') : '') }}" min="{{ $internship->start_date ? $internship->start_date->format('Y-m-d') : '' }}" required>
+                                    <label for="modal_pause_start_date">Data Início *</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <input type="date" class="form-control" id="modal_pause_end_date" name="end_date"
+                                        value="{{ old('end_date') }}" required>
+                                    <label for="modal_pause_end_date">Data Fim *</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="modal_pause_reason" name="reason"
+                                        value="{{ old('reason') }}" placeholder="Ex: Férias, Licença médica" maxlength="255">
+                                    <label for="modal_pause_reason">Motivo</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Adicionar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Modais de Exclusão de Pausas --}}
+        @if ($internship->pauses->isNotEmpty())
+            @foreach ($internship->pauses as $pause)
+                <x-modal.delete 
+                    id="deletePauseModal-{{ $pause->id }}" 
+                    action="{{ route('admin.internships.pauses.destroy', [$internship->id, $pause->id]) }}" 
+                    message="Tem certeza que deseja excluir a pausa do período {{ $pause->start_date->format('d/m/Y') }} a {{ $pause->end_date->format('d/m/Y') }}? Lembre-se de recalcular a data de término do estágio após a exclusão." 
+                />
+            @endforeach
+        @endif
+
         {{-- Modal Excluir --}}
         <x-modal.delete 
             id="deleteModal" 
             action="{{ route('admin.internships.destroy', $internship->id) }}" 
             message="Tem certeza que deseja excluir este estágio? Esta ação pode ser desfeita." 
         />
+        {{-- Modal de Log de Recálculo --}}
+        @if(session('recalculate_log'))
+            <div class="modal fade" id="recalculateLogModal" tabindex="-1" aria-labelledby="recalculateLogModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title" id="recalculateLogModalLabel">
+                                <i class="bi bi-journal-text me-2"></i>Detalhes do Recálculo
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body p-0">
+                            <div class="p-3 bg-light border-bottom">
+                                <p class="mb-0 text-muted small">
+                                    Abaixo está o registro detalhado dia a dia de como a nova data de término foi calculada, considerando feriados, pausas e a sua carga horária semanal.
+                                </p>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm mb-0">
+                                    <thead class="table-light sticky-top">
+                                        <tr>
+                                            <th class="ps-3">Data</th>
+                                            <th>Status</th>
+                                            <th class="text-center">Horas no Dia</th>
+                                            <th class="text-center pe-3">Acumulado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach(session('recalculate_log') as $log)
+                                            @php
+                                                $rowClass = '';
+                                                $statusText = '';
+                                                $icon = '';
+                                                
+                                                switch($log['type']) {
+                                                    case 'work_day':
+                                                        $rowClass = 'table-success';
+                                                        $statusText = 'Dia Útil (Contabilizado)';
+                                                        $icon = 'bi-check-circle-fill text-success';
+                                                        break;
+                                                    case 'holiday':
+                                                        $rowClass = 'table-danger';
+                                                        $statusText = 'Feriado (Ignorado)';
+                                                        $icon = 'bi-calendar-x text-danger';
+                                                        break;
+                                                    case 'pause':
+                                                        $rowClass = 'table-secondary';
+                                                        $statusText = 'Pausa Registrada (Ignorado)';
+                                                        $icon = 'bi-pause-circle-fill text-secondary';
+                                                        break;
+                                                    case 'weekend':
+                                                        $rowClass = 'table-light text-muted';
+                                                        $statusText = 'Sem carga horária (Ignorado)';
+                                                        $icon = 'bi-calendar2-minus text-muted';
+                                                        break;
+                                                    case 'safety_margin':
+                                                        $rowClass = 'table-warning';
+                                                        $statusText = 'Margem de Segurança (Adicional)';
+                                                        $icon = 'bi-shield-check text-warning';
+                                                        break;
+                                                }
+                                            @endphp
+                                            <tr class="{{ $rowClass }}">
+                                                <td class="ps-3 align-middle">
+                                                    {{ $log['date']->format('d/m/Y') }} 
+                                                    <small class="text-muted ms-1">({{ $log['date']->locale('pt_BR')->shortDayName }})</small>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <i class="bi {{ $icon }} me-1"></i> {{ $statusText }}
+                                                </td>
+                                                <td class="text-center align-middle fw-semibold">
+                                                    {{ $log['hours_credited'] > 0 ? '+'.$log['hours_credited'].'h' : '-' }}
+                                                </td>
+                                                <td class="text-center align-middle pe-3">
+                                                    {{ $log['accumulated'] }}h
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var logModal = new bootstrap.Modal(document.getElementById('recalculateLogModal'));
+                    logModal.show();
+                });
+            </script>
+        @endif
     </div>
 @endsection

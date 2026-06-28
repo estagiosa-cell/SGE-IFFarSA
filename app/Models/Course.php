@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -13,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Course extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
     /**
@@ -29,7 +33,7 @@ class Course extends Model
     /**
      * Relacionamento: retorna o coordenador do curso.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function coordinator()
     {
@@ -39,7 +43,7 @@ class Course extends Model
     /**
      * Relacionamento: retorna o coordenador secundário do curso.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function secondaryCoordinator()
     {
@@ -49,7 +53,7 @@ class Course extends Model
     /**
      * Relacionamento: retorna os tipos de estágio configurados para este curso.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function internshipTypes()
     {
@@ -59,7 +63,7 @@ class Course extends Model
     /**
      * Relacionamento: retorna os estágios vinculados a este curso.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function internships()
     {
