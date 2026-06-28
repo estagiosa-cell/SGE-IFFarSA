@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Enums\InternshipStatus;
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
-use App\Traits\Searchable;
 
 /**
  * Model que representa um estágio.
@@ -187,7 +188,7 @@ class Internship extends Model
     /**
      * Relacionamento: retorna os aditivos do estágio.
      */
-    public function amendments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function amendments(): HasMany
     {
         return $this->hasMany(InternshipAmendment::class);
     }
@@ -195,7 +196,7 @@ class Internship extends Model
     /**
      * Relacionamento: retorna os períodos de pausa do estágio.
      */
-    public function pauses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function pauses(): HasMany
     {
         return $this->hasMany(InternshipPause::class);
     }

@@ -7,7 +7,6 @@ use App\Http\Requests\StoreInternshipTypeRequest;
 use App\Http\Requests\UpdateInternshipTypeRequest;
 use App\Models\Course;
 use App\Models\InternshipType;
-
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;

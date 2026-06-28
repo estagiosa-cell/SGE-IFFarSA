@@ -301,13 +301,13 @@ class InternshipController extends Controller
             'start_date' => [
                 'required',
                 'date',
-                'after_or_equal:' . $internship->start_date->format('Y-m-d'),
+                'after_or_equal:'.$internship->start_date->format('Y-m-d'),
             ],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'reason' => ['nullable', 'string', 'max:255'],
         ], [
             'start_date.required' => 'A data de início é obrigatória.',
-            'start_date.after_or_equal' => 'A data de início da pausa deve ser posterior ou igual à data de início do estágio (' . $internship->start_date->format('d/m/Y') . ').',
+            'start_date.after_or_equal' => 'A data de início da pausa deve ser posterior ou igual à data de início do estágio ('.$internship->start_date->format('d/m/Y').').',
             'end_date.required' => 'A data de término é obrigatória.',
             'end_date.after_or_equal' => 'A data de término deve ser posterior ou igual à data de início.',
             'reason.max' => 'O motivo deve ter no máximo 255 caracteres.',
@@ -317,7 +317,7 @@ class InternshipController extends Controller
         $overlapping = $internship->pauses()
             ->where(function ($query) use ($request) {
                 $query->where('start_date', '<=', $request->end_date)
-                      ->where('end_date', '>=', $request->start_date);
+                    ->where('end_date', '>=', $request->start_date);
             })
             ->exists();
 

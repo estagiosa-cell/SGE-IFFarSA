@@ -52,12 +52,12 @@ class FuzzySearchService
             // Busca candidatos usando similaridade >= 0.3 ou substring com unaccent
             $candidatesQuery = (clone $query)->select('*')
                 ->selectRaw("similarity(unaccent({$searchField}), unaccent(?)) as sim_score", [$searchTerm])
-                ->where(function($q) use ($searchField, $searchTerm) {
+                ->where(function ($q) use ($searchField, $searchTerm) {
                     $q->whereRaw("similarity(unaccent({$searchField}), unaccent(?)) > 0.3", [$searchTerm])
-                      ->orWhereRaw("unaccent({$searchField}) ILIKE unaccent(?)", ["%{$searchTerm}%"]);
+                        ->orWhereRaw("unaccent({$searchField}) ILIKE unaccent(?)", ["%{$searchTerm}%"]);
                 })
                 ->orderByRaw("similarity(unaccent({$searchField}), unaccent(?)) DESC", [$searchTerm]);
-            
+
             $matches = $candidatesQuery->get();
         } else {
             $matches = (clone $query)->where($searchField, 'LIKE', "%{$searchTerm}%")->get();
@@ -88,7 +88,7 @@ class FuzzySearchService
                 foreach ($validParts as $index => $part) {
                     $method = $index === 0 ? 'whereRaw' : 'orWhereRaw';
                     $methodFallback = $index === 0 ? 'where' : 'orWhere';
-                    
+
                     if ($isPgsql) {
                         $subQuery->{$method}("unaccent({$searchField}) ILIKE unaccent(?)", ["%{$part}%"]);
                     } else {
@@ -123,7 +123,7 @@ class FuzzySearchService
                 if ($score > $highestScore) {
                     $secondHighestScore = $highestScore;
                     $secondBestMatch = $bestMatch;
-                    
+
                     $highestScore = $score;
                     $bestMatch = $entity;
                     $originalField = $fieldValue;
@@ -140,6 +140,7 @@ class FuzzySearchService
                 }
 
                 $isExactMatch = $highestScore >= 0.99;
+
                 return [
                     'entity' => $bestMatch,
                     'warning' => $isExactMatch ? null : "O termo informado '$searchTerm' foi associado a '$originalField'. Verifique se está correto.",

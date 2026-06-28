@@ -241,9 +241,9 @@ class SyncDataController extends Controller
             }
 
             // Busca o orientador pelo nome, tolerando erros de digitação e abreviações (fuzzy search).
-            $result = $fuzzySearch->fuzzyFind(User::class, 'name', $nomeOrientador, 0.4, function($q) {
+            $result = $fuzzySearch->fuzzyFind(User::class, 'name', $nomeOrientador, 0.4, function ($q) {
                 $q->whereIn('role', ['orientador', 'coordenador'])
-                  ->whereNull('deactivated_at');
+                    ->whereNull('deactivated_at');
             });
 
             $orientador = null;

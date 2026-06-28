@@ -9,7 +9,6 @@ use App\Http\Requests\UpdateSupervisorEvaluationRequest;
 use App\Mail\AvaliacaoEstagioConcluida;
 use App\Models\Internship;
 use App\Models\SupervisorEvaluation;
-
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

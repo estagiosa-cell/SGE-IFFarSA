@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\Searchable;
 
 /**
  * Model que representa uma empresa concedente de estágios.

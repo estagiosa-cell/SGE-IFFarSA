@@ -9,7 +9,6 @@ use App\Models\Company;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Controlador para gerenciar as Partes Concedentes (empresas) no painel administrativo.
@@ -413,7 +412,6 @@ class CompanyController extends Controller
     /**
      * Exporta as empresas filtradas para um arquivo CSV.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function exportCsv(Request $request)
@@ -437,29 +435,29 @@ class CompanyController extends Controller
                 ->with('messageType', 'warning');
         }
 
-        $fileName = 'empresas_' . date('Y-m-d_H-i-s') . '.csv';
+        $fileName = 'empresas_'.date('Y-m-d_H-i-s').'.csv';
 
         $headers = [
-            'Content-type'        => 'text/csv',
+            'Content-type' => 'text/csv',
             'Content-Disposition' => "attachment; filename={$fileName}",
-            'Pragma'              => 'no-cache',
-            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires'             => '0'
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
         ];
 
         $columns = [
             'Nome/Razão Social',
             'Cidade',
             'Telefone',
-            'Email'
+            'Email',
         ];
 
         $callback = function () use ($companies, $columns) {
             $file = fopen('php://output', 'w');
-            
+
             // BOM UTF-8 for Excel
-            fputs($file, "\xEF\xBB\xBF");
-            
+            fwrite($file, "\xEF\xBB\xBF");
+
             fputcsv($file, $columns, ';');
 
             foreach ($companies as $company) {

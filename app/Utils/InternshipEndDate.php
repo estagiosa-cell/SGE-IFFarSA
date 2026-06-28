@@ -133,16 +133,13 @@ class InternshipEndDate
     public static function calculateInternshipEndDate(Carbon $startDate, array $weeklyHours, int $requiredHours, ?Collection $pauses = null): Carbon
     {
         $result = self::calculateInternshipEndDateWithLog($startDate, $weeklyHours, $requiredHours, $pauses);
+
         return $result['end_date'];
     }
 
     /**
      * Calcula a data de término do estágio e retorna um log detalhado dia a dia.
      *
-     * @param  \Carbon\Carbon  $startDate
-     * @param  array  $weeklyHours
-     * @param  int  $requiredHours
-     * @param  \Illuminate\Support\Collection|null  $pauses
      * @return array Array contendo 'end_date' (Carbon) e 'log' (array de detalhes de cada dia).
      */
     public static function calculateInternshipEndDateWithLog(Carbon $startDate, array $weeklyHours, int $requiredHours, ?Collection $pauses = null): array
@@ -228,7 +225,7 @@ class InternshipEndDate
             $isPause = self::isInPausePeriod($endDate, $pauses);
 
             // Se o dia tem carga horária configurada e não é feriado nem pausa, pode terminar aqui.
-            if ($hoursForDay > 0 && !$isHoliday && !$isPause) {
+            if ($hoursForDay > 0 && ! $isHoliday && ! $isPause) {
                 break;
             }
 
