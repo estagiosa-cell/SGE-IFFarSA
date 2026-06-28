@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\Searchable;
 
 /**
  * Model que representa um curso da instituição.
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Course extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
     /**

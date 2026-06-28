@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use App\Enums\InternshipStatus;
-use App\Utils\SearchHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use App\Traits\Searchable;
 
 /**
  * Model que representa um estágio.
@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
  */
 class Internship extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
     /**
@@ -213,7 +214,7 @@ class Internship extends Model
         $skipNameSearch = (bool) ($options['skip_name_search'] ?? false);
 
         if (! $skipNameSearch && $request->filled('search')) {
-            SearchHelper::applyUnaccentSearchIfSupported($query, $request->search, 'student_name');
+            $query->search($request->search, 'student_name');
         }
 
         if ($request->filled('status')) {

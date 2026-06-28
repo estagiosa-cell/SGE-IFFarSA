@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
-use App\Utils\SearchHelper;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -61,12 +60,9 @@ class CompanyController extends Controller
         // back to normal pagination inside SearchHelper.
         $combinedSearch = trim((string) $searchName.' '.(string) $searchCity);
 
-        $companies = SearchHelper::searchAndPaginate(
-            $orderedQuery,
-            $request,
-            $combinedSearch === '' ? null : $combinedSearch,
-            ['name', 'address_city']
-        );
+        $companies = $orderedQuery->search($combinedSearch === '' ? null : $combinedSearch, ['name', 'address_city'])
+            ->paginate(100)
+            ->withQueryString();
 
         $activeFiltersCount = collect([
             $searchName,
@@ -429,12 +425,7 @@ class CompanyController extends Controller
         $query = Company::query();
 
         if ($searchCity) {
-            if (DB::getDriverName() === 'pgsql') {
-                SearchHelper::applyUnaccentSearch($query, $searchCity, 'address_city');
-            } else {
-                // Filtro normal caso não seja postgres
-                $query->where('address_city', 'like', '%' . $searchCity . '%');
-            }
+            $query->search($searchCity, ['address_city']);
         }
 
         // Agrupa (ordena) por cidade em ordem alfabética e depois por nome

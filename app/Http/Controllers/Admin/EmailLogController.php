@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmailLog;
-use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -30,9 +29,7 @@ class EmailLogController extends Controller
 
         if (filled($search)) {
             $internshipIds = \App\Models\Internship::query()
-                ->tap(function ($q) use ($search) {
-                    SearchHelper::applyUnaccentSearchIfSupported($q, $search, 'student_name');
-                })
+                ->search($search, ['student_name'])
                 ->pluck('id');
 
             $query->whereIn('internship_id', $internshipIds);

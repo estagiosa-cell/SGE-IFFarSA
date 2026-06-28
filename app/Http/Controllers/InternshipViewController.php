@@ -6,7 +6,6 @@ use App\Enums\InternshipStatus;
 use App\Models\Course;
 use App\Models\Internship;
 use App\Models\User;
-use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -59,12 +58,9 @@ class InternshipViewController extends Controller
                 ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);
 
-            $internships = SearchHelper::searchAndPaginate(
-                $query,
-                $request,
-                $request->input('search'),
-                'student_name'
-            );
+            $internships = $query->search($request->input('search'), ['student_name'])
+                ->paginate(100)
+                ->withQueryString();
         } elseif ($user->can('is-coordenador')) {
             // Coordenadores veem estágios dos cursos que coordenam ou que eles próprios orientam.
             $courses = Course::where('coordinator_id', $user->id)
@@ -96,12 +92,9 @@ class InternshipViewController extends Controller
                 ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);
 
-            $internships = SearchHelper::searchAndPaginate(
-                $query,
-                $request,
-                $request->input('search'),
-                'student_name'
-            );
+            $internships = $query->search($request->input('search'), ['student_name'])
+                ->paginate(100)
+                ->withQueryString();
 
             // Busca orientadores que orientam estágios dos cursos coordenados para popular o filtro.
             $advisorIds = Internship::whereIn('course_id', $courseIds)

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\Searchable;
 
 /**
  * Model que representa um tipo de estágio.
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class InternshipType extends Model
 {
+    use Searchable;
     use SoftDeletes;
 
     /**

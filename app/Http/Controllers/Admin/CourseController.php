@@ -7,7 +7,7 @@ use App\Http\Requests\StoreCourseRequest;
 use App\Http\Requests\UpdateCourseRequest;
 use App\Models\Course;
 use App\Models\User;
-use App\Utils\SearchHelper;
+
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -42,12 +42,9 @@ class CourseController extends Controller
         }
 
         $orderedQuery = $query->orderBy('name');
-        $courses = SearchHelper::searchAndPaginate(
-            $orderedQuery,
-            $request,
-            $request->input('search'),
-            'name'
-        );
+        $courses = $orderedQuery->search($request->input('search'), ['name'])
+            ->paginate(100)
+            ->withQueryString();
 
         $activeFiltersCount = collect([
             $request->input('search'),

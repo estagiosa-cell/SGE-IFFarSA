@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateInternshipRequest;
 use App\Models\Company;
 use App\Models\Internship;
 use App\Models\InternshipPause;
-use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -67,12 +66,9 @@ class InternshipController extends Controller
         // Aplica a ordenação baseada no parâmetro order_by usando o scope do model
         $query->applyStandardOrdering($orderBy);
 
-        $internships = SearchHelper::searchAndPaginate(
-            $query,
-            $request,
-            $search,
-            'student_name'
-        );
+        $internships = $query->search($search, ['student_name'])
+            ->paginate(100)
+            ->withQueryString();
 
         // Obtém as opções de status para o dropdown de filtro.
         $statusOptions = InternshipStatus::options();

@@ -240,13 +240,18 @@ class SyncDataController extends Controller
                 continue;
             }
 
-            // Busca o orientador pelo nome, tolerando pequenos erros de digitação (fuzzy search).
-            $result = $fuzzySearch->fuzzyFind(User::class, 'name', $nomeOrientador);
+            // Busca o orientador pelo nome, tolerando erros de digitação e abreviações (fuzzy search).
+            $result = $fuzzySearch->fuzzyFind(User::class, 'name', $nomeOrientador, 0.4, function($q) {
+                $q->whereIn('role', ['orientador', 'coordenador'])
+                  ->whereNull('deactivated_at');
+            });
+
             $orientador = null;
             $advisorWarning = '';
 
             if (! $result) {
-                $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Orientador '$nomeOrientador' não encontrado."];
+                // FuzzySearchService já lidou com ambiguidade retornando null
+                $rowErrors[] = ['line' => $rowNumber, 'student' => $nomeCompletoEstagiario ?: 'Desconhecido', 'reason' => "Orientador '$nomeOrientador' não encontrado ou é ambíguo. Por favor, verifique e corrija manualmente na planilha."];
 
                 continue;
             }
