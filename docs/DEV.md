@@ -6,9 +6,8 @@ Este documento fornece instruções detalhadas para configurar o ambiente de des
 
 Certifique-se de ter as seguintes ferramentas instaladas:
 
-- PHP >= 8.2
-- Composer
-- Node.js & NPM
+- Docker e Docker Compose (Essencial para rodar o Laravel Sail)
+- Git
 
 ## Passo a Passo para Configuração
 
@@ -19,19 +18,7 @@ Certifique-se de ter as seguintes ferramentas instaladas:
    cd SGE-IFFarSA
    ```
 
-2. **Instale as dependências do PHP**:
-
-   ```bash
-   composer install
-   ```
-
-3. **Instale as dependências do Node.js**:
-
-   ```bash
-   npm install
-   ```
-
-4. **Configure o arquivo de ambiente**:
+2. **Configure o arquivo de ambiente**:
 
    Copie o arquivo de exemplo `.env.example` para `.env`:
 
@@ -39,96 +26,79 @@ Certifique-se de ter as seguintes ferramentas instaladas:
    cp .env.example .env
    ```
 
-   Atualize as variáveis de ambiente conforme necessário:
+   O arquivo `.env.example` já está configurado para utilizar PostgreSQL com o Laravel Sail por padrão. Você pode ajustar as configurações de banco de dados se necessário, mas o padrão é recomendado:
 
-   - **Configurações gerais da aplicação**:
-     ```env
-     APP_NAME=SGE-IFFarSA
-     APP_ENV=local
-     APP_DEBUG=true
-     APP_URL=http://localhost:8000
-     APP_LOCALE=pt_BR
-     APP_TIMEZONE=America/Sao_Paulo
-     ```
+   ```env
+   DB_CONNECTION=pgsql
+   DB_HOST=pgsql
+   DB_PORT=5432
+   DB_DATABASE=sge
+   DB_USERNAME=sail
+   DB_PASSWORD=password
+   ```
 
-   - **Serviços do Google**:
-     Consulte o arquivo [GOOGLE_OAUTH_SETUP.md](GOOGLE_OAUTH_SETUP.md) para instruções detalhadas sobre a configuração da integração com as APIs do Google.
-     ```env
-     GOOGLE_CLIENT_ID=seu_client_id_google
-     GOOGLE_CLIENT_SECRET=seu_client_secret_google
-     GOOGLE_REDIRECT_URI=http://localhost:8000/google/callback
-     GOOGLE_ADMIN_ACCOUNT_EMAIL=admin@exemplo.com
-     GOOGLE_SHEET_ID_DATA_COLLECTION=<id_da_sua_planilha_de_coleta>
-     GOOGLE_SHEET_ID_SUPERVISOR_EVALUATION=<id_da_planilha_de_avaliacoes>
-     GOOGLE_DRIVE_FOLDER_ID=<id_da_pasta_no_drive>
-     GOOGLE_DOCS_TEMPLATE_ID_TERMO_COMPROMISSO_PADRAO=<id_do_template_padrao>
-     GOOGLE_DOCS_TEMPLATE_ID_TERMO_EMATER_RS=<id_do_template_emater_rs>
-     GOOGLE_DOCS_TEMPLATE_ID_TERMO_SEDUC=<id_do_template_seduc>
-     GOOGLE_DOCS_TEMPLATE_ID_RESCISAO=<id_do_template_rescisao>
-     GOOGLE_DOCS_TEMPLATE_ID_CREDENCIAMENTO=<id_do_template_credenciamento>
-     GOOGLE_DOCS_TEMPLATE_TERMO_ADITIVO_TERCEIRA_CLAUSULA=<id_do_template_termo_aditivo_terceira_clausula>
-     ```
+   **Serviços do Google**:
+   Consulte o arquivo [GOOGLE_OAUTH_SETUP.md](GOOGLE_OAUTH_SETUP.md) para instruções detalhadas sobre a configuração da integração com as APIs do Google.
+
+3. **Instale as dependências iniciais com Docker**:
+
+   Como estamos usando o Laravel Sail, você pode instalar as dependências do Composer usando um pequeno container Docker antes de iniciar o Sail pela primeira vez:
+
+   ```bash
+   docker run --rm \
+       -u "$(id -u):$(id -g)" \
+       -v "$(pwd):/var/www/html" \
+       -w /var/www/html \
+       laravelsail/php82-composer:latest \
+       composer install --ignore-platform-reqs
+   ```
+
+4. **Inicie o ambiente de desenvolvimento (Sail)**:
+
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
+
+   > **Dica**: Você pode criar um alias no seu terminal para facilitar o uso do sail: `alias sail='bash vendor/bin/sail'`. Os comandos a seguir assumem o uso do `./vendor/bin/sail`.
 
 5. **Gere a chave da aplicação**:
 
    ```bash
-   php artisan key:generate
+   ./vendor/bin/sail artisan key:generate
    ```
 
-6. **Configure o Banco de Dados para Desenvolvimento**:
-
-   No arquivo `.env`, configure para usar SQLite:
-
-   ```env
-   DB_CONNECTION=sqlite
-   DB_DATABASE=database/database.sqlite
-   ```
-
-   > **Nota**: O Laravel criará automaticamente o arquivo `database/database.sqlite` quando executar as migrations.
-
-7. **Execute as Migrations**:
+6. **Execute as Migrations**:
 
    ```bash
-   php artisan migrate
+   ./vendor/bin/sail artisan migrate
    ```
 
-8. **Configure o Envio de E-mails para Desenvolvimento**:
+7. **Instale as dependências do Node.js e compile os assets**:
 
-   Configure um servidor SMTP no arquivo `.env`. Para desenvolvimento, Mailtrap.io é recomendado:
+   ```bash
+   ./vendor/bin/sail npm install
+   ./vendor/bin/sail npm run dev
+   ```
+
+   *(Mantenha este comando rodando em um terminal separado para compilar os assets durante o desenvolvimento)*.
+
+8. **Configure o Envio de E-mails para Desenvolvimento (Mailpit)**:
+
+   O ambiente Sail já inclui o Mailpit configurado por padrão. No seu `.env`, certifique-se de ter:
 
    ```env
    MAIL_MAILER=smtp
-   MAIL_HOST=sandbox.smtp.mailtrap.io
-   MAIL_PORT=2525
-   MAIL_USERNAME=seu_usuario_mailtrap
-   MAIL_PASSWORD=sua_senha_mailtrap
-   MAIL_FROM_ADDRESS="email@exemplo.com"
-   MAIL_FROM_NAME="${APP_NAME}"
+   MAIL_HOST=mailpit
+   MAIL_PORT=1025
    ```
-   Alternativamente, você pode usar o driver `log` para registrar os e-mails em um arquivo de log, sem enviá-los.
+   A interface web do Mailpit pode ser acessada em `http://localhost:8025`.
 
-   > **Nota**: Ao usar o driver `log`, os e-mails serão registrados no arquivo de log configurado no Laravel, geralmente localizado em `storage/logs/laravel.log`.
+## Acessando a Aplicação
 
-## Executando a Aplicação
+A aplicação estará disponível em `http://localhost`.
 
-Para iniciar o ambiente de desenvolvimento, utilize o script `dev` configurado no `composer.json`, que inicia o servidor do Laravel, o Vite e outras ferramentas simultaneamente:
+Para rodar qualquer comando do artisan, npm ou composer, sempre prefixe com `./vendor/bin/sail`:
 
-```bash
-composer run dev
-```
-
-Ou, se preferir, inicie os processos separadamente em terminais diferentes:
-
-1. **Inicie o servidor de desenvolvimento do Laravel**:
-
-   ```bash
-   php artisan serve
-   ```
-
-2. **Compile os assets do frontend e observe as mudanças**:
-
-   ```bash
-   npm run dev
-   ```
-
-A aplicação estará disponível em `http://localhost:8000`.
+- **Artisan**: `./vendor/bin/sail artisan make:controller NomeController`
+- **Composer**: `./vendor/bin/sail composer require pacote/exemplo`
+- **NPM**: `./vendor/bin/sail npm install pacote`

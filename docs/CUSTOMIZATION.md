@@ -167,7 +167,7 @@ O método `InternshipStatus::orderSql()` fará com que as queries nas *Controlle
 **Exemplo de migration para atualizar status existentes:**
 
 ```bash
-php artisan make:migration update_old_status_to_new_status
+./vendor/bin/sail artisan make:migration update_old_status_to_new_status
 ```
 
 ```php
@@ -260,7 +260,7 @@ Para adicionar novos campos que serão substituídos nos documentos gerados:
 Se o novo campo precisa ser persistido, crie uma migration:
 
 ```bash
-php artisan make:migration add_novo_campo_to_internships_table
+./vendor/bin/sail artisan make:migration add_novo_campo_to_internships_table
 ```
 
 ```php
@@ -281,7 +281,7 @@ public function down()
 
 Execute a migration:
 ```bash
-php artisan migrate
+./vendor/bin/sail artisan migrate
 ```
 
 ### 2. Adicionar ao Model (se necessário)
@@ -349,7 +349,7 @@ Siga os passos da seção [Adicionar Novo Template de Documento](#adicionar-novo
 Para documentos muito diferentes, considere criar um controller dedicado:
 
 ```bash
-php artisan make:controller Admin/NovoDocumentoController --invokable
+./vendor/bin/sail artisan make:controller Admin/NovoDocumentoController --invokable
 ```
 
 ### 3. Adicionar Rota
@@ -384,17 +384,17 @@ Adicione o botão na view apropriada:
 Após modificações em Enums ou configurações, sempre limpe o cache:
 
 ```bash
-php artisan config:clear
-php artisan cache:clear
-php artisan view:clear
+./vendor/bin/sail artisan config:clear
+./vendor/bin/sail artisan cache:clear
+./vendor/bin/sail artisan view:clear
 ```
 
 Em produção, reconstrua os caches:
 
 ```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+./vendor/bin/sail artisan config:cache
+./vendor/bin/sail artisan route:cache
+./vendor/bin/sail artisan view:cache
 ```
 
 ### Teste Sempre
@@ -410,7 +410,7 @@ Após qualquer modificação:
 Antes de modificações significativas, faça backup do banco de dados:
 
 ```bash
-php artisan backup:run
+./vendor/bin/sail artisan backup:run
 ```
 
 ### Versionamento
@@ -442,7 +442,7 @@ git push
 
 ### Novo status não aparece no dropdown
 
-- Limpe o cache: `php artisan config:clear`
+- Limpe o cache: `./vendor/bin/sail artisan config:clear`
 - Verifique se o método `options()` do Enum está correto
 - Confirme que a view está usando `InternshipStatus::options()`
 
