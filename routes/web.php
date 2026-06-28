@@ -94,6 +94,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/api/companies', [InternshipController::class, 'getCompanies'])->name('admin.internships.companies-by-cnpj');
         Route::post('/internships/{internship}/recalculate-end-date', [InternshipController::class, 'recalculateEndDate'])->name('admin.internships.recalculate-end-date');
 
+        // Rotas de Pausas de Estágio
+        Route::post('/internships/{internship}/pauses', [InternshipController::class, 'storePause'])->name('admin.internships.pauses.store');
+        Route::delete('/internships/{internship}/pauses/{pause}', [InternshipController::class, 'destroyPause'])->name('admin.internships.pauses.destroy');
+
         // Rotas de Histórico de Aditivos
         Route::delete('/internship-amendments/{id}', [\App\Http\Controllers\Admin\InternshipAmendmentController::class, 'destroy'])->name('admin.internship-amendments.destroy');
         Route::patch('/internship-amendments/{id}/restore', [\App\Http\Controllers\Admin\InternshipAmendmentController::class, 'restore'])->name('admin.internship-amendments.restore');

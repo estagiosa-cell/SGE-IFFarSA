@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateInternshipRequest;
 use App\Models\Company;
 use App\Models\Internship;
+use App\Models\InternshipPause;
 use App\Utils\SearchHelper;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -106,7 +107,7 @@ class InternshipController extends Controller
         $this->authorize('update', $internship);
 
         // Carrega os relacionamentos para serem usados na view.
-        $internship->load(['advisor:id,name', 'course:id,name']);
+        $internship->load(['advisor:id,name', 'course:id,name', 'pauses']);
         $statusOptions = InternshipStatus::options();
 
         // Busca orientadores disponíveis (usuários com papel de orientador ou coordenador) que estão ativos.
@@ -263,11 +264,15 @@ class InternshipController extends Controller
             ];
 
             $startDate = \Carbon\Carbon::parse($request->calc_start_date);
-            $newEndDate = \App\Utils\InternshipEndDate::calculateInternshipEndDate(
+            $calculationResult = \App\Utils\InternshipEndDate::calculateInternshipEndDateWithLog(
                 $startDate,
                 $weeklyHours,
-                (int) $request->remaining_hours
+                (int) $request->remaining_hours,
+                $internship->pauses
             );
+
+            $newEndDate = $calculationResult['end_date'];
+            $log = $calculationResult['log'];
 
             $internship->end_date = $newEndDate;
             $internship->save();
@@ -275,7 +280,8 @@ class InternshipController extends Controller
             return redirect()
                 ->route('admin.internships.edit', $internship->id)
                 ->with('message', 'Data de término recalculada com sucesso! Nova data: '.$newEndDate->format('d/m/Y'))
-                ->with('messageType', 'success');
+                ->with('messageType', 'success')
+                ->with('recalculate_log', $log);
         } catch (\Exception $e) {
             return redirect()
                 ->back()
@@ -283,5 +289,75 @@ class InternshipController extends Controller
                 ->with('message', 'Erro ao recalcular data de término: '.$e->getMessage())
                 ->with('messageType', 'error');
         }
+    }
+
+    /**
+     * Cadastra um novo período de pausa para o estágio.
+     *
+     * Valida sobreposição com pausas existentes e que a data de início
+     * da pausa seja posterior ou igual à data de início do estágio.
+     */
+    public function storePause(Request $request, Internship $internship)
+    {
+        $this->authorize('update', $internship);
+
+        $request->validate([
+            'start_date' => [
+                'required',
+                'date',
+                'after_or_equal:' . $internship->start_date->format('Y-m-d'),
+            ],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'reason' => ['nullable', 'string', 'max:255'],
+        ], [
+            'start_date.required' => 'A data de início é obrigatória.',
+            'start_date.after_or_equal' => 'A data de início da pausa deve ser posterior ou igual à data de início do estágio (' . $internship->start_date->format('d/m/Y') . ').',
+            'end_date.required' => 'A data de término é obrigatória.',
+            'end_date.after_or_equal' => 'A data de término deve ser posterior ou igual à data de início.',
+            'reason.max' => 'O motivo deve ter no máximo 255 caracteres.',
+        ]);
+
+        // Verifica sobreposição com pausas existentes.
+        $overlapping = $internship->pauses()
+            ->where(function ($query) use ($request) {
+                $query->where('start_date', '<=', $request->end_date)
+                      ->where('end_date', '>=', $request->start_date);
+            })
+            ->exists();
+
+        if ($overlapping) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('message', 'O período informado se sobrepõe a uma pausa já cadastrada.')
+                ->with('messageType', 'error');
+        }
+
+        $internship->pauses()->create($request->only(['start_date', 'end_date', 'reason']));
+
+        return redirect()
+            ->route('admin.internships.edit', $internship->id)
+            ->with('message', 'Pausa cadastrada com sucesso!')
+            ->with('messageType', 'success');
+    }
+
+    /**
+     * Remove um período de pausa do estágio.
+     */
+    public function destroyPause(Internship $internship, InternshipPause $pause)
+    {
+        $this->authorize('update', $internship);
+
+        // Garante que a pausa pertence ao estágio.
+        if ($pause->internship_id !== $internship->id) {
+            abort(404);
+        }
+
+        $pause->delete();
+
+        return redirect()
+            ->route('admin.internships.edit', $internship->id)
+            ->with('message', 'Pausa removida com sucesso!')
+            ->with('messageType', 'success');
     }
 }

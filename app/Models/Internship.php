@@ -192,6 +192,14 @@ class Internship extends Model
     }
 
     /**
+     * Relacionamento: retorna os períodos de pausa do estágio.
+     */
+    public function pauses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InternshipPause::class);
+    }
+
+    /**
      * Aplica filtros padrão de listagem de estágios na query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
