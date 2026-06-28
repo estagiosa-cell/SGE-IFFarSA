@@ -264,7 +264,8 @@ class InternshipController extends Controller
                 $startDate,
                 $weeklyHours,
                 (int) $request->remaining_hours,
-                $internship->pauses
+                $internship->pauses,
+                (bool) $internship->has_workload_exception
             );
 
             $newEndDate = $calculationResult['end_date'];

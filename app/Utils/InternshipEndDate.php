@@ -130,9 +130,9 @@ class InternshipEndDate
      *
      * @throws \InvalidArgumentException Se a carga horária for inválida.
      */
-    public static function calculateInternshipEndDate(Carbon $startDate, array $weeklyHours, int $requiredHours, ?Collection $pauses = null): Carbon
+    public static function calculateInternshipEndDate(Carbon $startDate, array $weeklyHours, int $requiredHours, ?Collection $pauses = null, bool $hasWorkloadException = false): Carbon
     {
-        $result = self::calculateInternshipEndDateWithLog($startDate, $weeklyHours, $requiredHours, $pauses);
+        $result = self::calculateInternshipEndDateWithLog($startDate, $weeklyHours, $requiredHours, $pauses, $hasWorkloadException);
 
         return $result['end_date'];
     }
@@ -142,12 +142,12 @@ class InternshipEndDate
      *
      * @return array Array contendo 'end_date' (Carbon) e 'log' (array de detalhes de cada dia).
      */
-    public static function calculateInternshipEndDateWithLog(Carbon $startDate, array $weeklyHours, int $requiredHours, ?Collection $pauses = null): array
+    public static function calculateInternshipEndDateWithLog(Carbon $startDate, array $weeklyHours, int $requiredHours, ?Collection $pauses = null, bool $hasWorkloadException = false): array
     {
         $totalWeeklyHours = array_sum($weeklyHours);
 
         // Valida a carga horária semanal.
-        if ($totalWeeklyHours > 30) {
+        if ($totalWeeklyHours > 30 && ! $hasWorkloadException) {
             throw new \InvalidArgumentException('A carga horária semanal não pode exceder 30 horas.');
         }
 

@@ -93,6 +93,7 @@ class Internship extends Model
         'internship_sector',
         'required_hours',
         'internship_type_weight',
+        'has_workload_exception',
 
         // Carga Horária
         'hours_sunday',
@@ -157,6 +158,7 @@ class Internship extends Model
         'end_date' => 'date',
         'status' => InternshipStatus::class,
         'is_remunerated' => 'boolean',
+        'has_workload_exception' => 'boolean',
         'grant_value' => 'decimal:2',
         'transportation_allowance' => 'decimal:2',
         'evaluation_grade' => 'decimal:2',

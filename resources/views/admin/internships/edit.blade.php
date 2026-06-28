@@ -408,6 +408,15 @@
 
                     {{-- Carga Horária Semanal --}}
                     <h6 class="mb-3 mt-4 border-bottom pb-2">Carga Horária Semanal</h6>
+                    
+                    <div class="row m-0 mb-3">
+                        <div class="col-md-12">
+                            <input type="hidden" name="has_workload_exception" value="0">
+                            <x-form.switch name="has_workload_exception" label="Liberar exceção de limite máximo de carga horária" id="has_workload_exception" onchange="toggleWorkloadException()" value="1" :checked="old('has_workload_exception', $internship->has_workload_exception) == '1' || old('has_workload_exception', $internship->has_workload_exception) === true" />
+                            <small class="text-muted d-block ms-5">Isso desativa as travas de horas diárias (máx. 6h) e semanais (máx. 30h) no sistema.</small>
+                        </div>
+                    </div>
+
                     <div class="row m-0">
                         @foreach(['sunday' => 'Domingo', 'monday' => 'Segunda', 'tuesday' => 'Terça', 'wednesday' => 'Quarta'] as $day => $label)
                             <div class="col-md-3 col-6 mb-3">
@@ -426,7 +435,7 @@
                                 <input type="text" class="form-control bg-light" id="total_weekly_hours"
                                     value="{{ old('hours_sunday', $internship->hours_sunday ?? 0) + old('hours_monday', $internship->hours_monday ?? 0) + old('hours_tuesday', $internship->hours_tuesday ?? 0) + old('hours_wednesday', $internship->hours_wednesday ?? 0) + old('hours_thursday', $internship->hours_thursday ?? 0) + old('hours_friday', $internship->hours_friday ?? 0) + old('hours_saturday', $internship->hours_saturday ?? 0) }}h"
                                     readonly>
-                                <label for="total_weekly_hours">Total Semanal (máx. 30h)</label>
+                                <label id="total_weekly_hours_label" for="total_weekly_hours">Total Semanal (máx. 30h)</label>
                             </div>
                         </div>
                     </div>
@@ -834,7 +843,7 @@
                     setVal('field_of_activity', selectedCompany.field_of_activity);
                     setVal('company_address_street', selectedCompany.address_street);
                     setVal('company_address_number', selectedCompany.address_number);
-                    setVal('company_address_neighborhood', selectedCompany.address_neighborhood);
+                                            setVal('company_address_neighborhood', selectedCompany.address_neighborhood);
                     setVal('company_address_city', selectedCompany.address_city);
                     setVal('company_address_state', selectedCompany.address_state);
                     setVal('company_address_zip', selectedCompany.address_zip);
@@ -845,25 +854,47 @@
             }
 
             function toggleRemunerationFields() {
-                const checkbox = document.getElementById('is_remunerated');
-                const grant_value_field = document.getElementById('grant_value');
-                const transportation_allowance_field = document.getElementById('transportation_allowance');
+                const isRemunerated = document.getElementById('is_remunerated').checked;
+                const grantValueInput = document.getElementById('grant_value');
+                const transportAllowanceInput = document.getElementById('transportation_allowance');
 
-                if (!checkbox || !grant_value_field || !transportation_allowance_field) return;
-
-                if (checkbox.checked) {
-                    grant_value_field.readOnly = false;
-                    grant_value_field.required = true;
-                    transportation_allowance_field.readOnly = false;
-                    transportation_allowance_field.required = true;
+                if (isRemunerated) {
+                    grantValueInput.removeAttribute('readonly');
+                    transportAllowanceInput.removeAttribute('readonly');
                 } else {
-                    grant_value_field.value = '';
-                    grant_value_field.readOnly = true;
-                    grant_value_field.required = false;
-                    transportation_allowance_field.value = '';
-                    transportation_allowance_field.readOnly = true;
-                    transportation_allowance_field.required = false;
+                    grantValueInput.setAttribute('readonly', 'readonly');
+                    transportAllowanceInput.setAttribute('readonly', 'readonly');
+                    grantValueInput.value = '';
+                    transportAllowanceInput.value = '';
                 }
+            }
+
+            function toggleWorkloadException() {
+                const hasException = document.getElementById('has_workload_exception').checked;
+                const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                const label = document.getElementById('total_weekly_hours_label');
+
+                days.forEach(day => {
+                    const input = document.getElementById('hours_' + day);
+                    if (input) {
+                        if (hasException) {
+                            input.removeAttribute('max');
+                        } else {
+                            input.setAttribute('max', '6');
+                        }
+                    }
+                });
+
+                if (label) {
+                    if (hasException) {
+                        label.innerText = 'Total Semanal (Exceção Ativa)';
+                    } else {
+                        label.innerText = 'Total Semanal (máx. 30h)';
+                    }
+                }
+                
+                // Recalculate to remove/add visual alert
+                calculateTotalWeeklyHours();
             }
 
             function toggleLegalGuardianFields() {
@@ -947,13 +978,14 @@
                 });
 
                 const totalField = document.getElementById('total_weekly_hours');
+                const hasException = document.getElementById('has_workload_exception')?.checked;
                 
                 if (!totalField) return;
 
                 totalField.value = total + 'h';
 
-                // Adiciona indicador visual se ultrapassar o limite
-                if (total > maxWeeklyHours) {
+                // Adiciona indicador visual se ultrapassar o limite (e não possuir exceção liberada)
+                if (total > maxWeeklyHours && !hasException) {
                     totalField.classList.add('text-danger', 'fw-bold');
                     totalField.classList.remove('bg-light');
                     totalField.classList.add('bg-danger', 'bg-opacity-10');
@@ -977,6 +1009,7 @@
 
             // Inicializar os campos quando a página carregar
             document.addEventListener('DOMContentLoaded', function() {
+                toggleWorkloadException();
                 toggleRemunerationFields();
                 toggleLegalGuardianFields();
                 setupEvaluationWorkloadSwitch();
