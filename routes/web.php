@@ -91,6 +91,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/internships/{internship}', [InternshipController::class, 'update'])->name('admin.internships.update');
         Route::delete('/internships/{internship}', [InternshipController::class, 'destroy'])->name('admin.internships.destroy');
         Route::patch('/internships/{id}/restore', [InternshipController::class, 'restore'])->name('admin.internships.restore');
+        Route::post('/internships/{internship}/cancel', [InternshipController::class, 'cancel'])->name('admin.internships.cancel');
         Route::get('/api/companies', [InternshipController::class, 'getCompanies'])->name('admin.internships.companies-by-cnpj');
         Route::post('/internships/{internship}/recalculate-end-date', [InternshipController::class, 'recalculateEndDate'])->name('admin.internships.recalculate-end-date');
 

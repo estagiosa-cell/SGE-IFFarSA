@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * Model que representa um estágio.
@@ -18,8 +20,23 @@ use Illuminate\Http\Request;
  */
 class Internship extends Model
 {
+    use LogsActivity;
     use Searchable;
     use SoftDeletes;
+
+    /**
+     * Configura as opções de log de atividade para o Spatie ActivityLog.
+     *
+     * Rastreia automaticamente mudanças nas colunas de status, orientador e datas críticas.
+     * Apenas alterações efetivas (dirty) são registradas.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['status', 'advisor_id', 'start_date', 'end_date'])
+            ->logOnlyDirty()
+            ->useLogName('internships');
+    }
 
     /**
      * Os atributos que podem ser atribuídos em massa.
