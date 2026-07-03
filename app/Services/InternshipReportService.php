@@ -2,18 +2,21 @@
 
 namespace App\Services;
 
+use App\Enums\InternshipStatus;
+use App\Models\Course;
 use App\Models\Internship;
 use App\Models\InternshipAmendment;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Spatie\Activitylog\Models\Activity;
 
 /**
  * Service responsável pelas queries analíticas do módulo de relatórios gerenciais.
  *
- * Extrai dados de auditoria da tabela activity_log (Spatie v5) e da tabela
- * internship_amendments para gerar métricas de tempo de tramitação,
- * cancelamentos agrupados por motivo e contagem de aditivos.
+ * Extrai dados de auditoria da tabela activity_log (Spatie v5), da tabela
+ * internship_amendments e agregações acadêmicas (por curso, notas, concedentes)
+ * para gerar métricas de gestão de estágios.
  */
 class InternshipReportService
 {
@@ -115,5 +118,135 @@ class InternshipReportService
         }
 
         return $query->count('internship_id');
+    }
+
+    // =========================================================================
+    // Fase 2: Queries Acadêmicas e de Curso
+    // =========================================================================
+
+    /**
+     * Retorna a contagem de estágios por curso, agrupada por status.
+     *
+     * Usa agregação condicional (CASE WHEN) para retornar todos os status
+     * em uma única query eficiente, sem múltiplas subqueries.
+     *
+     * @param  string|null  $startDate  Filtro por internships.start_date.
+     * @param  string|null  $endDate  Filtro por internships.start_date.
+     * @return \Illuminate\Support\Collection Coleção com course_name e contagens por status.
+     */
+    public function getInternshipsByCourse(?string $startDate = null, ?string $endDate = null): Collection
+    {
+        $query = Course::query()
+            ->select('courses.id', 'courses.name as course_name')
+            ->leftJoin('internships', function ($join) use ($startDate, $endDate) {
+                $join->on('courses.id', '=', 'internships.course_id')
+                    ->whereNull('internships.deleted_at');
+
+                if ($startDate) {
+                    $join->where('internships.start_date', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $join->where('internships.start_date', '<=', $endDate);
+                }
+            });
+
+        foreach (InternshipStatus::cases() as $status) {
+            $query->selectRaw(
+                "COUNT(CASE WHEN internships.status = ? THEN 1 END) as total_{$this->normalizeStatusKey($status)}",
+                [$status->value]
+            );
+        }
+
+        $query->selectRaw('COUNT(internships.id) as total_geral');
+
+        return $query
+            ->groupBy('courses.id', 'courses.name')
+            ->orderBy('courses.name')
+            ->get();
+    }
+
+    /**
+     * Calcula a nota média de avaliação dos estágios agrupada por curso.
+     *
+     * Considera apenas estágios que possuem nota (evaluation_grade não nulo).
+     * Também retorna a nota mínima, máxima e quantidade de estágios avaliados.
+     *
+     * @param  string|null  $startDate  Filtro por internships.start_date.
+     * @param  string|null  $endDate  Filtro por internships.start_date.
+     * @return \Illuminate\Support\Collection Coleção com course_name, avg, min, max e count.
+     */
+    public function getAverageGradesByCourse(?string $startDate = null, ?string $endDate = null): Collection
+    {
+        $query = Course::query()
+            ->select([
+                'courses.id',
+                'courses.name as course_name',
+                DB::raw('ROUND(AVG(internships.evaluation_grade), 2) as nota_media'),
+                DB::raw('MIN(internships.evaluation_grade) as nota_minima'),
+                DB::raw('MAX(internships.evaluation_grade) as nota_maxima'),
+                DB::raw('COUNT(internships.evaluation_grade) as total_avaliados'),
+            ])
+            ->leftJoin('internships', function ($join) use ($startDate, $endDate) {
+                $join->on('courses.id', '=', 'internships.course_id')
+                    ->whereNull('internships.deleted_at')
+                    ->whereNotNull('internships.evaluation_grade');
+
+                if ($startDate) {
+                    $join->where('internships.start_date', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $join->where('internships.start_date', '<=', $endDate);
+                }
+            })
+            ->groupBy('courses.id', 'courses.name')
+            ->orderBy('courses.name');
+
+        return $query->get();
+    }
+
+    /**
+     * Lista as empresas concedentes com mais estagiários vinculados.
+     *
+     * Agrupa por company_legal_identifier (CNPJ/CPF) já que os dados da empresa
+     * são denormalizados na tabela internships (sem FK para companies).
+     *
+     * @param  string|null  $startDate  Filtro por internships.start_date.
+     * @param  string|null  $endDate  Filtro por internships.start_date.
+     * @param  int  $limit  Número máximo de resultados (padrão: 20).
+     * @return \Illuminate\Support\Collection Coleção com company_name, legal_identifier e total.
+     */
+    public function getTopCompanies(?string $startDate = null, ?string $endDate = null, int $limit = 20): Collection
+    {
+        $query = Internship::query()
+            ->select([
+                'company_legal_identifier',
+                DB::raw('MAX(company_name) as company_name'),
+                DB::raw('COUNT(*) as total_estagios'),
+            ])
+            ->whereNotNull('company_legal_identifier')
+            ->where('company_legal_identifier', '!=', '');
+
+        if ($startDate) {
+            $query->where('start_date', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('start_date', '<=', $endDate);
+        }
+
+        return $query
+            ->groupBy('company_legal_identifier')
+            ->orderByDesc('total_estagios')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Normaliza o nome do status do enum para uso como chave de coluna.
+     *
+     * Ex: InternshipStatus::AWAITING_SIGNATURE ("Aguardando Assinatura") → "aguardando_assinatura"
+     */
+    private function normalizeStatusKey(InternshipStatus $status): string
+    {
+        return Str::slug($status->value, '_');
     }
 }
