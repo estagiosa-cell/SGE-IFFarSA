@@ -459,35 +459,17 @@ class InternshipReportService
             return ['on_time' => 0, 'late' => 0, 'total' => 0, 'percent' => 0];
         }
 
-        // Busca no log quando exatamente os estágios mudaram para Concluído
-        $logs = Activity::query()
-            ->select('subject_id', DB::raw('MIN(created_at) as completed_at'))
-            ->where('subject_type', (new Internship)->getMorphClass())
-            ->where('log_name', 'internships')
-            ->whereRaw("attribute_changes->'attributes'->>'status' = ?", [InternshipStatus::COMPLETED->value])
-            ->whereIn('subject_id', $completed->pluck('id'))
-            ->groupBy('subject_id')
-            ->pluck('completed_at', 'subject_id');
-
         $onTime = 0;
         $late = 0;
+        
         foreach ($completed as $internship) {
-            // Regra de negócio definida pelo usuário: se teve aditivo, foi concluído fora do prazo (pois precisou de extensão).
+            // Regra de negócio definida pelo usuário: 
+            // "Dentro do prazo" = Concluído sem aditivo.
+            // "Fora do prazo" = Concluído com aditivo.
             if ($internship->amendments->isNotEmpty()) {
                 $late++;
-
-                continue;
-            }
-
-            // Usa a data do log se existir, senão cai para o updated_at (legado)
-            $completionDate = isset($logs[$internship->id])
-                ? \Carbon\Carbon::parse($logs[$internship->id])
-                : $internship->updated_at;
-
-            if ($internship->end_date && $completionDate <= $internship->end_date->endOfDay()) {
-                $onTime++;
             } else {
-                $late++;
+                $onTime++;
             }
         }
 
