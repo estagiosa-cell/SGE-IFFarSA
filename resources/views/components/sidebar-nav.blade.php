@@ -15,7 +15,7 @@
         </x-sidebar-nav-link>
 
         <x-sidebar-nav-link route="admin.reports.index" icon="graph-up">
-            Relatórios Gerenciais
+            Relatórios do Sistema
         </x-sidebar-nav-link>
 
         <x-sidebar-nav-link route="admin.internships.index" icon="briefcase">
