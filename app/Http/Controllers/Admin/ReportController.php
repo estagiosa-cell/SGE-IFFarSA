@@ -32,7 +32,6 @@ class ReportController extends Controller
         $onTimeByCourse = $reportService->getOnTimeForwardingByCourse($startDate, $endDate);
         $internshipStatuses = $reportService->getInternshipStatuses($startDate, $endDate);
         $cancellations = $reportService->getCancellationsByReason($startDate, $endDate);
-        $pendingDocuments = $reportService->getPendingDocuments($startDate, $endDate);
 
         // Aba 2: Acompanhamento da Prática
         $completionOnTime = $reportService->getCompletionOnTime($startDate, $endDate);
@@ -69,7 +68,6 @@ class ReportController extends Controller
             'onTimeByCourse',
             'internshipStatuses',
             'cancellations',
-            'pendingDocuments',
             'completionOnTime',
             'amendmentsCount',
             'amendmentsByReason',

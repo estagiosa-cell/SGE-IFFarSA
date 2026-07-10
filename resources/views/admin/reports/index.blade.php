@@ -248,45 +248,7 @@
                 </div>
             </div>
 
-            <div class="row m-0">
-                <div class="col-lg-12 mb-4">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                            <h6 class="m-0 fw-bold text-primary">Estágios com Pendências Documentais</h6>
-                            <span class="badge bg-warning text-dark">{{ $pendingDocuments->count() }} pendentes</span>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
-                                <div class="list-group-item bg-light text-muted fw-bold small text-uppercase sticky-top">
-                                    <div class="row m-0">
-                                        <div class="col-5">Estagiário</div>
-                                        <div class="col-3">Curso</div>
-                                        <div class="col-2">Status</div>
-                                        <div class="col-2 text-end">Desde</div>
-                                    </div>
-                                </div>
-                                @forelse($pendingDocuments as $doc)
-                                    <div class="list-group-item py-3">
-                                        <div class="row m-0 align-items-center">
-                                            <div class="col-5 text-truncate fw-semibold text-dark">{{ $doc->student_name }}</div>
-                                            <div class="col-3 text-truncate text-muted small">{{ $doc->course_name ?? 'N/D' }}</div>
-                                            <div class="col-2">
-                                                <span class="badge bg-{{ $doc->status === 'Pendente' ? 'warning' : 'info' }}">{{ $doc->status }}</span>
-                                            </div>
-                                            <div class="col-2 text-end text-muted small">{{ $doc->created_at->format('d/m/Y') }}</div>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="list-group-item text-center text-muted py-4">
-                                        <i class="bi bi-check-circle text-success fs-3 d-block mb-2"></i>
-                                        Nenhuma pendência documental no período.
-                                    </div>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             {{-- Tempo de Tramitação Detalhado --}}
             <div class="row m-0">

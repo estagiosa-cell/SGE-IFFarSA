@@ -434,34 +434,7 @@ class InternshipReportService
         return collect(array_values($byCourse));
     }
 
-    /**
-     * Retorna estágios com pendências documentais (Pendente ou Aguardando Assinatura).
-     */
-    public function getPendingDocuments(?string $startDate = null, ?string $endDate = null): Collection
-    {
-        $query = Internship::query()
-            ->select([
-                'internships.id',
-                'internships.student_name',
-                'internships.status',
-                'internships.created_at',
-                'courses.name as course_name',
-            ])
-            ->leftJoin('courses', 'courses.id', '=', 'internships.course_id')
-            ->whereIn('internships.status', [
-                InternshipStatus::PENDING->value,
-                InternshipStatus::AWAITING_SIGNATURE->value,
-            ]);
 
-        if ($startDate) {
-            $query->where('internships.created_at', '>=', $startDate);
-        }
-        if ($endDate) {
-            $query->where('internships.created_at', '<=', $endDate);
-        }
-
-        return $query->orderBy('internships.created_at', 'desc')->get();
-    }
 
     /**
      * Retorna métricas de conclusão dentro vs fora do prazo.
