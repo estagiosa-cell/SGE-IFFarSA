@@ -434,8 +434,6 @@ class InternshipReportService
         return collect(array_values($byCourse));
     }
 
-
-
     /**
      * Retorna métricas de conclusão dentro vs fora do prazo.
      */
@@ -461,9 +459,9 @@ class InternshipReportService
 
         $onTime = 0;
         $late = 0;
-        
+
         foreach ($completed as $internship) {
-            // Regra de negócio definida pelo usuário: 
+            // Regra de negócio definida pelo usuário:
             // "Dentro do prazo" = Concluído sem aditivo.
             // "Fora do prazo" = Concluído com aditivo.
             if ($internship->amendments->isNotEmpty()) {
