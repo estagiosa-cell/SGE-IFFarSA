@@ -114,7 +114,10 @@ class InternshipController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('admin.internships.edit', compact('internship', 'statusOptions', 'advisors'));
+        // Carrega o histórico de atividades deste estágio
+        $activities = $internship->activities()->with('causer')->latest()->get();
+
+        return view('admin.internships.edit', compact('internship', 'statusOptions', 'advisors', 'activities'));
     }
 
     /**

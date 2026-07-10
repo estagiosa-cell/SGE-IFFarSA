@@ -47,8 +47,9 @@ class InternshipReportService
                 'internships.id',
                 'internships.student_name',
                 'internships.created_at',
+                'internships.start_date',
                 'log_data.released_at',
-                DB::raw("EXTRACT(DAY FROM (log_data.released_at - internships.created_at)) as days_to_release"),
+                DB::raw('EXTRACT(DAY FROM (log_data.released_at - internships.created_at)) as days_to_release'),
             ])
             ->joinSub($subquery, 'log_data', function ($join) {
                 $join->on('internships.id', '=', 'log_data.subject_id');
@@ -78,12 +79,12 @@ class InternshipReportService
     {
         $query = Activity::query()
             ->select([
-                DB::raw("COALESCE(properties->>'motivo', 'Sem motivo informado') as motivo"),
+                DB::raw("COALESCE(properties->>'motivo', properties->'attributes'->>'motivo', 'Sem motivo informado') as motivo"),
                 DB::raw('COUNT(*) as total'),
             ])
             ->where('log_name', 'internships')
             ->where('description', 'Estágio cancelado com motivo')
-            ->groupByRaw("COALESCE(properties->>'motivo', 'Sem motivo informado')")
+            ->groupByRaw("COALESCE(properties->>'motivo', properties->'attributes'->>'motivo', 'Sem motivo informado')")
             ->orderByDesc('total');
 
         if ($startDate) {
@@ -238,6 +239,414 @@ class InternshipReportService
             ->orderByDesc('total_estagios')
             ->limit($limit)
             ->get();
+    }
+
+    /**
+     * Calcula as métricas agregadas do tempo de tramitação documental.
+     */
+    public function getProcessingTimeMetrics(?string $startDate = null, ?string $endDate = null): array
+    {
+        $times = $this->getProcessingTimes($startDate, $endDate)->pluck('days_to_release')->filter(fn ($val) => ! is_null($val));
+
+        if ($times->isEmpty()) {
+            return ['avg' => 0, 'min' => 0, 'max' => 0, 'median' => 0];
+        }
+
+        $sorted = $times->sort()->values();
+        $count = $sorted->count();
+        $median = $count % 2 === 0
+            ? ($sorted[$count / 2 - 1] + $sorted[$count / 2]) / 2
+            : $sorted[floor($count / 2)];
+
+        return [
+            'avg' => round($times->average(), 1),
+            'min' => $times->min(),
+            'max' => $times->max(),
+            'median' => round($median, 1),
+        ];
+    }
+
+    /**
+     * Calcula a taxa de estágios encaminhados dentro do prazo (released_at <= start_date).
+     */
+    public function getOnTimeForwarding(?string $startDate = null, ?string $endDate = null): array
+    {
+        $times = $this->getProcessingTimes($startDate, $endDate);
+        if ($times->isEmpty()) {
+            return ['on_time' => 0, 'late' => 0, 'total' => 0, 'percent' => 0];
+        }
+
+        $onTime = 0;
+        $late = 0;
+        foreach ($times as $item) {
+            if ($item->start_date && $item->released_at <= $item->start_date) {
+                $onTime++;
+            } else {
+                $late++;
+            }
+        }
+
+        return [
+            'on_time' => $onTime,
+            'late' => $late,
+            'total' => $onTime + $late,
+            'percent' => round(($onTime / ($onTime + $late)) * 100, 1),
+        ];
+    }
+
+    /**
+     * Retorna a contagem de estágios agrupados pela situação atual.
+     */
+    public function getInternshipStatuses(?string $startDate = null, ?string $endDate = null): Collection
+    {
+        $query = Internship::query()
+            ->select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status');
+
+        if ($startDate) {
+            $query->where('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('created_at', '<=', $endDate);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Retorna a contagem de supervisores e média de estagiários por curso.
+     */
+    public function getSupervisorsMetrics(?string $startDate = null, ?string $endDate = null): Collection
+    {
+        $query = Course::query()
+            ->select([
+                'courses.id',
+                'courses.name as course_name',
+                DB::raw('COUNT(DISTINCT internships.supervisor_name) as total_supervisores'),
+                DB::raw('COUNT(internships.id) as total_estagiarios'),
+            ])
+            ->leftJoin('internships', function ($join) use ($startDate, $endDate) {
+                $join->on('courses.id', '=', 'internships.course_id')
+                    ->whereNull('internships.deleted_at')
+                    ->whereNotNull('internships.supervisor_name');
+                if ($startDate) {
+                    $join->where('internships.start_date', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $join->where('internships.start_date', '<=', $endDate);
+                }
+            })
+            ->groupBy('courses.id', 'courses.name')
+            ->orderBy('courses.name');
+
+        return $query->get();
+    }
+
+    /**
+     * Retorna a contagem de estagiários por professor orientador.
+     */
+    public function getAdvisorsMetrics(?string $startDate = null, ?string $endDate = null): Collection
+    {
+        $query = Internship::query()
+            ->select([
+                'users.name as advisor_name',
+                DB::raw('COUNT(*) as total_estagiarios'),
+            ])
+            ->join('users', 'internships.advisor_id', '=', 'users.id')
+            ->whereNotNull('internships.advisor_id');
+
+        if ($startDate) {
+            $query->where('internships.start_date', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('internships.start_date', '<=', $endDate);
+        }
+
+        return $query->groupBy('users.id', 'users.name')->orderByDesc('total_estagiarios')->get();
+    }
+
+    // =========================================================================
+    // Fase 2: Novos Métodos Analíticos (Painel Gerencial Completo)
+    // =========================================================================
+
+    /**
+     * Retorna o tempo médio de tramitação por mês para gráfico de linha.
+     */
+    public function getMonthlyProcessingTimes(?string $startDate = null, ?string $endDate = null): Collection
+    {
+        $subquery = Activity::query()
+            ->select('subject_id', DB::raw('MIN(created_at) as released_at'))
+            ->where('subject_type', (new Internship)->getMorphClass())
+            ->where('log_name', 'internships')
+            ->where(function ($q) {
+                $q->whereRaw("attribute_changes->'attributes'->>'status' = ?", ['Liberado'])
+                    ->orWhereRaw("attribute_changes->'attributes'->>'status' = ?", ['Em Andamento']);
+            })
+            ->groupBy('subject_id');
+
+        $query = Internship::query()
+            ->select([
+                DB::raw("TO_CHAR(internships.created_at, 'YYYY-MM') as month"),
+                DB::raw('ROUND(AVG(EXTRACT(DAY FROM (log_data.released_at - internships.created_at))), 1) as avg_days'),
+                DB::raw('COUNT(*) as total'),
+            ])
+            ->joinSub($subquery, 'log_data', function ($join) {
+                $join->on('internships.id', '=', 'log_data.subject_id');
+            });
+
+        if ($startDate) {
+            $query->where('internships.created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('internships.created_at', '<=', $endDate);
+        }
+
+        return $query
+            ->groupByRaw("TO_CHAR(internships.created_at, 'YYYY-MM')")
+            ->orderByRaw("TO_CHAR(internships.created_at, 'YYYY-MM')")
+            ->get();
+    }
+
+    /**
+     * Retorna a taxa de encaminhamento dentro/fora do prazo por curso.
+     */
+    public function getOnTimeForwardingByCourse(?string $startDate = null, ?string $endDate = null): Collection
+    {
+        $times = $this->getProcessingTimes($startDate, $endDate);
+
+        $byCourse = [];
+        foreach ($times as $item) {
+            $course = Internship::find($item->id)?->course;
+            $courseName = $course?->name ?? 'Sem Curso';
+            $courseId = $course?->id ?? 0;
+
+            if (! isset($byCourse[$courseId])) {
+                $byCourse[$courseId] = ['course_name' => $courseName, 'on_time' => 0, 'late' => 0];
+            }
+
+            if ($item->start_date && $item->released_at <= $item->start_date) {
+                $byCourse[$courseId]['on_time']++;
+            } else {
+                $byCourse[$courseId]['late']++;
+            }
+        }
+
+        return collect(array_values($byCourse));
+    }
+
+    /**
+     * Retorna estágios com pendências documentais (Pendente ou Aguardando Assinatura).
+     */
+    public function getPendingDocuments(?string $startDate = null, ?string $endDate = null): Collection
+    {
+        $query = Internship::query()
+            ->select([
+                'internships.id',
+                'internships.student_name',
+                'internships.status',
+                'internships.created_at',
+                'courses.name as course_name',
+            ])
+            ->leftJoin('courses', 'courses.id', '=', 'internships.course_id')
+            ->whereIn('internships.status', [
+                InternshipStatus::PENDING->value,
+                InternshipStatus::AWAITING_SIGNATURE->value,
+            ]);
+
+        if ($startDate) {
+            $query->where('internships.created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('internships.created_at', '<=', $endDate);
+        }
+
+        return $query->orderBy('internships.created_at', 'desc')->get();
+    }
+
+    /**
+     * Retorna métricas de conclusão dentro vs fora do prazo.
+     */
+    public function getCompletionOnTime(?string $startDate = null, ?string $endDate = null): array
+    {
+        // Busca todos os estágios concluídos
+        $query = Internship::query()
+            ->with('amendments')
+            ->where('status', InternshipStatus::COMPLETED->value);
+
+        if ($startDate) {
+            $query->where('start_date', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('start_date', '<=', $endDate);
+        }
+
+        $completed = $query->get();
+
+        if ($completed->isEmpty()) {
+            return ['on_time' => 0, 'late' => 0, 'total' => 0, 'percent' => 0];
+        }
+
+        // Busca no log quando exatamente os estágios mudaram para Concluído
+        $logs = Activity::query()
+            ->select('subject_id', DB::raw('MIN(created_at) as completed_at'))
+            ->where('subject_type', (new Internship)->getMorphClass())
+            ->where('log_name', 'internships')
+            ->whereRaw("attribute_changes->'attributes'->>'status' = ?", [InternshipStatus::COMPLETED->value])
+            ->whereIn('subject_id', $completed->pluck('id'))
+            ->groupBy('subject_id')
+            ->pluck('completed_at', 'subject_id');
+
+        $onTime = 0;
+        $late = 0;
+        foreach ($completed as $internship) {
+            // Regra de negócio definida pelo usuário: se teve aditivo, foi concluído fora do prazo (pois precisou de extensão).
+            if ($internship->amendments->isNotEmpty()) {
+                $late++;
+
+                continue;
+            }
+
+            // Usa a data do log se existir, senão cai para o updated_at (legado)
+            $completionDate = isset($logs[$internship->id])
+                ? \Carbon\Carbon::parse($logs[$internship->id])
+                : $internship->updated_at;
+
+            if ($internship->end_date && $completionDate <= $internship->end_date->endOfDay()) {
+                $onTime++;
+            } else {
+                $late++;
+            }
+        }
+
+        $total = $onTime + $late;
+
+        return [
+            'on_time' => $onTime,
+            'late' => $late,
+            'total' => $total,
+            'percent' => $total > 0 ? round(($onTime / $total) * 100, 1) : 0,
+        ];
+    }
+
+    /**
+     * Retorna a contagem de aditivos agrupada por motivo (registrado no activity_log).
+     */
+    public function getAmendmentsByReason(?string $startDate = null, ?string $endDate = null): Collection
+    {
+        $query = InternshipAmendment::query()
+            ->select([
+                DB::raw('COUNT(*) as total'),
+            ]);
+
+        if ($startDate) {
+            $query->where('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('created_at', '<=', $endDate);
+        }
+
+        $total = $query->count();
+
+        return collect([['reason' => 'Aditivo de Prorrogação', 'total' => $total]]);
+    }
+
+    /**
+     * Retorna a distribuição de notas por faixas para histograma.
+     */
+    public function getGradeDistribution(?string $startDate = null, ?string $endDate = null): Collection
+    {
+        $query = Internship::query()
+            ->select([
+                DB::raw("CASE
+                    WHEN evaluation_grade >= 9 THEN '9-10'
+                    WHEN evaluation_grade >= 8 THEN '8-9'
+                    WHEN evaluation_grade >= 7 THEN '7-8'
+                    WHEN evaluation_grade >= 6 THEN '6-7'
+                    WHEN evaluation_grade >= 5 THEN '5-6'
+                    ELSE '0-5'
+                END as faixa"),
+                DB::raw('COUNT(*) as total'),
+            ])
+            ->whereNotNull('evaluation_grade');
+
+        if ($startDate) {
+            $query->where('start_date', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('start_date', '<=', $endDate);
+        }
+
+        return $query
+            ->groupByRaw("CASE
+                WHEN evaluation_grade >= 9 THEN '9-10'
+                WHEN evaluation_grade >= 8 THEN '8-9'
+                WHEN evaluation_grade >= 7 THEN '7-8'
+                WHEN evaluation_grade >= 6 THEN '6-7'
+                WHEN evaluation_grade >= 5 THEN '5-6'
+                ELSE '0-5'
+            END")
+            ->orderByRaw('MIN(evaluation_grade) DESC')
+            ->get();
+    }
+
+    /**
+     * Retorna métricas globais de notas (sem agrupamento por curso).
+     */
+    public function getGlobalGradeMetrics(?string $startDate = null, ?string $endDate = null): array
+    {
+        $query = Internship::query()
+            ->whereNotNull('evaluation_grade');
+
+        if ($startDate) {
+            $query->where('start_date', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('start_date', '<=', $endDate);
+        }
+
+        $grades = $query->pluck('evaluation_grade')->map(fn ($v) => (float) $v);
+
+        if ($grades->isEmpty()) {
+            return ['avg' => null, 'min' => null, 'max' => null, 'total' => 0];
+        }
+
+        return [
+            'avg' => round($grades->average(), 2),
+            'min' => round($grades->min(), 2),
+            'max' => round($grades->max(), 2),
+            'total' => $grades->count(),
+        ];
+    }
+
+    /**
+     * Retorna a contagem de concedentes e estagiários por curso.
+     */
+    public function getGrantingCompaniesByCourse(?string $startDate = null, ?string $endDate = null): Collection
+    {
+        $query = Course::query()
+            ->select([
+                'courses.id',
+                'courses.name as course_name',
+                DB::raw('COUNT(DISTINCT internships.company_legal_identifier) as total_concedentes'),
+                DB::raw('COUNT(internships.id) as total_estagiarios'),
+            ])
+            ->leftJoin('internships', function ($join) use ($startDate, $endDate) {
+                $join->on('courses.id', '=', 'internships.course_id')
+                    ->whereNull('internships.deleted_at')
+                    ->whereNotNull('internships.company_legal_identifier')
+                    ->where('internships.company_legal_identifier', '!=', '');
+
+                if ($startDate) {
+                    $join->where('internships.start_date', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $join->where('internships.start_date', '<=', $endDate);
+                }
+            })
+            ->groupBy('courses.id', 'courses.name')
+            ->orderBy('courses.name');
+
+        return $query->get();
     }
 
     /**

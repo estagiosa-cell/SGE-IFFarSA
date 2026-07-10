@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\GoogleFormQuestionIdController;
 use App\Http\Controllers\Admin\InternshipController;
 use App\Http\Controllers\Admin\InternshipDocumentController;
 use App\Http\Controllers\Admin\InternshipTypeController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\SupervisorEvaluationController;
 use App\Http\Controllers\Admin\SyncDataController;
 use App\Http\Controllers\Admin\UserController;
@@ -37,6 +38,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['can:is-admin'])->group(function () {
         Route::get('/dashboard', DashboardController::class)->name('admin.dashboard');
+        Route::get('/reports', [AdminReportController::class, 'index'])->name('admin.reports.index');
 
         Route::get('/idform', GoogleFormQuestionIdController::class)->name('admin.form-ids');
 

@@ -6,9 +6,16 @@
     <div class="container-fluid mt-4 mx-1">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h4 mb-0">Editar Estágio - {{ $internship->student_name }}</h2>
-            <a href="{{ route('admin.internships.index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left-circle me-2"></i>Voltar
-            </a>
+            <div class="d-flex gap-2">
+                @if($internship->status->value !== 'Cancelado')
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelInternshipModal">
+                        <i class="bi bi-x-octagon me-2"></i>Cancelar Estágio
+                    </button>
+                @endif
+                <a href="{{ route('admin.internships.index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left-circle me-2"></i>Voltar
+                </a>
+            </div>
         </div>
 
         {{-- Geração de Documentos --}}
@@ -53,6 +60,58 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        {{-- Histórico de Alterações --}}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-primary fw-bold">
+                    <i class="bi bi-clock-history me-2"></i>Histórico de Alterações
+                </h5>
+                <span class="badge bg-secondary">{{ $activities->count() }} Registros</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                    @forelse($activities as $activity)
+                        <div class="list-group-item py-3">
+                            <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    @if($activity->description === 'Documento gerado')
+                                        <i class="bi bi-file-earmark-text text-info me-1"></i>
+                                    @elseif($activity->description === 'Estágio cancelado com motivo' || $activity->description === 'deleted')
+                                        <i class="bi bi-x-circle text-danger me-1"></i>
+                                    @elseif($activity->description === 'created')
+                                        <i class="bi bi-plus-circle text-success me-1"></i>
+                                    @else
+                                        <i class="bi bi-pencil-square text-primary me-1"></i>
+                                    @endif
+                                    <h6 class="mb-0 fw-bold text-dark">{{ ucfirst($activity->description) }}</h6>
+                                </div>
+                                <small class="text-muted" title="{{ $activity->created_at->format('d/m/Y H:i') }}">
+                                    <i class="bi bi-clock me-1"></i>{{ $activity->created_at->diffForHumans() }}
+                                </small>
+                            </div>
+                            <div class="ps-4 ms-2 small text-muted">
+                                <span class="fw-semibold">Por:</span> {{ $activity->causer ? $activity->causer->name : 'Sistema' }}
+                                @if($activity->properties->isNotEmpty())
+                                    <div class="bg-light p-2 rounded border mt-2">
+                                        @foreach($activity->properties as $key => $value)
+                                            <div class="text-truncate">
+                                                <strong>{{ $key }}:</strong> 
+                                                {{ is_array($value) ? json_encode($value) : $value }}
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div class="list-group-item text-center text-muted py-4">
+                            <i class="bi bi-info-circle me-1"></i> Nenhum histórico registrado para este estágio.
+                        </div>
+                    @endforelse
+                </div>
             </div>
         </div>
 
@@ -1136,6 +1195,36 @@
             action="{{ route('admin.internships.destroy', $internship->id) }}" 
             message="Tem certeza que deseja excluir este estágio? Esta ação pode ser desfeita." 
         />
+
+        {{-- Modal Cancelar Estágio --}}
+        <div class="modal fade" id="cancelInternshipModal" tabindex="-1" aria-labelledby="cancelInternshipModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ route('admin.internships.cancel', $internship->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="cancelInternshipModalLabel">
+                                <i class="bi bi-x-octagon me-2"></i>Cancelar Estágio
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Você está prestes a cancelar este estágio. Esta ação alterará o status do estágio para "Cancelado".</p>
+                            <div class="mb-3">
+                                <label for="motivo_cancelamento" class="form-label fw-bold">Motivo do Cancelamento (Opcional)</label>
+                                <textarea class="form-control" id="motivo_cancelamento" name="motivo_cancelamento" rows="3" placeholder="Insira o motivo pelo qual o estágio está sendo cancelado..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-check-circle me-1"></i>Confirmar Cancelamento
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
         {{-- Modal de Log de Recálculo --}}
         @if(session('recalculate_log'))
             <div class="modal fade" id="recalculateLogModal" tabindex="-1" aria-labelledby="recalculateLogModalLabel" aria-hidden="true">

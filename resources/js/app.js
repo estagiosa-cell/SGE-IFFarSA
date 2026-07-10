@@ -7,6 +7,14 @@ import.meta.glob([
 // Disponibiliza o bootstrap globalmente para ser usado por outros scripts
 window.bootstrap = bootstrap;
 
+import * as echarts from 'echarts';
+
+// Disponibiliza o ECharts globalmente
+window.echarts = echarts;
+
+// Dispara um evento avisando que o ECharts terminou de carregar
+window.dispatchEvent(new Event('echartsLoaded'));
+
 import { initializeToast } from './components/toast.js';
 import { initializeSpinner, showSpinner, hideSpinner } from './components/spinner.js';
 import { initializeFormValidation } from './components/form-validation.js';
