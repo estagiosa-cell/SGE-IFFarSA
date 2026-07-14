@@ -14,6 +14,10 @@
             Dashboard
         </x-sidebar-nav-link>
 
+        <x-sidebar-nav-link route="admin.reports.index" icon="graph-up">
+            Relatórios do Sistema
+        </x-sidebar-nav-link>
+
         <x-sidebar-nav-link route="admin.internships.index" icon="briefcase">
             Estágios
         </x-sidebar-nav-link>

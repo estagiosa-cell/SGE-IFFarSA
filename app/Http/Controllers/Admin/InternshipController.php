@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\InternshipStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CancelInternshipRequest;
 use App\Http\Requests\UpdateInternshipRequest;
 use App\Models\Company;
 use App\Models\Internship;
@@ -113,7 +114,10 @@ class InternshipController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('admin.internships.edit', compact('internship', 'statusOptions', 'advisors'));
+        // Carrega o histórico de atividades deste estágio
+        $activities = $internship->activities()->with('causer')->latest()->get();
+
+        return view('admin.internships.edit', compact('internship', 'statusOptions', 'advisors', 'activities'));
     }
 
     /**
@@ -208,6 +212,34 @@ class InternshipController extends Controller
 
         return redirect()->route('admin.internships.index')
             ->with('message', 'Estágio excluído com sucesso!')
+            ->with('messageType', 'success');
+    }
+
+    /**
+     * Cancela um estágio e registra o motivo no log de atividades.
+     *
+     * Atualiza o status para 'Cancelado' (disparando o log automático via LogsActivity)
+     * e, se fornecido, registra o motivo de cancelamento manualmente em properties.
+     *
+     * @param  \App\Http\Requests\CancelInternshipRequest  $request  A requisição com o motivo opcional.
+     * @param  \App\Models\Internship  $internship  A instância do estágio a ser cancelado.
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function cancel(CancelInternshipRequest $request, Internship $internship)
+    {
+        $internship->update(['status' => InternshipStatus::CANCELLED]);
+
+        if ($request->validated('motivo_cancelamento')) {
+            activity('internships')
+                ->performedOn($internship)
+                ->causedBy(auth()->user())
+                ->withProperties(['motivo' => $request->validated('motivo_cancelamento')])
+                ->log('Estágio cancelado com motivo');
+        }
+
+        return redirect()
+            ->route('admin.internships.index')
+            ->with('message', 'Estágio cancelado com sucesso!')
             ->with('messageType', 'success');
     }
 

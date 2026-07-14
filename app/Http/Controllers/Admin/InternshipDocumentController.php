@@ -140,6 +140,16 @@ class InternshipDocumentController extends Controller
                 'status' => InternshipStatus::AWAITING_SIGNATURE->value,
             ]);
 
+            // Registra a geração do documento no log de atividades para auditoria.
+            activity('internships')
+                ->performedOn($internship)
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'document_type' => $documentType,
+                    'google_docs_id' => $documentId,
+                ])
+                ->log('Documento gerado');
+
             // Registra o aditivo no histórico se o documento for um termo aditivo
             if (str_contains($documentType, 'aditivo')) {
                 $internship->amendments()->create();

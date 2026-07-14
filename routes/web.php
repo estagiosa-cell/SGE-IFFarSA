@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\GoogleFormQuestionIdController;
 use App\Http\Controllers\Admin\InternshipController;
 use App\Http\Controllers\Admin\InternshipDocumentController;
 use App\Http\Controllers\Admin\InternshipTypeController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\SupervisorEvaluationController;
 use App\Http\Controllers\Admin\SyncDataController;
 use App\Http\Controllers\Admin\UserController;
@@ -37,6 +38,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['can:is-admin'])->group(function () {
         Route::get('/dashboard', DashboardController::class)->name('admin.dashboard');
+        Route::get('/reports', [AdminReportController::class, 'index'])->name('admin.reports.index');
 
         Route::get('/idform', GoogleFormQuestionIdController::class)->name('admin.form-ids');
 
@@ -91,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/internships/{internship}', [InternshipController::class, 'update'])->name('admin.internships.update');
         Route::delete('/internships/{internship}', [InternshipController::class, 'destroy'])->name('admin.internships.destroy');
         Route::patch('/internships/{id}/restore', [InternshipController::class, 'restore'])->name('admin.internships.restore');
+        Route::post('/internships/{internship}/cancel', [InternshipController::class, 'cancel'])->name('admin.internships.cancel');
         Route::get('/api/companies', [InternshipController::class, 'getCompanies'])->name('admin.internships.companies-by-cnpj');
         Route::post('/internships/{internship}/recalculate-end-date', [InternshipController::class, 'recalculateEndDate'])->name('admin.internships.recalculate-end-date');
 

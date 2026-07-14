@@ -15,6 +15,8 @@
     @yield('content')
 
     <x-spinner />
+
+    @stack('scripts')
 </body>
 
 </html>
