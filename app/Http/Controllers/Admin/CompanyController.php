@@ -8,7 +8,10 @@ use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Controlador para gerenciar as Partes Concedentes (empresas) no painel administrativo.
@@ -23,8 +26,8 @@ class CompanyController extends Controller
     /**
      * Exibe uma lista de partes concedentes com filtros.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição HTTP com os parâmetros de filtro.
-     * @return \Illuminate\View\View
+     * @param  Request  $request  A requisição HTTP com os parâmetros de filtro.
+     * @return View
      */
     public function index(Request $request)
     {
@@ -92,7 +95,7 @@ class CompanyController extends Controller
     /**
      * Exibe o formulário para criar uma nova parte concedente.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function create()
     {
@@ -104,8 +107,8 @@ class CompanyController extends Controller
     /**
      * Armazena uma nova parte concedente no banco de dados.
      *
-     * @param  \App\Http\Requests\StoreCompanyRequest  $request  A requisição validada.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  StoreCompanyRequest  $request  A requisição validada.
+     * @return RedirectResponse
      */
     public function store(StoreCompanyRequest $request)
     {
@@ -122,8 +125,8 @@ class CompanyController extends Controller
     /**
      * Exibe o formulário para editar uma parte concedente específica.
      *
-     * @param  \App\Models\Company  $company  A instância da empresa injetada pelo Route Model Binding.
-     * @return \Illuminate\View\View
+     * @param  Company  $company  A instância da empresa injetada pelo Route Model Binding.
+     * @return View
      */
     public function edit(Company $company)
     {
@@ -135,9 +138,9 @@ class CompanyController extends Controller
     /**
      * Atualiza uma parte concedente específica no banco de dados.
      *
-     * @param  \App\Http\Requests\UpdateCompanyRequest  $request  A requisição validada.
-     * @param  \App\Models\Company  $company  A instância da empresa injetada pelo Route Model Binding.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  UpdateCompanyRequest  $request  A requisição validada.
+     * @param  Company  $company  A instância da empresa injetada pelo Route Model Binding.
+     * @return RedirectResponse
      */
     public function update(UpdateCompanyRequest $request, Company $company)
     {
@@ -156,8 +159,8 @@ class CompanyController extends Controller
     /**
      * Remove uma parte concedente do sistema (soft delete).
      *
-     * @param  \App\Models\Company  $company  A instância da empresa injetada pelo Route Model Binding.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Company  $company  A instância da empresa injetada pelo Route Model Binding.
+     * @return RedirectResponse
      */
     public function destroy(Company $company)
     {
@@ -178,8 +181,8 @@ class CompanyController extends Controller
     /**
      * Importa partes concedentes a partir de um arquivo CSV.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição contendo o arquivo CSV.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Request  $request  A requisição contendo o arquivo CSV.
+     * @return RedirectResponse
      */
     public function import(Request $request)
     {
@@ -394,7 +397,7 @@ class CompanyController extends Controller
      * Restaura uma parte concedente que foi removida via soft delete.
      *
      * @param  string  $id  O ID da empresa a ser restaurada.
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function restore($id)
     {
@@ -412,7 +415,7 @@ class CompanyController extends Controller
     /**
      * Exporta as empresas filtradas para um arquivo CSV.
      *
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     * @return StreamedResponse
      */
     public function exportCsv(Request $request)
     {

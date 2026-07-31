@@ -8,6 +8,7 @@ use App\Models\Internship;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * Controlador para visualização de estágios pela Direção de Ensino.
@@ -26,7 +27,7 @@ class TeachingDirectorController extends Controller
      * A Direção de Ensino pode visualizar todos os estágios do sistema
      * com filtros por curso, orientador, status, nome e período.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function index(Request $request)
     {
@@ -111,8 +112,8 @@ class TeachingDirectorController extends Controller
      * Mostra apenas informações do estudante, status e período,
      * sem dados de responsável, parte concedente, supervisor e avaliações.
      *
-     * @param  \App\Models\Internship  $internship  O estágio a ser exibido.
-     * @return \Illuminate\View\View
+     * @param  Internship  $internship  O estágio a ser exibido.
+     * @return View
      */
     public function show($id)
     {

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmailLogController;
 use App\Http\Controllers\Admin\GoogleFormQuestionIdController;
+use App\Http\Controllers\Admin\InternshipAmendmentController;
 use App\Http\Controllers\Admin\InternshipController;
 use App\Http\Controllers\Admin\InternshipDocumentController;
 use App\Http\Controllers\Admin\InternshipTypeController;
@@ -102,8 +103,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/internships/{internship}/pauses/{pause}', [InternshipController::class, 'destroyPause'])->name('admin.internships.pauses.destroy');
 
         // Rotas de Histórico de Aditivos
-        Route::delete('/internship-amendments/{id}', [\App\Http\Controllers\Admin\InternshipAmendmentController::class, 'destroy'])->name('admin.internship-amendments.destroy');
-        Route::patch('/internship-amendments/{id}/restore', [\App\Http\Controllers\Admin\InternshipAmendmentController::class, 'restore'])->name('admin.internship-amendments.restore');
+        Route::delete('/internship-amendments/{id}', [InternshipAmendmentController::class, 'destroy'])->name('admin.internship-amendments.destroy');
+        Route::patch('/internship-amendments/{id}/restore', [InternshipAmendmentController::class, 'restore'])->name('admin.internship-amendments.restore');
 
         // Rota de geração de documentos de estágio
         Route::post('/estagios/{internshipId}/gerar-documento', InternshipDocumentController::class)->name('admin.internships.documents.generate');

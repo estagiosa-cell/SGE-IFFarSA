@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Services\LoginRedirectService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 /**
  * Controlador responsável por gerenciar a sessão do usuário (login e logout).
@@ -15,7 +18,7 @@ class SessionController extends Controller
     /**
      * Exibe o formulário de login.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function create()
     {
@@ -25,11 +28,11 @@ class SessionController extends Controller
     /**
      * Autentica o usuário e cria uma nova sessão.
      *
-     * @param  \App\Http\Requests\LoginRequest  $request  Os dados da requisição de login.
-     * @param  \App\Services\LoginRedirectService  $redirector  O serviço para redirecionar o usuário após o login.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  LoginRequest  $request  Os dados da requisição de login.
+     * @param  LoginRedirectService  $redirector  O serviço para redirecionar o usuário após o login.
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Validation\ValidationException Se a autenticação falhar ou o usuário estiver inativo.
+     * @throws ValidationException Se a autenticação falhar ou o usuário estiver inativo.
      */
     public function store(LoginRequest $request, LoginRedirectService $redirector)
     {
@@ -50,7 +53,7 @@ class SessionController extends Controller
     /**
      * Realiza o logout do usuário, encerrando a sessão.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function destroy()
     {

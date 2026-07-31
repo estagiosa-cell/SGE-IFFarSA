@@ -195,6 +195,7 @@
                     <div class="card shadow-sm border-0 h-100">
                         <div class="card-header bg-white py-3 border-bottom">
                             <h6 class="m-0 fw-bold text-primary">Tempo Médio de Tramitação por Mês</h6>
+                            <small class="text-muted d-block mt-1"><i class="bi bi-info-circle me-1"></i>Apenas estágios a partir de 14/07/2026</small>
                         </div>
                         <div class="card-body">
                             <div id="monthlyChart" style="width: 100%; height: 300px;"></div>
@@ -254,8 +255,11 @@
             <div class="row m-0">
                 <div class="col-lg-12 mb-4">
                     <div class="card shadow-sm border-0 h-100">
-                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                            <h6 class="m-0 fw-bold text-primary">Tempo de Tramitação por Estágio (Dias até a Liberação)</h6>
+                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <h6 class="m-0 fw-bold text-primary">Tempo de Tramitação por Estágio (Dias até a Liberação)</h6>
+                                <small class="text-muted d-block mt-1"><i class="bi bi-info-circle me-1"></i>Apenas estágios a partir de 14/07/2026</small>
+                            </div>
                             <span class="badge bg-secondary">Mínimo: {{ $processingMetrics['min'] }} dias | Máximo: {{ $processingMetrics['max'] }} dias</span>
                         </div>
                         <div class="card-body p-0">
@@ -269,8 +273,16 @@
                                 @forelse($processingTimes as $time)
                                     <div class="list-group-item py-3">
                                         <div class="row m-0 align-items-center">
-                                            <div class="col-8 text-truncate fw-semibold text-dark">
-                                                {{ $time->student_name }}
+                                            <div class="col-8">
+                                                <div class="fw-bold text-dark">{{ $time->student_name }}</div>
+                                                <div class="small text-muted">
+                                                    @if(isset($time->document_type) && $time->document_type === 'Aditivo')
+                                                        <span class="badge bg-warning text-dark me-1">Aditivo</span>
+                                                    @else
+                                                        <span class="badge bg-secondary me-1">TCE</span>
+                                                    @endif
+                                                    Início: {{ \Carbon\Carbon::parse($time->created_at)->format('d/m/Y') }}
+                                                </div>
                                             </div>
                                             <div class="col-4 text-end">
                                                 @php

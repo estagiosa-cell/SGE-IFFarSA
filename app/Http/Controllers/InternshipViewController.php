@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 /**
  * Controlador para visualização de estágios por parte de orientadores e coordenadores.
@@ -26,7 +27,7 @@ class InternshipViewController extends Controller
      * Aplica filtros de pesquisa, status, orientador e matrícula.
      * A ordenação prioriza os status que requerem mais atenção.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function index(Request $request)
     {
@@ -136,8 +137,8 @@ class InternshipViewController extends Controller
      * Garante que o usuário (orientador ou coordenador) tenha permissão
      * para visualizar o estágio solicitado.
      *
-     * @param  \App\Models\Internship  $internship  O estágio a ser exibido.
-     * @return \Illuminate\View\View
+     * @param  Internship  $internship  O estágio a ser exibido.
+     * @return View
      */
     public function show(Internship $internship)
     {

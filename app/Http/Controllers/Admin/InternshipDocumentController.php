@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\GenerateInternshipDocumentRequest;
 use App\Models\Internship;
 use App\Services\GoogleApiService;
+use Illuminate\Http\RedirectResponse;
 
 /**
  * Controlador para gerar documentos de estágio usando a API do Google Docs.
@@ -20,9 +21,9 @@ class InternshipDocumentController extends Controller
     /**
      * Manipula a requisição para gerar um documento de estágio.
      *
-     * @param  \App\Http\Requests\GenerateInternshipDocumentRequest  $request  A requisição HTTP validada.
+     * @param  GenerateInternshipDocumentRequest  $request  A requisição HTTP validada.
      * @param  int  $internshipId  O ID do estágio para o qual o documento será gerado.
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function __invoke(GenerateInternshipDocumentRequest $request, $internshipId)
     {
@@ -170,7 +171,7 @@ class InternshipDocumentController extends Controller
     /**
      * Coleta e formata todos os dados de um estágio para substituição em um template.
      *
-     * @param  \App\Models\Internship  $internship  O estágio contendo os dados.
+     * @param  Internship  $internship  O estágio contendo os dados.
      * @return array Um array associativo de `[placeholder => valor]`.
      */
     private function getReplacements($internship): array
@@ -347,7 +348,7 @@ class InternshipDocumentController extends Controller
     /**
      * Formata o bloco de texto do responsável legal para o documento.
      *
-     * @param  \App\Models\Internship  $internship  O estágio.
+     * @param  Internship  $internship  O estágio.
      * @return string O texto formatado ou uma string vazia.
      *
      * @throws \Exception Se o estagiário for menor de idade e os dados do responsável estiverem incompletos.
@@ -378,7 +379,7 @@ class InternshipDocumentController extends Controller
     /**
      * Formata a cláusula de remuneração do estágio para o documento.
      *
-     * @param  \App\Models\Internship  $internship  O estágio.
+     * @param  Internship  $internship  O estágio.
      * @return string A cláusula formatada.
      */
     private function formatarCampoEspecial($internship): string

@@ -28,10 +28,11 @@ class InternshipReportService
      *
      * @param  string|null  $startDate  Data inicial do filtro (internships.created_at).
      * @param  string|null  $endDate  Data final do filtro (internships.created_at).
-     * @return \Illuminate\Support\Collection Coleção com id, student_name, created_at, released_at e days_to_release.
+     * @return Collection Coleção com id, student_name, created_at, released_at e days_to_release.
      */
     public function getProcessingTimes(?string $startDate = null, ?string $endDate = null): Collection
     {
+        // 1. Processamento de TCEs (Normal)
         $subquery = Activity::query()
             ->select('subject_id', DB::raw('MIN(created_at) as released_at'))
             ->where('subject_type', (new Internship)->getMorphClass())
@@ -42,7 +43,7 @@ class InternshipReportService
             })
             ->groupBy('subject_id');
 
-        $query = Internship::query()
+        $tceQuery = Internship::query()
             ->select([
                 'internships.id',
                 'internships.student_name',
@@ -55,14 +56,85 @@ class InternshipReportService
                 $join->on('internships.id', '=', 'log_data.subject_id');
             });
 
-        if ($startDate) {
-            $query->where('internships.created_at', '>=', $startDate);
+        $tceQuery->where('internships.created_at', '>=', '2026-07-14');
+
+        if ($startDate && $startDate > '2026-07-14') {
+            $tceQuery->where('internships.created_at', '>=', $startDate);
         }
         if ($endDate) {
-            $query->where('internships.created_at', '<=', $endDate);
+            $tceQuery->where('internships.created_at', '<=', $endDate);
         }
 
-        return $query->orderBy('days_to_release', 'desc')->get();
+        $tceResults = $tceQuery->get()->map(function ($item) {
+            $item->document_type = 'TCE';
+
+            return $item;
+        });
+
+        // 2. Processamento de Aditivos
+        // A lógica captura a geração exata do documento do aditivo, permitindo múltiplos aditivos simultâneos.
+        $logs = Activity::query()
+            ->select('subject_id', 'created_at', 'description',
+                DB::raw("properties->>'document_type' as doc_type"),
+                DB::raw("attribute_changes->'attributes'->>'status' as status")
+            )
+            ->where('log_name', 'internships')
+            ->where('subject_type', (new Internship)->getMorphClass())
+            ->where(function ($q) {
+                // Emissão do Aditivo
+                $q->where(function ($q2) {
+                    $q2->where('description', 'Documento gerado')
+                        ->whereRaw("properties->>'document_type' LIKE ?", ['%aditivo%']);
+                })
+                // Assinatura (Mudança de status)
+                    ->orWhere(function ($q2) {
+                        $q2->whereRaw("attribute_changes->'attributes'->>'status' = ?", ['Liberado'])
+                            ->orWhereRaw("attribute_changes->'attributes'->>'status' = ?", ['Em Andamento']);
+                    });
+            })
+            ->where('created_at', '>=', '2026-07-14') // Ignora totalmente envios antigos
+            ->orderBy('subject_id')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $aditivoResults = collect();
+        $internships = Internship::whereIn('id', $logs->pluck('subject_id')->unique())->get()->keyBy('id');
+
+        foreach ($logs->groupBy('subject_id') as $subjectId => $subjectLogs) {
+            $emittedAt = null; // Mantém apenas a emissão mais recente (descarta as anteriores não assinadas)
+            foreach ($subjectLogs as $log) {
+                if ($log->description === 'Documento gerado' && str_contains($log->doc_type ?? '', 'aditivo')) {
+                    $emittedAt = $log->created_at; // Sobrescreve a emissão anterior
+                } elseif (($log->status === 'Liberado' || $log->status === 'Em Andamento') && $emittedAt) {
+                    $isValidDate = true;
+                    if ($startDate && $emittedAt < $startDate) {
+                        $isValidDate = false;
+                    }
+                    if ($endDate && $emittedAt > $endDate) {
+                        $isValidDate = false;
+                    }
+
+                    if ($isValidDate) {
+                        $internship = $internships->get($subjectId);
+                        if ($internship) {
+                            $aditivoResults->push((object) [
+                                'id' => $internship->id,
+                                'student_name' => $internship->student_name,
+                                'created_at' => $emittedAt,
+                                'start_date' => $internship->start_date,
+                                'released_at' => $log->created_at,
+                                'days_to_release' => $emittedAt->diffInDays($log->created_at),
+                                'document_type' => 'Aditivo',
+                            ]);
+                        }
+                    }
+                    $emittedAt = null; // Reseta após a liberação
+                }
+            }
+        }
+
+        // 3. Mesclar e ordenar
+        return $tceResults->concat($aditivoResults)->sortByDesc('days_to_release')->values();
     }
 
     /**
@@ -73,7 +145,7 @@ class InternshipReportService
      *
      * @param  string|null  $startDate  Data inicial do filtro (activity_log.created_at).
      * @param  string|null  $endDate  Data final do filtro (activity_log.created_at).
-     * @return \Illuminate\Support\Collection Coleção com motivo e total.
+     * @return Collection Coleção com motivo e total.
      */
     public function getCancellationsByReason(?string $startDate = null, ?string $endDate = null): Collection
     {
@@ -133,7 +205,7 @@ class InternshipReportService
      *
      * @param  string|null  $startDate  Filtro por internships.start_date.
      * @param  string|null  $endDate  Filtro por internships.start_date.
-     * @return \Illuminate\Support\Collection Coleção com course_name e contagens por status.
+     * @return Collection Coleção com course_name e contagens por status.
      */
     public function getInternshipsByCourse(?string $startDate = null, ?string $endDate = null): Collection
     {
@@ -174,7 +246,7 @@ class InternshipReportService
      *
      * @param  string|null  $startDate  Filtro por internships.start_date.
      * @param  string|null  $endDate  Filtro por internships.start_date.
-     * @return \Illuminate\Support\Collection Coleção com course_name, avg, min, max e count.
+     * @return Collection Coleção com course_name, avg, min, max e count.
      */
     public function getAverageGradesByCourse(?string $startDate = null, ?string $endDate = null): Collection
     {
@@ -182,9 +254,9 @@ class InternshipReportService
             ->select([
                 'courses.id',
                 'courses.name as course_name',
-                DB::raw('ROUND(AVG(internships.evaluation_grade), 2) as nota_media'),
-                DB::raw('MIN(internships.evaluation_grade) as nota_minima'),
-                DB::raw('MAX(internships.evaluation_grade) as nota_maxima'),
+                DB::raw('ROUND(AVG((internships.evaluation_grade / NULLIF(internships.great_value, 0)) * 100), 2) as nota_media'),
+                DB::raw('ROUND(MIN((internships.evaluation_grade / NULLIF(internships.great_value, 0)) * 100), 2) as nota_minima'),
+                DB::raw('ROUND(MAX((internships.evaluation_grade / NULLIF(internships.great_value, 0)) * 100), 2) as nota_maxima'),
                 DB::raw('COUNT(internships.evaluation_grade) as total_avaliados'),
             ])
             ->leftJoin('internships', function ($join) use ($startDate, $endDate) {
@@ -214,7 +286,7 @@ class InternshipReportService
      * @param  string|null  $startDate  Filtro por internships.start_date.
      * @param  string|null  $endDate  Filtro por internships.start_date.
      * @param  int  $limit  Número máximo de resultados (padrão: 20).
-     * @return \Illuminate\Support\Collection Coleção com company_name, legal_identifier e total.
+     * @return Collection Coleção com company_name, legal_identifier e total.
      */
     public function getTopCompanies(?string $startDate = null, ?string $endDate = null, int $limit = 20): Collection
     {
@@ -394,7 +466,9 @@ class InternshipReportService
                 $join->on('internships.id', '=', 'log_data.subject_id');
             });
 
-        if ($startDate) {
+        $query->where('internships.created_at', '>=', '2026-07-14');
+
+        if ($startDate && $startDate > '2026-07-14') {
             $query->where('internships.created_at', '>=', $startDate);
         }
         if ($endDate) {
@@ -511,12 +585,11 @@ class InternshipReportService
         $query = Internship::query()
             ->select([
                 DB::raw("CASE
-                    WHEN evaluation_grade >= 9 THEN '9-10'
-                    WHEN evaluation_grade >= 8 THEN '8-9'
-                    WHEN evaluation_grade >= 7 THEN '7-8'
-                    WHEN evaluation_grade >= 6 THEN '6-7'
-                    WHEN evaluation_grade >= 5 THEN '5-6'
-                    ELSE '0-5'
+                    WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 90 THEN '90-100%'
+                    WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 80 THEN '80-89%'
+                    WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 70 THEN '70-79%'
+                    WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 60 THEN '60-69%'
+                    ELSE '< 60%'
                 END as faixa"),
                 DB::raw('COUNT(*) as total'),
             ])
@@ -531,14 +604,13 @@ class InternshipReportService
 
         return $query
             ->groupByRaw("CASE
-                WHEN evaluation_grade >= 9 THEN '9-10'
-                WHEN evaluation_grade >= 8 THEN '8-9'
-                WHEN evaluation_grade >= 7 THEN '7-8'
-                WHEN evaluation_grade >= 6 THEN '6-7'
-                WHEN evaluation_grade >= 5 THEN '5-6'
-                ELSE '0-5'
+                WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 90 THEN '90-100%'
+                WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 80 THEN '80-89%'
+                WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 70 THEN '70-79%'
+                WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 60 THEN '60-69%'
+                ELSE '< 60%'
             END")
-            ->orderByRaw('MIN(evaluation_grade) DESC')
+            ->orderByRaw('MIN((evaluation_grade / NULLIF(great_value, 0)) * 100) DESC')
             ->get();
     }
 
@@ -557,7 +629,14 @@ class InternshipReportService
             $query->where('start_date', '<=', $endDate);
         }
 
-        $grades = $query->pluck('evaluation_grade')->map(fn ($v) => (float) $v);
+        $grades = $query->get()->map(function ($internship) {
+            $greatValue = (float) $internship->great_value;
+            if ($greatValue > 0) {
+                return ((float) $internship->evaluation_grade / $greatValue) * 100;
+            }
+
+            return 0.0;
+        });
 
         if ($grades->isEmpty()) {
             return ['avg' => null, 'min' => null, 'max' => null, 'total' => 0];

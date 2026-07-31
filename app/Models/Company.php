@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Searchable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -47,7 +48,7 @@ class Company extends Model
      * Relacionamento baseado no identificador legal (CNPJ/CPF) sem chave estrangeira formal,
      * pois os estágios podem ser criados sem cadastrar previamente a empresa.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function internships()
     {

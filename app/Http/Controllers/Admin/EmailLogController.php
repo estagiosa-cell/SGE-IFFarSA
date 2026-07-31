@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmailLog;
+use App\Models\Internship;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class EmailLogController extends Controller
 {
@@ -14,7 +16,7 @@ class EmailLogController extends Controller
     /**
      * Exibe a listagem dos logs de e-mail.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function index(Request $request)
     {
@@ -28,7 +30,7 @@ class EmailLogController extends Controller
         $search = $request->input('search');
 
         if (filled($search)) {
-            $internshipIds = \App\Models\Internship::query()
+            $internshipIds = Internship::query()
                 ->search($search, ['student_name'])
                 ->pluck('id');
 

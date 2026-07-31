@@ -54,7 +54,7 @@ class InternshipEndDate
      * Calcula a data da Páscoa para um ano específico usando o algoritmo de Meeus/Jones/Butcher.
      *
      * @param  int  $year  O ano para o qual calcular a Páscoa.
-     * @return \Carbon\Carbon A data da Páscoa.
+     * @return Carbon A data da Páscoa.
      */
     public static function calculateEaster(int $year): Carbon
     {
@@ -80,7 +80,7 @@ class InternshipEndDate
     /**
      * Verifica se uma data é feriado brasileiro.
      *
-     * @param  \Carbon\Carbon  $date  A data a ser verificada.
+     * @param  Carbon  $date  A data a ser verificada.
      * @return bool True se for feriado, false caso contrário.
      */
     public static function isHoliday(Carbon $date): bool
@@ -99,8 +99,8 @@ class InternshipEndDate
     /**
      * Verifica se uma data está dentro de um período de pausa.
      *
-     * @param  \Carbon\Carbon  $date  A data a ser verificada.
-     * @param  \Illuminate\Support\Collection|null  $pauses  Coleção de pausas (com start_date e end_date).
+     * @param  Carbon  $date  A data a ser verificada.
+     * @param  Collection|null  $pauses  Coleção de pausas (com start_date e end_date).
      * @return bool True se a data estiver dentro de algum período de pausa.
      */
     public static function isInPausePeriod(Carbon $date, ?Collection $pauses): bool
@@ -123,10 +123,10 @@ class InternshipEndDate
      * - Distribuição das horas por dia da semana
      * - Adiciona uma semana extra como margem de segurança
      *
-     * @param  \Carbon\Carbon  $startDate  Data de início do estágio.
+     * @param  Carbon  $startDate  Data de início do estágio.
      * @param  array  $weeklyHours  Array com as horas por dia da semana [domingo, segunda, ..., sábado].
      * @param  int  $requiredHours  Total de horas necessárias para completar o estágio.
-     * @return \Carbon\Carbon A data calculada de término do estágio.
+     * @return Carbon A data calculada de término do estágio.
      *
      * @throws \InvalidArgumentException Se a carga horária for inválida.
      */

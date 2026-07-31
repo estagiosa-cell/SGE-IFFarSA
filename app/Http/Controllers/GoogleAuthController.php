@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Google\Service\Oauth2 as GoogleServiceOauth2;
 use Google_Client;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -25,7 +26,7 @@ class GoogleAuthController extends Controller
      * Configura o cliente da API do Google com as credenciais, escopos
      * e outras configurações necessárias para a autorização.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function redirect()
     {
@@ -62,7 +63,7 @@ class GoogleAuthController extends Controller
     /**
      * Processa o callback de autenticação do Google após o usuário conceder permissão.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function callback(Request $request)
     {

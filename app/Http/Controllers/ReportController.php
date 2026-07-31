@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use App\Models\Internship;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -24,7 +26,7 @@ class ReportController extends Controller
      *
      * Popula os filtros de curso com base no perfil do usuário logado.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function __invoke(Request $request)
     {
@@ -55,7 +57,7 @@ class ReportController extends Controller
      * Valida os filtros, constrói a query com base nas permissões do usuário
      * e nos filtros selecionados, e gera um arquivo CSV para download.
      *
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\RedirectResponse
+     * @return StreamedResponse|RedirectResponse
      */
     public function exportInternships(Request $request)
     {

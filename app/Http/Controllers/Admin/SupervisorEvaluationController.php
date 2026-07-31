@@ -10,9 +10,11 @@ use App\Mail\AvaliacaoEstagioConcluida;
 use App\Models\Internship;
 use App\Models\SupervisorEvaluation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\View\View;
 
 /**
  * Controlador para gerenciar as avaliações de estágio enviadas pelos supervisores.
@@ -29,8 +31,8 @@ class SupervisorEvaluationController extends Controller
     /**
      * Exibe a lista de avaliações de supervisores com filtros e paginação.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição HTTP, contendo possíveis filtros.
-     * @return \Illuminate\View\View
+     * @param  Request  $request  A requisição HTTP, contendo possíveis filtros.
+     * @return View
      */
     public function index(Request $request)
     {
@@ -74,8 +76,8 @@ class SupervisorEvaluationController extends Controller
     /**
      * Exibe o formulário para editar uma avaliação e associá-la a um estágio.
      *
-     * @param  \App\Models\SupervisorEvaluation  $evaluation  A avaliação a ser editada.
-     * @return \Illuminate\View\View
+     * @param  SupervisorEvaluation  $evaluation  A avaliação a ser editada.
+     * @return View
      */
     public function edit(SupervisorEvaluation $evaluation)
     {
@@ -94,9 +96,9 @@ class SupervisorEvaluationController extends Controller
     /**
      * Atualiza os dados de uma avaliação de supervisor.
      *
-     * @param  \App\Http\Requests\UpdateSupervisorEvaluationRequest  $request  A requisição HTTP com os dados da avaliação.
-     * @param  \App\Models\SupervisorEvaluation  $evaluation  A avaliação a ser atualizada.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  UpdateSupervisorEvaluationRequest  $request  A requisição HTTP com os dados da avaliação.
+     * @param  SupervisorEvaluation  $evaluation  A avaliação a ser atualizada.
+     * @return RedirectResponse
      */
     public function update(UpdateSupervisorEvaluationRequest $request, SupervisorEvaluation $evaluation)
     {
@@ -114,9 +116,9 @@ class SupervisorEvaluationController extends Controller
     /**
      * Associa uma avaliação de supervisor a um estágio, copia os dados e finaliza o processo.
      *
-     * @param  \App\Http\Requests\AssociateSupervisorEvaluationRequest  $request  A requisição HTTP contendo o ID do estágio.
-     * @param  \App\Models\SupervisorEvaluation  $evaluation  A avaliação a ser associada.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  AssociateSupervisorEvaluationRequest  $request  A requisição HTTP contendo o ID do estágio.
+     * @param  SupervisorEvaluation  $evaluation  A avaliação a ser associada.
+     * @return RedirectResponse
      */
     public function associate(AssociateSupervisorEvaluationRequest $request, SupervisorEvaluation $evaluation)
     {
@@ -201,8 +203,8 @@ class SupervisorEvaluationController extends Controller
     /**
      * Remove a avaliação especificada (soft delete).
      *
-     * @param  \App\Models\SupervisorEvaluation  $evaluation  A avaliação a ser excluída.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  SupervisorEvaluation  $evaluation  A avaliação a ser excluída.
+     * @return RedirectResponse
      */
     public function destroy(SupervisorEvaluation $evaluation)
     {
@@ -220,7 +222,7 @@ class SupervisorEvaluationController extends Controller
      * Restaura uma avaliação que foi excluída (soft deleted).
      *
      * @param  int  $id  O ID da avaliação a ser restaurada.
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function restore($id)
     {
