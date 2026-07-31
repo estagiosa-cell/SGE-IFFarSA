@@ -55,7 +55,9 @@ class InternshipReportService
                 $join->on('internships.id', '=', 'log_data.subject_id');
             });
 
-        if ($startDate) {
+        $query->where('internships.created_at', '>=', '2026-07-14');
+
+        if ($startDate && $startDate > '2026-07-14') {
             $query->where('internships.created_at', '>=', $startDate);
         }
         if ($endDate) {
@@ -394,7 +396,9 @@ class InternshipReportService
                 $join->on('internships.id', '=', 'log_data.subject_id');
             });
 
-        if ($startDate) {
+        $query->where('internships.created_at', '>=', '2026-07-14');
+
+        if ($startDate && $startDate > '2026-07-14') {
             $query->where('internships.created_at', '>=', $startDate);
         }
         if ($endDate) {
@@ -511,12 +515,11 @@ class InternshipReportService
         $query = Internship::query()
             ->select([
                 DB::raw("CASE
-                    WHEN evaluation_grade >= 9 THEN '9-10'
-                    WHEN evaluation_grade >= 8 THEN '8-9'
-                    WHEN evaluation_grade >= 7 THEN '7-8'
-                    WHEN evaluation_grade >= 6 THEN '6-7'
-                    WHEN evaluation_grade >= 5 THEN '5-6'
-                    ELSE '0-5'
+                    WHEN evaluation_grade >= 4 THEN '4-5'
+                    WHEN evaluation_grade >= 3 THEN '3-4'
+                    WHEN evaluation_grade >= 2 THEN '2-3'
+                    WHEN evaluation_grade >= 1 THEN '1-2'
+                    ELSE '0-1'
                 END as faixa"),
                 DB::raw('COUNT(*) as total'),
             ])
@@ -531,12 +534,11 @@ class InternshipReportService
 
         return $query
             ->groupByRaw("CASE
-                WHEN evaluation_grade >= 9 THEN '9-10'
-                WHEN evaluation_grade >= 8 THEN '8-9'
-                WHEN evaluation_grade >= 7 THEN '7-8'
-                WHEN evaluation_grade >= 6 THEN '6-7'
-                WHEN evaluation_grade >= 5 THEN '5-6'
-                ELSE '0-5'
+                WHEN evaluation_grade >= 4 THEN '4-5'
+                WHEN evaluation_grade >= 3 THEN '3-4'
+                WHEN evaluation_grade >= 2 THEN '2-3'
+                WHEN evaluation_grade >= 1 THEN '1-2'
+                ELSE '0-1'
             END")
             ->orderByRaw('MIN(evaluation_grade) DESC')
             ->get();
