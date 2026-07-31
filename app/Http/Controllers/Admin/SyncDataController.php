@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\InternshipStatus;
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Course;
@@ -14,6 +15,7 @@ use App\Services\GoogleApiService;
 use App\Utils\InternshipEndDate;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
@@ -35,10 +37,10 @@ class SyncDataController extends Controller
      * coleta as mensagens de resultado de cada processo e redireciona o usuário
      * de volta ao dashboard com um resumo das operações.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição HTTP.
-     * @param  \App\Services\GoogleApiService  $googleService  Serviço para interagir com as APIs do Google.
-     * @param  \App\Services\FuzzySearchService  $fuzzySearch  Serviço para busca por similaridade.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Request  $request  A requisição HTTP.
+     * @param  GoogleApiService  $googleService  Serviço para interagir com as APIs do Google.
+     * @param  FuzzySearchService  $fuzzySearch  Serviço para busca por similaridade.
+     * @return RedirectResponse
      */
     public function __invoke(Request $request, GoogleApiService $googleService, FuzzySearchService $fuzzySearch)
     {
@@ -83,8 +85,8 @@ class SyncDataController extends Controller
      * e, se tudo estiver correto, cria um novo registro de estágio no banco de dados.
      * Ao final, marca a linha como processada na planilha.
      *
-     * @param  \App\Services\GoogleApiService  $googleService  Serviço para interagir com a API do Google.
-     * @param  \App\Services\FuzzySearchService  $fuzzySearch  Serviço para busca por similaridade.
+     * @param  GoogleApiService  $googleService  Serviço para interagir com a API do Google.
+     * @param  FuzzySearchService  $fuzzySearch  Serviço para busca por similaridade.
      * @return int O número de estágios processados com sucesso.
      *
      * @throws \Exception Se ocorrer um erro crítico durante o processo.
@@ -528,7 +530,7 @@ class SyncDataController extends Controller
      * modelo `SupervisorEvaluation`, cria um novo registro no banco de dados e,
      * ao final, marca a linha como processada na planilha.
      *
-     * @param  \App\Services\GoogleApiService  $googleService  Serviço para interagir com a API do Google.
+     * @param  GoogleApiService  $googleService  Serviço para interagir com a API do Google.
      * @return int O número de avaliações processadas com sucesso.
      *
      * @throws \Exception Se o ID da planilha não estiver configurado.
@@ -656,7 +658,7 @@ class SyncDataController extends Controller
     /**
      * Sincroniza a lista de orientadores/coordenadores com o formulário do Google.
      *
-     * @param  \App\Services\GoogleApiService  $googleService  Serviço para interagir com a API do Google.
+     * @param  GoogleApiService  $googleService  Serviço para interagir com a API do Google.
      * @return string O status da sincronização ('updated', 'up_to_date', 'disabled').
      *
      * @throws \Exception Se a pergunta não for encontrada no formulário ou houver falha na API.
@@ -702,7 +704,7 @@ class SyncDataController extends Controller
 
         // Busca os orientadores/coordenadores ativos
         $advisors = User::whereNull('deactivated_at')
-            ->whereIn('role', [\App\Enums\UserRole::ORIENTADOR, \App\Enums\UserRole::COORDENADOR])
+            ->whereIn('role', [UserRole::ORIENTADOR, UserRole::COORDENADOR])
             ->orderBy('name')
             ->pluck('name')
             ->toArray();

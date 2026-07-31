@@ -6,6 +6,7 @@ use App\Models\Internship;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Headers;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -26,7 +27,7 @@ class AvaliacaoEstagioConcluida extends Mailable
     /**
      * Cria uma nova instância do Mailable.
      *
-     * @param  \App\Models\Internship  $internship  O estágio cuja avaliação foi concluída.
+     * @param  Internship  $internship  O estágio cuja avaliação foi concluída.
      */
     public function __construct(Internship $internship)
     {
@@ -63,9 +64,9 @@ class AvaliacaoEstagioConcluida extends Mailable
     /**
      * Define os cabeçalhos do e-mail, incluindo metadados para auditoria/logs.
      */
-    public function headers(): \Illuminate\Mail\Mailables\Headers
+    public function headers(): Headers
     {
-        return new \Illuminate\Mail\Mailables\Headers(
+        return new Headers(
             text: [
                 'X-Metadata-log_type' => 'Avaliação de Estágio Concluída',
                 'X-Metadata-internship_id' => (string) $this->internship->id,

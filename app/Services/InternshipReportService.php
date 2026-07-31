@@ -28,7 +28,7 @@ class InternshipReportService
      *
      * @param  string|null  $startDate  Data inicial do filtro (internships.created_at).
      * @param  string|null  $endDate  Data final do filtro (internships.created_at).
-     * @return \Illuminate\Support\Collection Coleção com id, student_name, created_at, released_at e days_to_release.
+     * @return Collection Coleção com id, student_name, created_at, released_at e days_to_release.
      */
     public function getProcessingTimes(?string $startDate = null, ?string $endDate = null): Collection
     {
@@ -67,13 +67,14 @@ class InternshipReportService
 
         $tceResults = $tceQuery->get()->map(function ($item) {
             $item->document_type = 'TCE';
+
             return $item;
         });
 
         // 2. Processamento de Aditivos
         // A lógica captura a geração exata do documento do aditivo, permitindo múltiplos aditivos simultâneos.
         $logs = Activity::query()
-            ->select('subject_id', 'created_at', 'description', 
+            ->select('subject_id', 'created_at', 'description',
                 DB::raw("properties->>'document_type' as doc_type"),
                 DB::raw("attribute_changes->'attributes'->>'status' as status")
             )
@@ -81,15 +82,15 @@ class InternshipReportService
             ->where('subject_type', (new Internship)->getMorphClass())
             ->where(function ($q) {
                 // Emissão do Aditivo
-                $q->where(function($q2) {
+                $q->where(function ($q2) {
                     $q2->where('description', 'Documento gerado')
-                       ->whereRaw("properties->>'document_type' LIKE ?", ['%aditivo%']);
+                        ->whereRaw("properties->>'document_type' LIKE ?", ['%aditivo%']);
                 })
                 // Assinatura (Mudança de status)
-                ->orWhere(function($q2) {
-                    $q2->whereRaw("attribute_changes->'attributes'->>'status' = ?", ['Liberado'])
-                       ->orWhereRaw("attribute_changes->'attributes'->>'status' = ?", ['Em Andamento']);
-                });
+                    ->orWhere(function ($q2) {
+                        $q2->whereRaw("attribute_changes->'attributes'->>'status' = ?", ['Liberado'])
+                            ->orWhereRaw("attribute_changes->'attributes'->>'status' = ?", ['Em Andamento']);
+                    });
             })
             ->where('created_at', '>=', '2026-07-14') // Ignora totalmente envios antigos
             ->orderBy('subject_id')
@@ -106,13 +107,17 @@ class InternshipReportService
                     $emittedAt = $log->created_at; // Sobrescreve a emissão anterior
                 } elseif (($log->status === 'Liberado' || $log->status === 'Em Andamento') && $emittedAt) {
                     $isValidDate = true;
-                    if ($startDate && $emittedAt < $startDate) $isValidDate = false;
-                    if ($endDate && $emittedAt > $endDate) $isValidDate = false;
+                    if ($startDate && $emittedAt < $startDate) {
+                        $isValidDate = false;
+                    }
+                    if ($endDate && $emittedAt > $endDate) {
+                        $isValidDate = false;
+                    }
 
                     if ($isValidDate) {
                         $internship = $internships->get($subjectId);
                         if ($internship) {
-                            $aditivoResults->push((object)[
+                            $aditivoResults->push((object) [
                                 'id' => $internship->id,
                                 'student_name' => $internship->student_name,
                                 'created_at' => $emittedAt,
@@ -140,7 +145,7 @@ class InternshipReportService
      *
      * @param  string|null  $startDate  Data inicial do filtro (activity_log.created_at).
      * @param  string|null  $endDate  Data final do filtro (activity_log.created_at).
-     * @return \Illuminate\Support\Collection Coleção com motivo e total.
+     * @return Collection Coleção com motivo e total.
      */
     public function getCancellationsByReason(?string $startDate = null, ?string $endDate = null): Collection
     {
@@ -200,7 +205,7 @@ class InternshipReportService
      *
      * @param  string|null  $startDate  Filtro por internships.start_date.
      * @param  string|null  $endDate  Filtro por internships.start_date.
-     * @return \Illuminate\Support\Collection Coleção com course_name e contagens por status.
+     * @return Collection Coleção com course_name e contagens por status.
      */
     public function getInternshipsByCourse(?string $startDate = null, ?string $endDate = null): Collection
     {
@@ -241,7 +246,7 @@ class InternshipReportService
      *
      * @param  string|null  $startDate  Filtro por internships.start_date.
      * @param  string|null  $endDate  Filtro por internships.start_date.
-     * @return \Illuminate\Support\Collection Coleção com course_name, avg, min, max e count.
+     * @return Collection Coleção com course_name, avg, min, max e count.
      */
     public function getAverageGradesByCourse(?string $startDate = null, ?string $endDate = null): Collection
     {
@@ -281,7 +286,7 @@ class InternshipReportService
      * @param  string|null  $startDate  Filtro por internships.start_date.
      * @param  string|null  $endDate  Filtro por internships.start_date.
      * @param  int  $limit  Número máximo de resultados (padrão: 20).
-     * @return \Illuminate\Support\Collection Coleção com company_name, legal_identifier e total.
+     * @return Collection Coleção com company_name, legal_identifier e total.
      */
     public function getTopCompanies(?string $startDate = null, ?string $endDate = null, int $limit = 20): Collection
     {
@@ -629,6 +634,7 @@ class InternshipReportService
             if ($greatValue > 0) {
                 return ((float) $internship->evaluation_grade / $greatValue) * 100;
             }
+
             return 0.0;
         });
 

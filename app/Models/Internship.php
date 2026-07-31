@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\InternshipStatus;
 use App\Traits\Searchable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -223,9 +224,9 @@ class Internship extends Model
     /**
      * Aplica filtros padrão de listagem de estágios na query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  Builder  $query
      * @param  array<string, mixed>  $options
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeApplyStandardFilters($query, Request $request, array $options = [])
     {
@@ -267,8 +268,8 @@ class Internship extends Model
     /**
      * Aplica ordenação padrão na query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeApplyStandardOrdering($query, ?string $orderBy = 'status_priority')
     {

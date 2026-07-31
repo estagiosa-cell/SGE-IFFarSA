@@ -50,7 +50,7 @@ class ResetPasswordNotification extends Notification
      * Define o assunto, conteúdo e ações do e-mail de redefinição de senha.
      *
      * @param  object  $notifiable  A entidade que receberá a notificação.
-     * @return \Illuminate\Notifications\Messages\MailMessage A mensagem de e-mail formatada.
+     * @return MailMessage A mensagem de e-mail formatada.
      */
     public function toMail(object $notifiable): MailMessage
     {

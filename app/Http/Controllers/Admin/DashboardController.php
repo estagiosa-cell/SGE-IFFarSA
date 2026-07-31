@@ -7,10 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Course;
 use App\Models\Internship;
+use App\Models\InternshipAmendment;
 use App\Models\SupervisorEvaluation;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * Controlador para exibir o painel principal (dashboard) da área administrativa.
@@ -25,8 +27,8 @@ class DashboardController extends Controller
     /**
      * Coleta dados e estatísticas e exibe o dashboard administrativo.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição HTTP.
-     * @return \Illuminate\View\View
+     * @param  Request  $request  A requisição HTTP.
+     * @return View
      */
     public function __invoke(Request $request)
     {
@@ -100,7 +102,7 @@ class DashboardController extends Controller
 
         // Métricas de Aditivos
         $totalInternshipsWithAmendments = Internship::has('amendments')->count();
-        $totalActiveAmendments = \App\Models\InternshipAmendment::count();
+        $totalActiveAmendments = InternshipAmendment::count();
 
         // Retorna a view do dashboard com todas as estatísticas coletadas.
         return view('admin.dashboard', compact(

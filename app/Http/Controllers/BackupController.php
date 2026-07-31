@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Backup\CreateBackupRequest;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Controlador responsável pela gestão de backups do sistema.
@@ -22,7 +25,7 @@ class BackupController extends Controller
     /**
      * Mostra a view de backup.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function __invoke(Request $request)
     {
@@ -34,7 +37,7 @@ class BackupController extends Controller
     /**
      * Cria um novo backup da base de dados e inicia o download.
      *
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\RedirectResponse
+     * @return StreamedResponse|RedirectResponse
      */
     public function createBackup(CreateBackupRequest $request)
     {

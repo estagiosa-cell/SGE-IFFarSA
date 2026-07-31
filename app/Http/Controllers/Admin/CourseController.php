@@ -9,7 +9,9 @@ use App\Models\Course;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * Controlador para gerenciar os Cursos no painel administrativo.
@@ -24,8 +26,8 @@ class CourseController extends Controller
     /**
      * Exibe uma listagem dos cursos.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição HTTP.
-     * @return \Illuminate\View\View
+     * @param  Request  $request  A requisição HTTP.
+     * @return View
      */
     public function index(Request $request)
     {
@@ -56,7 +58,7 @@ class CourseController extends Controller
     /**
      * Exibe o formulário para criação de um novo curso.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function create()
     {
@@ -71,8 +73,8 @@ class CourseController extends Controller
     /**
      * Armazena um novo curso no banco de dados.
      *
-     * @param  \App\Http\Requests\StoreCourseRequest  $request  A requisição validada.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  StoreCourseRequest  $request  A requisição validada.
+     * @return RedirectResponse
      */
     public function store(StoreCourseRequest $request)
     {
@@ -88,8 +90,8 @@ class CourseController extends Controller
     /**
      * Exibe o formulário para edição do curso especificado.
      *
-     * @param  \App\Models\Course  $course  O curso a ser editado.
-     * @return \Illuminate\View\View
+     * @param  Course  $course  O curso a ser editado.
+     * @return View
      */
     public function edit(Course $course)
     {
@@ -104,9 +106,9 @@ class CourseController extends Controller
     /**
      * Atualiza o curso especificado no banco de dados.
      *
-     * @param  \App\Http\Requests\UpdateCourseRequest  $request  A requisição validada.
-     * @param  \App\Models\Course  $course  O curso a ser atualizado.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  UpdateCourseRequest  $request  A requisição validada.
+     * @param  Course  $course  O curso a ser atualizado.
+     * @return RedirectResponse
      */
     public function update(UpdateCourseRequest $request, Course $course)
     {
@@ -122,8 +124,8 @@ class CourseController extends Controller
     /**
      * Remove o curso especificado do sistema (soft delete).
      *
-     * @param  \App\Models\Course  $course  O curso a ser excluído.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Course  $course  O curso a ser excluído.
+     * @return RedirectResponse
      */
     public function destroy(Course $course)
     {
@@ -145,7 +147,7 @@ class CourseController extends Controller
      * Restaura um curso que foi removido via soft delete.
      *
      * @param  string  $id  O ID do curso a ser restaurado.
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function restore($id)
     {

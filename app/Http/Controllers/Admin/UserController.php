@@ -9,8 +9,10 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 /**
  * Controlador para gerenciar usuários no painel administrativo.
@@ -25,7 +27,7 @@ class UserController extends Controller
     /**
      * Exibe uma lista de usuários com filtros.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function index(Request $request)
     {
@@ -76,7 +78,7 @@ class UserController extends Controller
     /**
      * Exibe o formulário para criar um novo usuário.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function create()
     {
@@ -92,7 +94,7 @@ class UserController extends Controller
     /**
      * Armazena um novo usuário no banco de dados.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(StoreUserRequest $request)
     {
@@ -114,8 +116,8 @@ class UserController extends Controller
     /**
      * Exibe o formulário para editar um usuário existente.
      *
-     * @param  \App\Models\User  $user  O usuário a ser editado.
-     * @return \Illuminate\View\View
+     * @param  User  $user  O usuário a ser editado.
+     * @return View
      */
     public function edit(User $user)
     {
@@ -131,8 +133,8 @@ class UserController extends Controller
     /**
      * Atualiza um usuário específico no banco de dados.
      *
-     * @param  \App\Models\User  $user  O usuário a ser atualizado.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  User  $user  O usuário a ser atualizado.
+     * @return RedirectResponse
      */
     public function update(UpdateUserRequest $request, User $user)
     {
@@ -163,7 +165,7 @@ class UserController extends Controller
      * O arquivo CSV deve conter nome e e-mail. Os usuários são criados
      * com o papel de Orientador e uma senha aleatória.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function import(Request $request)
     {
@@ -224,8 +226,8 @@ class UserController extends Controller
     /**
      * Remove um usuário do sistema (soft delete).
      *
-     * @param  \App\Models\User  $user  O usuário a ser excluído.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  User  $user  O usuário a ser excluído.
+     * @return RedirectResponse
      */
     public function destroy(User $user)
     {
@@ -245,7 +247,7 @@ class UserController extends Controller
      * Restaura um usuário que foi removido via soft delete.
      *
      * @param  string  $id  O ID do usuário a ser restaurado.
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function restore($id)
     {
@@ -263,8 +265,8 @@ class UserController extends Controller
     /**
      * Desativa a conta de um usuário.
      *
-     * @param  \App\Models\User  $user  O usuário a ser desativado.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  User  $user  O usuário a ser desativado.
+     * @return RedirectResponse
      */
     public function deactivate(User $user)
     {
@@ -282,8 +284,8 @@ class UserController extends Controller
     /**
      * Reativa a conta de um usuário que foi desativado.
      *
-     * @param  \App\Models\User  $user  O usuário a ser reativado.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  User  $user  O usuário a ser reativado.
+     * @return RedirectResponse
      */
     public function reactivate(User $user)
     {

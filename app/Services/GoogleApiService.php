@@ -96,7 +96,7 @@ class GoogleApiService
     /**
      * Retorna a instância do cliente Google configurado.
      *
-     * @return \Google_Client A instância do cliente da API do Google.
+     * @return Google_Client A instância do cliente da API do Google.
      */
     public function getClient(): Google_Client
     {

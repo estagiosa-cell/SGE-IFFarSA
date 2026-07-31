@@ -7,8 +7,10 @@ use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\SendPasswordResetLinkRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\View\View;
 
 /**
  * Controlador que gerencia a lógica de redefinição de senha.
@@ -21,7 +23,7 @@ class PasswordResetController extends Controller
     /**
      * Exibe o formulário para solicitar o link de redefinição de senha.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function create()
     {
@@ -31,7 +33,7 @@ class PasswordResetController extends Controller
     /**
      * Processa a solicitação de envio do link de redefinição de senha.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(SendPasswordResetLinkRequest $request)
     {
@@ -50,7 +52,7 @@ class PasswordResetController extends Controller
      * Exibe o formulário para redefinir a senha.
      *
      * @param  string  $token  O token de redefinição de senha.
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function edit($token)
     {
@@ -60,7 +62,7 @@ class PasswordResetController extends Controller
     /**
      * Processa a redefinição da senha do usuário.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(ResetPasswordRequest $request)
     {

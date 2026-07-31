@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -27,7 +28,7 @@ class LoginRequest extends FormRequest
     /**
      * Define as regras de validação que se aplicam à requisição.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -42,7 +43,7 @@ class LoginRequest extends FormRequest
      *
      * Verifica se as credenciais são válidas e se o usuário está ativo no sistema.
      *
-     * @throws \Illuminate\Validation\ValidationException Se as credenciais forem inválidas ou o usuário estiver desativado.
+     * @throws ValidationException Se as credenciais forem inválidas ou o usuário estiver desativado.
      */
     public function authenticate(): void
     {

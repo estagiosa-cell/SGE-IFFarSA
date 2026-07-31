@@ -33,7 +33,7 @@ class AuthServiceProvider extends ServiceProvider
         /**
          * Gate para verificar se o usuário é Administrador.
          *
-         * @param  \App\Models\User  $user
+         * @param  User  $user
          * @return bool
          */
         Gate::define('is-admin', function (User $user) {
@@ -43,7 +43,7 @@ class AuthServiceProvider extends ServiceProvider
         /**
          * Gate para verificar se o usuário é Coordenador.
          *
-         * @param  \App\Models\User  $user
+         * @param  User  $user
          * @return bool
          */
         Gate::define('is-coordenador', function (User $user) {
@@ -53,7 +53,7 @@ class AuthServiceProvider extends ServiceProvider
         /**
          * Gate para verificar se o usuário é Orientador.
          *
-         * @param  \App\Models\User  $user
+         * @param  User  $user
          * @return bool
          */
         Gate::define('is-orientador', function (User $user) {
@@ -63,7 +63,7 @@ class AuthServiceProvider extends ServiceProvider
         /**
          * Gate para verificar se o usuário é Direção de Ensino.
          *
-         * @param  \App\Models\User  $user
+         * @param  User  $user
          * @return bool
          */
         Gate::define('is-direcao-ensino', function (User $user) {
@@ -75,7 +75,7 @@ class AuthServiceProvider extends ServiceProvider
          *
          * Permite acesso a coordenadores, orientadores e direção de ensino.
          *
-         * @param  \App\Models\User  $user
+         * @param  User  $user
          * @return bool
          */
         Gate::define('view-internships', function (User $user) {

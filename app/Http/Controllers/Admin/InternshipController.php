@@ -7,10 +7,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CancelInternshipRequest;
 use App\Http\Requests\UpdateInternshipRequest;
 use App\Models\Company;
+use App\Models\Course;
 use App\Models\Internship;
 use App\Models\InternshipPause;
+use App\Models\User;
+use App\Utils\InternshipEndDate;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * Controlador para gerenciar os Estágios no painel administrativo.
@@ -25,8 +32,8 @@ class InternshipController extends Controller
     /**
      * Exibe uma lista de estágios com filtros e ordenação.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição HTTP com os parâmetros de filtro.
-     * @return \Illuminate\View\View
+     * @param  Request  $request  A requisição HTTP com os parâmetros de filtro.
+     * @return View
      */
     public function index(Request $request)
     {
@@ -75,7 +82,7 @@ class InternshipController extends Controller
         $statusOptions = InternshipStatus::options();
 
         // Obtém todos os cursos para o filtro.
-        $courses = \App\Models\Course::orderBy('name')->get(['id', 'name']);
+        $courses = Course::orderBy('name')->get(['id', 'name']);
 
         $activeFilters = collect([
             $search,
@@ -96,8 +103,8 @@ class InternshipController extends Controller
     /**
      * Exibe o formulário para editar um estágio específico.
      *
-     * @param  \App\Models\Internship  $internship  A instância do estágio injetada pelo Route Model Binding.
-     * @return \Illuminate\View\View
+     * @param  Internship  $internship  A instância do estágio injetada pelo Route Model Binding.
+     * @return View
      */
     public function edit(Internship $internship)
     {
@@ -108,7 +115,7 @@ class InternshipController extends Controller
         $statusOptions = InternshipStatus::options();
 
         // Busca orientadores disponíveis (usuários com papel de orientador ou coordenador) que estão ativos.
-        $advisors = \App\Models\User::select(['id', 'name'])
+        $advisors = User::select(['id', 'name'])
             ->whereIn('role', ['orientador', 'coordenador'])
             ->whereNull('deactivated_at')
             ->orderBy('name')
@@ -123,9 +130,9 @@ class InternshipController extends Controller
     /**
      * Atualiza um estágio específico no banco de dados.
      *
-     * @param  \App\Http\Requests\UpdateInternshipRequest  $request  A requisição HTTP com os dados do formulário.
-     * @param  \App\Models\Internship  $internship  A instância do estágio a ser atualizada.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  UpdateInternshipRequest  $request  A requisição HTTP com os dados do formulário.
+     * @param  Internship  $internship  A instância do estágio a ser atualizada.
+     * @return RedirectResponse
      */
     public function update(UpdateInternshipRequest $request, Internship $internship)
     {
@@ -157,8 +164,8 @@ class InternshipController extends Controller
      * Este método é usado como um endpoint de API (geralmente via AJAX)
      * para preencher dados da empresa no formulário de estágio.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição contendo o identificador.
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  A requisição contendo o identificador.
+     * @return JsonResponse
      */
     public function getCompanies(Request $request)
     {
@@ -201,8 +208,8 @@ class InternshipController extends Controller
     /**
      * Remove o estágio especificado do sistema (soft delete).
      *
-     * @param  \App\Models\Internship  $internship  A instância do estágio a ser excluída.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Internship  $internship  A instância do estágio a ser excluída.
+     * @return RedirectResponse
      */
     public function destroy(Internship $internship)
     {
@@ -221,9 +228,9 @@ class InternshipController extends Controller
      * Atualiza o status para 'Cancelado' (disparando o log automático via LogsActivity)
      * e, se fornecido, registra o motivo de cancelamento manualmente em properties.
      *
-     * @param  \App\Http\Requests\CancelInternshipRequest  $request  A requisição com o motivo opcional.
-     * @param  \App\Models\Internship  $internship  A instância do estágio a ser cancelado.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  CancelInternshipRequest  $request  A requisição com o motivo opcional.
+     * @param  Internship  $internship  A instância do estágio a ser cancelado.
+     * @return RedirectResponse
      */
     public function cancel(CancelInternshipRequest $request, Internship $internship)
     {
@@ -247,7 +254,7 @@ class InternshipController extends Controller
      * Restaura um estágio que foi removido via soft delete.
      *
      * @param  string  $id  O ID do estágio a ser restaurado.
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function restore($id)
     {
@@ -267,9 +274,9 @@ class InternshipController extends Controller
     /**
      * Recalcula a data de término do estágio com base nas horas restantes.
      *
-     * @param  \Illuminate\Http\Request  $request  A requisição com calc_start_date e remaining_hours.
-     * @param  \App\Models\Internship  $internship  A instância do estágio.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Request  $request  A requisição com calc_start_date e remaining_hours.
+     * @param  Internship  $internship  A instância do estágio.
+     * @return RedirectResponse
      */
     public function recalculateEndDate(Request $request, Internship $internship)
     {
@@ -291,8 +298,8 @@ class InternshipController extends Controller
                 6 => (int) $internship->hours_saturday,
             ];
 
-            $startDate = \Carbon\Carbon::parse($request->calc_start_date);
-            $calculationResult = \App\Utils\InternshipEndDate::calculateInternshipEndDateWithLog(
+            $startDate = Carbon::parse($request->calc_start_date);
+            $calculationResult = InternshipEndDate::calculateInternshipEndDateWithLog(
                 $startDate,
                 $weeklyHours,
                 (int) $request->remaining_hours,
