@@ -273,8 +273,16 @@
                                 @forelse($processingTimes as $time)
                                     <div class="list-group-item py-3">
                                         <div class="row m-0 align-items-center">
-                                            <div class="col-8 text-truncate fw-semibold text-dark">
-                                                {{ $time->student_name }}
+                                            <div class="col-8">
+                                                <div class="fw-bold text-dark">{{ $time->student_name }}</div>
+                                                <div class="small text-muted">
+                                                    @if(isset($time->document_type) && $time->document_type === 'Aditivo')
+                                                        <span class="badge bg-warning text-dark me-1">Aditivo</span>
+                                                    @else
+                                                        <span class="badge bg-secondary me-1">TCE</span>
+                                                    @endif
+                                                    Início: {{ \Carbon\Carbon::parse($time->created_at)->format('d/m/Y') }}
+                                                </div>
                                             </div>
                                             <div class="col-4 text-end">
                                                 @php

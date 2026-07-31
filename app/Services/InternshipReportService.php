@@ -32,6 +32,7 @@ class InternshipReportService
      */
     public function getProcessingTimes(?string $startDate = null, ?string $endDate = null): Collection
     {
+        // 1. Processamento de TCEs (Normal)
         $subquery = Activity::query()
             ->select('subject_id', DB::raw('MIN(created_at) as released_at'))
             ->where('subject_type', (new Internship)->getMorphClass())
@@ -42,7 +43,7 @@ class InternshipReportService
             })
             ->groupBy('subject_id');
 
-        $query = Internship::query()
+        $tceQuery = Internship::query()
             ->select([
                 'internships.id',
                 'internships.student_name',
@@ -55,16 +56,80 @@ class InternshipReportService
                 $join->on('internships.id', '=', 'log_data.subject_id');
             });
 
-        $query->where('internships.created_at', '>=', '2026-07-14');
+        $tceQuery->where('internships.created_at', '>=', '2026-07-14');
 
         if ($startDate && $startDate > '2026-07-14') {
-            $query->where('internships.created_at', '>=', $startDate);
+            $tceQuery->where('internships.created_at', '>=', $startDate);
         }
         if ($endDate) {
-            $query->where('internships.created_at', '<=', $endDate);
+            $tceQuery->where('internships.created_at', '<=', $endDate);
         }
 
-        return $query->orderBy('days_to_release', 'desc')->get();
+        $tceResults = $tceQuery->get()->map(function ($item) {
+            $item->document_type = 'TCE';
+            return $item;
+        });
+
+        // 2. Processamento de Aditivos
+        // A lógica captura a geração exata do documento do aditivo, permitindo múltiplos aditivos simultâneos.
+        $logs = Activity::query()
+            ->select('subject_id', 'created_at', 'description', 
+                DB::raw("properties->>'document_type' as doc_type"),
+                DB::raw("attribute_changes->'attributes'->>'status' as status")
+            )
+            ->where('log_name', 'internships')
+            ->where('subject_type', (new Internship)->getMorphClass())
+            ->where(function ($q) {
+                // Emissão do Aditivo
+                $q->where(function($q2) {
+                    $q2->where('description', 'Documento gerado')
+                       ->whereRaw("properties->>'document_type' LIKE ?", ['%aditivo%']);
+                })
+                // Assinatura (Mudança de status)
+                ->orWhere(function($q2) {
+                    $q2->whereRaw("attribute_changes->'attributes'->>'status' = ?", ['Liberado'])
+                       ->orWhereRaw("attribute_changes->'attributes'->>'status' = ?", ['Em Andamento']);
+                });
+            })
+            ->where('created_at', '>=', '2026-07-14') // Ignora totalmente envios antigos
+            ->orderBy('subject_id')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $aditivoResults = collect();
+        $internships = Internship::whereIn('id', $logs->pluck('subject_id')->unique())->get()->keyBy('id');
+
+        foreach ($logs->groupBy('subject_id') as $subjectId => $subjectLogs) {
+            $emittedAt = null; // Mantém apenas a emissão mais recente (descarta as anteriores não assinadas)
+            foreach ($subjectLogs as $log) {
+                if ($log->description === 'Documento gerado' && str_contains($log->doc_type ?? '', 'aditivo')) {
+                    $emittedAt = $log->created_at; // Sobrescreve a emissão anterior
+                } elseif (($log->status === 'Liberado' || $log->status === 'Em Andamento') && $emittedAt) {
+                    $isValidDate = true;
+                    if ($startDate && $emittedAt < $startDate) $isValidDate = false;
+                    if ($endDate && $emittedAt > $endDate) $isValidDate = false;
+
+                    if ($isValidDate) {
+                        $internship = $internships->get($subjectId);
+                        if ($internship) {
+                            $aditivoResults->push((object)[
+                                'id' => $internship->id,
+                                'student_name' => $internship->student_name,
+                                'created_at' => $emittedAt,
+                                'start_date' => $internship->start_date,
+                                'released_at' => $log->created_at,
+                                'days_to_release' => $emittedAt->diffInDays($log->created_at),
+                                'document_type' => 'Aditivo',
+                            ]);
+                        }
+                    }
+                    $emittedAt = null; // Reseta após a liberação
+                }
+            }
+        }
+
+        // 3. Mesclar e ordenar
+        return $tceResults->concat($aditivoResults)->sortByDesc('days_to_release')->values();
     }
 
     /**
