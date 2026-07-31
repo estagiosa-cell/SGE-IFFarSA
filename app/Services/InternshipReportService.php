@@ -184,9 +184,9 @@ class InternshipReportService
             ->select([
                 'courses.id',
                 'courses.name as course_name',
-                DB::raw('ROUND(AVG(internships.evaluation_grade), 2) as nota_media'),
-                DB::raw('MIN(internships.evaluation_grade) as nota_minima'),
-                DB::raw('MAX(internships.evaluation_grade) as nota_maxima'),
+                DB::raw('ROUND(AVG((internships.evaluation_grade / NULLIF(internships.great_value, 0)) * 100), 2) as nota_media'),
+                DB::raw('ROUND(MIN((internships.evaluation_grade / NULLIF(internships.great_value, 0)) * 100), 2) as nota_minima'),
+                DB::raw('ROUND(MAX((internships.evaluation_grade / NULLIF(internships.great_value, 0)) * 100), 2) as nota_maxima'),
                 DB::raw('COUNT(internships.evaluation_grade) as total_avaliados'),
             ])
             ->leftJoin('internships', function ($join) use ($startDate, $endDate) {
@@ -515,11 +515,11 @@ class InternshipReportService
         $query = Internship::query()
             ->select([
                 DB::raw("CASE
-                    WHEN evaluation_grade >= 4 THEN '4-5'
-                    WHEN evaluation_grade >= 3 THEN '3-4'
-                    WHEN evaluation_grade >= 2 THEN '2-3'
-                    WHEN evaluation_grade >= 1 THEN '1-2'
-                    ELSE '0-1'
+                    WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 90 THEN '90-100%'
+                    WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 80 THEN '80-89%'
+                    WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 70 THEN '70-79%'
+                    WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 60 THEN '60-69%'
+                    ELSE '< 60%'
                 END as faixa"),
                 DB::raw('COUNT(*) as total'),
             ])
@@ -534,13 +534,13 @@ class InternshipReportService
 
         return $query
             ->groupByRaw("CASE
-                WHEN evaluation_grade >= 4 THEN '4-5'
-                WHEN evaluation_grade >= 3 THEN '3-4'
-                WHEN evaluation_grade >= 2 THEN '2-3'
-                WHEN evaluation_grade >= 1 THEN '1-2'
-                ELSE '0-1'
+                WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 90 THEN '90-100%'
+                WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 80 THEN '80-89%'
+                WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 70 THEN '70-79%'
+                WHEN (evaluation_grade / NULLIF(great_value, 0)) * 100 >= 60 THEN '60-69%'
+                ELSE '< 60%'
             END")
-            ->orderByRaw('MIN(evaluation_grade) DESC')
+            ->orderByRaw('MIN((evaluation_grade / NULLIF(great_value, 0)) * 100) DESC')
             ->get();
     }
 
@@ -559,7 +559,13 @@ class InternshipReportService
             $query->where('start_date', '<=', $endDate);
         }
 
-        $grades = $query->pluck('evaluation_grade')->map(fn ($v) => (float) $v);
+        $grades = $query->get()->map(function ($internship) {
+            $greatValue = (float) $internship->great_value;
+            if ($greatValue > 0) {
+                return ((float) $internship->evaluation_grade / $greatValue) * 100;
+            }
+            return 0.0;
+        });
 
         if ($grades->isEmpty()) {
             return ['avg' => null, 'min' => null, 'max' => null, 'total' => 0];
