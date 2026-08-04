@@ -840,7 +840,7 @@
             tooltip: { trigger: 'axis', formatter: '{b}: <b>{c}</b>' },
             grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
             xAxis: { type: 'category', data: gradesData.map(i => i.course_name), axisLabel: { rotate: 30, hideOverlap: true } },
-            yAxis: { type: 'value', name: 'Nota Média', max: 10 },
+            yAxis: { type: 'value', name: 'Nota Média (%)', max: 100 },
             series: [{
                 data: gradesData.map(i => parseFloat(i.nota_media || 0)),
                 type: 'bar',

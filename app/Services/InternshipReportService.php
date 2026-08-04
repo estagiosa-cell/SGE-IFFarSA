@@ -262,7 +262,8 @@ class InternshipReportService
             ->leftJoin('internships', function ($join) use ($startDate, $endDate) {
                 $join->on('courses.id', '=', 'internships.course_id')
                     ->whereNull('internships.deleted_at')
-                    ->whereNotNull('internships.evaluation_grade');
+                    ->whereNotNull('internships.evaluation_grade')
+                    ->where('internships.status', InternshipStatus::COMPLETED->value); // Apenas estágios Concluídos
 
                 if ($startDate) {
                     $join->where('internships.start_date', '>=', $startDate);
@@ -593,7 +594,8 @@ class InternshipReportService
                 END as faixa"),
                 DB::raw('COUNT(*) as total'),
             ])
-            ->whereNotNull('evaluation_grade');
+            ->whereNotNull('evaluation_grade')
+            ->where('status', InternshipStatus::COMPLETED->value); // Apenas estágios Concluídos
 
         if ($startDate) {
             $query->where('start_date', '>=', $startDate);
@@ -620,7 +622,8 @@ class InternshipReportService
     public function getGlobalGradeMetrics(?string $startDate = null, ?string $endDate = null): array
     {
         $query = Internship::query()
-            ->whereNotNull('evaluation_grade');
+            ->whereNotNull('evaluation_grade')
+            ->where('status', InternshipStatus::COMPLETED->value); // Apenas estágios Concluídos
 
         if ($startDate) {
             $query->where('start_date', '>=', $startDate);
