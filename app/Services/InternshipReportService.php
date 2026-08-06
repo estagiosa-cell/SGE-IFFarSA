@@ -50,7 +50,7 @@ class InternshipReportService
                 'internships.created_at',
                 'internships.start_date',
                 'log_data.released_at',
-                DB::raw('EXTRACT(DAY FROM (log_data.released_at - internships.created_at)) as days_to_release'),
+                DB::raw('ROUND(CAST(EXTRACT(EPOCH FROM (log_data.released_at - internships.created_at)) / 86400 AS numeric), 2) as days_to_release'),
             ])
             ->joinSub($subquery, 'log_data', function ($join) {
                 $join->on('internships.id', '=', 'log_data.subject_id');
@@ -123,7 +123,7 @@ class InternshipReportService
                                 'created_at' => $emittedAt,
                                 'start_date' => $internship->start_date,
                                 'released_at' => $log->created_at,
-                                'days_to_release' => $emittedAt->diffInDays($log->created_at),
+                                'days_to_release' => round($emittedAt->floatDiffInDays($log->created_at), 2),
                                 'document_type' => 'Aditivo',
                             ]);
                         }
@@ -352,6 +352,10 @@ class InternshipReportService
         $onTime = 0;
         $late = 0;
         foreach ($times as $item) {
+            if (isset($item->document_type) && $item->document_type === 'Aditivo') {
+                continue; // Aditivos não se aplicam à regra de início do estágio
+            }
+
             if ($item->start_date && $item->released_at <= $item->start_date) {
                 $onTime++;
             } else {
@@ -491,6 +495,10 @@ class InternshipReportService
 
         $byCourse = [];
         foreach ($times as $item) {
+            if (isset($item->document_type) && $item->document_type === 'Aditivo') {
+                continue; // Aditivos não entram no cálculo de atraso
+            }
+
             $course = Internship::find($item->id)?->course;
             $courseName = $course?->name ?? 'Sem Curso';
             $courseId = $course?->id ?? 0;
