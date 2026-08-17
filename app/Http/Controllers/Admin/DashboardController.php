@@ -53,10 +53,15 @@ class DashboardController extends Controller
         // Coleta estatísticas sobre as empresas (partes concedentes).
         $totalCompanies = Company::count();
         $deletedCompanies = Company::onlyTrashed()->count();
-        // Conta quantas empresas únicas possuem estágios em andamento ou liberados.
+        // Conta quantas concedentes únicas possuem estágios em andamento ou liberados.
+        // O mesmo CNPJ pode representar várias escolas, por isso o nome também
+        // faz parte da identidade usada neste indicador.
         $activeCompanies = Internship::whereIn('status', [InternshipStatus::IN_PROGRESS->value, InternshipStatus::RELEASED->value])
-            ->distinct('company_legal_identifier')
-            ->count('company_legal_identifier');
+            ->whereNotNull('company_legal_identifier')
+            ->where('company_legal_identifier', '!=', '')
+            ->selectRaw('COUNT(DISTINCT (company_legal_identifier, company_name)) as aggregate')
+            ->first()
+            ?->aggregate ?? 0;
 
         // Coleta estatísticas sobre os usuários do sistema com uma única query.
         $usersByRole = User::selectRaw('role, count(*) as count')

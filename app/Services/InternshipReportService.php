@@ -281,8 +281,9 @@ class InternshipReportService
     /**
      * Lista as empresas concedentes com mais estagiários vinculados.
      *
-     * Agrupa por company_legal_identifier (CNPJ/CPF) já que os dados da empresa
-     * são denormalizados na tabela internships (sem FK para companies).
+     * Agrupa pelo identificador legal e pelo nome da concedente. O CNPJ/CPF
+     * sozinho não identifica uma unidade neste sistema: escolas estaduais
+     * diferentes podem compartilhar o CNPJ da Secretaria de Educação.
      *
      * @param  string|null  $startDate  Filtro por internships.start_date.
      * @param  string|null  $endDate  Filtro por internships.start_date.
@@ -294,7 +295,7 @@ class InternshipReportService
         $query = Internship::query()
             ->select([
                 'company_legal_identifier',
-                DB::raw('MAX(company_name) as company_name'),
+                'company_name',
                 DB::raw('COUNT(*) as total_estagios'),
             ])
             ->whereNotNull('company_legal_identifier')
@@ -308,7 +309,7 @@ class InternshipReportService
         }
 
         return $query
-            ->groupBy('company_legal_identifier')
+            ->groupBy('company_legal_identifier', 'company_name')
             ->orderByDesc('total_estagios')
             ->limit($limit)
             ->get();
@@ -670,7 +671,7 @@ class InternshipReportService
             ->select([
                 'courses.id',
                 'courses.name as course_name',
-                DB::raw('COUNT(DISTINCT internships.company_legal_identifier) as total_concedentes'),
+                DB::raw('COUNT(DISTINCT (internships.company_legal_identifier, internships.company_name)) as total_concedentes'),
                 DB::raw('COUNT(internships.id) as total_estagiarios'),
             ])
             ->leftJoin('internships', function ($join) use ($startDate, $endDate) {
