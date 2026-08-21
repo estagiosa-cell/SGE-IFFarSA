@@ -249,24 +249,26 @@
                                 <div class="col-lg-3 col-md-6">
                                     <div class="form-floating">
                                         <input type="text" class="form-control" id="evaluation_grade" placeholder="Nota da Concedente"
-                                            value="{{ $internship->evaluation_grade !== null ? number_format($internship->evaluation_grade, 2, ',', '.') : 'Pendente' }}" readonly>
+                                            value="{{ $internship->evaluation_grade !== null ? number_format((float) $internship->evaluation_grade, 1, ',', '.') : 'Pendente' }}" readonly>
                                         <label for="evaluation_grade">Nota da Concedente (máx. {{ $internship->internship_type_weight }})</label>
                                     </div>
                                 </div>
                                 <div class="col-lg-3 col-md-6">
-                                    <x-form.input type="number" name="report_grade" value="{{ $internship->report_grade }}"
-                                        label="Nota do Relatório" placeholder="0,00" min="0" max="{{ $internship->report_weight }}"
-                                        step="0.01" icon="bi-file-earmark-text" />
+                                    <x-form.input type="number" name="report_grade"
+                                        value="{{ $internship->report_grade !== null ? number_format((float) $internship->report_grade, 1, '.', '') : '' }}"
+                                        label="Nota do Relatório" placeholder="0,0" min="0" max="{{ $internship->report_weight }}"
+                                        step="0.1" icon="bi-file-earmark-text" :decimals="1" />
                                 </div>
                                 <div class="col-lg-3 col-md-6">
-                                    <x-form.input type="number" name="presentation_grade" value="{{ $internship->presentation_grade }}"
-                                        label="Nota da Apresentação" placeholder="0,00" min="0" max="{{ $internship->presentation_weight }}"
-                                        step="0.01" icon="bi-easel" />
+                                    <x-form.input type="number" name="presentation_grade"
+                                        value="{{ $internship->presentation_grade !== null ? number_format((float) $internship->presentation_grade, 1, '.', '') : '' }}"
+                                        label="Nota da Apresentação" placeholder="0,0" min="0" max="{{ $internship->presentation_weight }}"
+                                        step="0.1" icon="bi-easel" :decimals="1" />
                                 </div>
                                 <div class="col-lg-3 col-md-6">
                                     <div class="form-floating">
                                         <input type="text" class="form-control" id="consolidated_grade" placeholder="Nota Consolidada"
-                                            value="{{ $internship->consolidated_grade !== null ? number_format($internship->consolidated_grade, 2, ',', '.') : 'Pendente' }}" readonly>
+                                            value="{{ $internship->consolidated_grade !== null ? number_format((float) $internship->consolidated_grade, 1, ',', '.') : 'Pendente' }}" readonly>
                                         <label for="consolidated_grade">Nota Consolidada (máx. 10)</label>
                                     </div>
                                 </div>
@@ -287,7 +289,7 @@
                             <small class="text-muted">Soma das avaliações da concedente, do relatório e da apresentação.</small>
                         </div>
                         @if ($internship->consolidated_grade !== null)
-                            <span class="badge bg-success fs-5">{{ number_format($internship->consolidated_grade, 2, ',', '.') }}/10,00</span>
+                            <span class="badge bg-success fs-5">{{ number_format((float) $internship->consolidated_grade, 1, ',', '.') }}/10,0</span>
                         @else
                             <span class="badge bg-secondary fs-6">Pendente</span>
                         @endif
@@ -470,7 +472,7 @@
                                             <strong>Nota da Concedente</strong>
                                         </div>
                                         <span
-                                            class="badge bg-success fs-5">{{ number_format($internship->evaluation_grade, 2) }}/{{ number_format($internship->internship_type_weight, 1) }}</span>
+                                            class="badge bg-success fs-5">{{ number_format((float) $internship->evaluation_grade, 1, ',', '.') }}/{{ number_format((float) $internship->internship_type_weight, 1, ',', '.') }}</span>
                                     </div>
                                 </div>
                             </div>

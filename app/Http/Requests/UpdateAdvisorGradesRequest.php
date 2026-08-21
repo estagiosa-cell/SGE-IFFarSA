@@ -30,8 +30,8 @@ class UpdateAdvisorGradesRequest extends FormRequest
         /** @var Internship $internship */
         $internship = $this->route('internship');
 
-        $reportGradeRules = ['nullable', 'numeric', 'min:0'];
-        $presentationGradeRules = ['nullable', 'numeric', 'min:0'];
+        $reportGradeRules = ['nullable', 'numeric', 'decimal:0,1', 'min:0'];
+        $presentationGradeRules = ['nullable', 'numeric', 'decimal:0,1', 'min:0'];
 
         if ($internship->report_weight !== null) {
             $reportGradeRules[] = 'max:'.$internship->report_weight;

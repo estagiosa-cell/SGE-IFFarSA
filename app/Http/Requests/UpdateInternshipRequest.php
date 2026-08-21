@@ -172,7 +172,7 @@ class UpdateInternshipRequest extends FormRequest
             'evaluation_suggestions_to_institution' => 'nullable|string',
             'evaluation_performance_issues' => 'nullable|string',
             'evaluation_other_observations' => 'nullable|string',
-            'evaluation_grade' => 'nullable|numeric|min:0|max:20',
+            'evaluation_grade' => 'nullable|numeric|decimal:0,1|min:0|max:20',
 
             // Valores customizáveis para conceitos (numéricos)
             'great_value' => 'required|numeric|min:0',

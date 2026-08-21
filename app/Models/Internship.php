@@ -184,10 +184,10 @@ class Internship extends Model
         'has_workload_exception' => 'boolean',
         'grant_value' => 'decimal:2',
         'transportation_allowance' => 'decimal:2',
-        'evaluation_grade' => 'decimal:2',
-        'report_grade' => 'decimal:2',
-        'presentation_grade' => 'decimal:2',
-        'consolidated_grade' => 'decimal:2',
+        'evaluation_grade' => 'decimal:1',
+        'report_grade' => 'decimal:1',
+        'presentation_grade' => 'decimal:1',
+        'consolidated_grade' => 'decimal:1',
         'internship_type_weight' => 'integer',
         'report_weight' => 'integer',
         'presentation_weight' => 'integer',
@@ -376,7 +376,7 @@ class Internship extends Model
             }
         }
 
-        return $count > 0 ? $totalScore / $count : null;
+        return $count > 0 ? round($totalScore / $count, 1) : null;
     }
 
     /**
@@ -422,7 +422,7 @@ class Internship extends Model
             return null;
         }
 
-        return round(array_sum(array_map('floatval', $grades)), 2);
+        return round(array_sum(array_map('floatval', $grades)), 1);
     }
 
     /**

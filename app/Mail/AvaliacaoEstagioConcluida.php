@@ -53,7 +53,7 @@ class AvaliacaoEstagioConcluida extends Mailable
             markdown: 'emails.estagios.avaliacao-concluida',
             with: [
                 'studentName' => $this->internship->student_name,
-                'evaluationGrade' => number_format((float) $this->internship->evaluation_grade, 2, ',', '.'),
+                'evaluationGrade' => number_format((float) $this->internship->evaluation_grade, 1, ',', '.'),
                 'courseName' => $this->internship->course?->name ?? 'N/A',
                 'internshipType' => $this->internship->internship_type_name ?? 'N/A',
                 'internshipWeight' => $this->internship->internship_type_weight ?? 'N/A',

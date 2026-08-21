@@ -616,7 +616,7 @@
                     {{-- Nota Final --}}
                     <div class="row m-0">
                         <div class="col-md-3 mb-3">
-                            <x-form.input type="number" name="evaluation_grade" value="{{ number_format($internship->evaluation_grade, 2) }}" label="Nota Final" placeholder="Nota final" step="0.01" min="0" readonly />
+                            <x-form.input type="number" name="evaluation_grade" value="{{ $internship->evaluation_grade !== null ? number_format((float) $internship->evaluation_grade, 1, '.', '') : '' }}" label="Nota Final" placeholder="Nota final" step="0.1" min="0" readonly :decimals="1" />
                         </div>
                     </div>
 
