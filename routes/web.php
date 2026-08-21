@@ -132,6 +132,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['can:view-internships'])->group(function () {
         Route::get('/estagios', [InternshipViewController::class, 'index'])->name('internship-view.index');
         Route::get('/estagios/{internship}', [InternshipViewController::class, 'show'])->name('internship-view.show');
+        Route::patch('/estagios/{internship}/notas', [InternshipViewController::class, 'updateAdvisorGrades'])->name('internship-view.advisor-grades.update');
     });
 
     // Rotas para Direção de Ensino

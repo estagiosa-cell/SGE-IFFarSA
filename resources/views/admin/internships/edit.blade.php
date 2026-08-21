@@ -415,17 +415,23 @@
                 {{-- Dados do Estágio --}}
                 <x-ui.accordion-item id="collapseInternship" title="Dados do Estágio" icon="bi-briefcase">
                     <div class="row m-0">
-                        <div class="col-md-5 mb-3">
+                        <div class="col-md-4 mb-3">
                             <x-form.input name="internship_type_name" value="{{ $internship->internship_type_name }}" label="Tipo de Estágio *" placeholder="Tipo de estágio" required />
                         </div>
                         <div class="col-md-2 mb-3">
-                            <x-form.input type="number" name="internship_type_weight" value="{{ $internship->internship_type_weight ?? 1 }}" label="Peso" min="1" max="10" step="1" />
-                            <small class="text-muted">Escala: 1-10</small>
+                            <x-form.input type="number" name="internship_type_weight" value="{{ $internship->internship_type_weight }}" label="Peso da Concedente" min="1" max="10" step="1" />
                         </div>
-                        <div class="col-md-5 mb-3">
+                        <div class="col-md-2 mb-3">
+                            <x-form.input type="number" name="report_weight" value="{{ $internship->report_weight }}" label="Peso do Relatório" min="1" max="10" step="1" />
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <x-form.input type="number" name="presentation_weight" value="{{ $internship->presentation_weight }}" label="Peso da Apresentação" min="1" max="10" step="1" />
+                        </div>
+                        <div class="col-md-2 mb-3">
                             <x-form.input name="internship_sector" value="{{ $internship->internship_sector }}" label="Setor" placeholder="Setor" />
                         </div>
                     </div>
+                    <p class="small text-muted mb-3">A soma dos pesos da concedente, do relatório e da apresentação deve ser 10.</p>
 
                     {{-- Valores dos Conceitos --}}
                     <h6 class="mb-3 mt-3">Valores dos Conceitos</h6>
@@ -610,7 +616,7 @@
                     {{-- Nota Final --}}
                     <div class="row m-0">
                         <div class="col-md-3 mb-3">
-                            <x-form.input type="number" name="evaluation_grade" value="{{ number_format($internship->evaluation_grade, 2) }}" label="Nota Final" placeholder="Nota final" step="0.01" min="0" readonly />
+                            <x-form.input type="number" name="evaluation_grade" value="{{ $internship->evaluation_grade !== null ? number_format((float) $internship->evaluation_grade, 1, '.', '') : '' }}" label="Nota Final" placeholder="Nota final" step="0.1" min="0" readonly :decimals="1" />
                         </div>
                     </div>
 

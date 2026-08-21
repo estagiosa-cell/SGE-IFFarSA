@@ -6,17 +6,23 @@
     'value' => null,
     'icon' => null,
     'feedback' => null,
+    'decimals' => null,
 ])
 
 @php
     $inputId = $id ?? $name;
+    $inputValue = old($name, $value);
+
+    if ($decimals !== null && is_numeric($inputValue)) {
+        $inputValue = number_format((float) $inputValue, $decimals, '.', '');
+    }
 @endphp
 
 <div class="form-floating">
     <input type="{{ $type }}" 
            name="{{ $name }}" 
            id="{{ $inputId }}" 
-           value="{{ old($name, $value) }}"
+           value="{{ $inputValue }}"
            {{ $attributes->merge(['class' => 'form-control ' . ($errors->has($name) ? 'is-invalid' : '')]) }}>
     <label for="{{ $inputId }}">
         @if($icon)

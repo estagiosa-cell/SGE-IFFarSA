@@ -111,6 +111,8 @@ class Internship extends Model
         'internship_sector',
         'required_hours',
         'internship_type_weight',
+        'report_weight',
+        'presentation_weight',
         'has_workload_exception',
 
         // Carga Horária
@@ -129,6 +131,9 @@ class Internship extends Model
 
         // Avaliação
         'evaluation_grade',
+        'report_grade',
+        'presentation_grade',
+        'consolidated_grade',
         'great_value',
         'very_good_value',
         'good_value',
@@ -179,7 +184,13 @@ class Internship extends Model
         'has_workload_exception' => 'boolean',
         'grant_value' => 'decimal:2',
         'transportation_allowance' => 'decimal:2',
-        'evaluation_grade' => 'decimal:2',
+        'evaluation_grade' => 'decimal:1',
+        'report_grade' => 'decimal:1',
+        'presentation_grade' => 'decimal:1',
+        'consolidated_grade' => 'decimal:1',
+        'internship_type_weight' => 'integer',
+        'report_weight' => 'integer',
+        'presentation_weight' => 'integer',
         'hours_sunday' => 'integer',
         'hours_monday' => 'integer',
         'hours_tuesday' => 'integer',
@@ -365,7 +376,64 @@ class Internship extends Model
             }
         }
 
-        return $count > 0 ? $totalScore / $count : null;
+        return $count > 0 ? round($totalScore / $count, 1) : null;
+    }
+
+    /**
+     * Verifica se os pesos das três componentes de avaliação foram definidos
+     * e totalizam a nota máxima de 10 pontos.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function hasGradeWeightsConfigured(array $data = []): bool
+    {
+        $weights = [
+            $this->valueFor('internship_type_weight', $data),
+            $this->valueFor('report_weight', $data),
+            $this->valueFor('presentation_weight', $data),
+        ];
+
+        if (in_array(null, $weights, true)) {
+            return false;
+        }
+
+        return round(array_sum(array_map('floatval', $weights)), 2) === 10.0;
+    }
+
+    /**
+     * Calcula a nota consolidada a partir das notas da concedente, do relatório
+     * e da apresentação. Cada nota já é lançada na escala do seu peso.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function calculateConsolidatedGrade(array $data = []): ?float
+    {
+        if (! $this->hasGradeWeightsConfigured($data)) {
+            return null;
+        }
+
+        $grades = [
+            $this->valueFor('evaluation_grade', $data),
+            $this->valueFor('report_grade', $data),
+            $this->valueFor('presentation_grade', $data),
+        ];
+
+        if (in_array(null, $grades, true)) {
+            return null;
+        }
+
+        return round(array_sum(array_map('floatval', $grades)), 1);
+    }
+
+    /**
+     * Retorna o valor informado para uma atualização ou, quando ausente,
+     * o valor persistido no estágio.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function valueFor(string $attribute, array $data): mixed
+    {
+        return array_key_exists($attribute, $data) ? $data[$attribute] : $this->{$attribute};
     }
 
     /**

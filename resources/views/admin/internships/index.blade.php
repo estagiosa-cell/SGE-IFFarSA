@@ -180,7 +180,7 @@
                                             <strong>Nota:</strong>
                                             @if ($internship->evaluation_grade !== null)
                                                 <span>
-                                                    {{ number_format($internship->evaluation_grade, 2, ',', '.') }}@if ($internship->internship_type_weight)/{{ number_format($internship->internship_type_weight, 2, ',', '.') }}@endif
+                                                    {{ number_format((float) $internship->evaluation_grade, 1, ',', '.') }}@if ($internship->internship_type_weight)/{{ number_format((float) $internship->internship_type_weight, 1, ',', '.') }}@endif
                                                 </span>
                                             @else
                                                 <span class="text-muted">Pendente</span>

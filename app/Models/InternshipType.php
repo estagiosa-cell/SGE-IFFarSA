@@ -27,6 +27,8 @@ class InternshipType extends Model
         'name',
         'required_hours',
         'weight',
+        'report_weight',
+        'presentation_weight',
         'course_id',
         'great_value',
         'very_good_value',
@@ -42,6 +44,8 @@ class InternshipType extends Model
      */
     protected $casts = [
         'weight' => 'integer',
+        'report_weight' => 'integer',
+        'presentation_weight' => 'integer',
     ];
 
     /**

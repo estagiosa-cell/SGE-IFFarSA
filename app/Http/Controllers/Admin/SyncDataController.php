@@ -446,6 +446,8 @@ class SyncDataController extends Controller
                     'notes' => $observacoes,
                     'required_hours' => $requiredHours,
                     'internship_type_weight' => $internshipTypeWeight,
+                    'report_weight' => $internshipType->report_weight,
+                    'presentation_weight' => $internshipType->presentation_weight,
                     'great_value' => $internshipType->great_value,
                     'very_good_value' => $internshipType->very_good_value,
                     'good_value' => $internshipType->good_value,

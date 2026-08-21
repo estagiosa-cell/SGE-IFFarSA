@@ -72,6 +72,15 @@ class InternshipPolicy
     }
 
     /**
+     * Determine whether the advisor can register report and presentation grades.
+     */
+    public function updateAdvisorGrades(User $user, Internship $internship): bool
+    {
+        return ($user->can('is-orientador') || $user->can('is-coordenador'))
+            && $internship->advisor_id === $user->id;
+    }
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Internship $internship): bool
