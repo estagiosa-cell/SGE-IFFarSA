@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\InternshipStatus;
+use App\Http\Requests\UpdateAdvisorGradesRequest;
 use App\Models\Course;
 use App\Models\Internship;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -54,7 +56,8 @@ class InternshipViewController extends Controller
                 'status', 'start_date', 'end_date',
                 'advisor_id', 'course_id', 'company_name',
                 'company_legal_identifier', 'updated_at', 'supervisor_name',
-                'evaluation_grade', 'internship_type_weight',
+                'evaluation_grade', 'internship_type_weight', 'report_weight', 'presentation_weight',
+                'report_grade', 'presentation_grade', 'consolidated_grade',
             ])
                 ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);
@@ -88,7 +91,8 @@ class InternshipViewController extends Controller
                 'status', 'start_date', 'end_date',
                 'advisor_id', 'course_id', 'company_name',
                 'company_legal_identifier', 'updated_at', 'supervisor_name',
-                'evaluation_grade', 'internship_type_weight',
+                'evaluation_grade', 'internship_type_weight', 'report_weight', 'presentation_weight',
+                'report_grade', 'presentation_grade', 'consolidated_grade',
             ])
                 ->with(['course:id,name', 'advisor:id,name']);
             $query->applyStandardOrdering($orderBy);
@@ -148,5 +152,31 @@ class InternshipViewController extends Controller
         $internship->load(['advisor:id,name', 'course:id,name']);
 
         return view('internship-view.show', compact('internship'));
+    }
+
+    /**
+     * Registra as notas do relatório e da apresentação pelo orientador responsável.
+     */
+    public function updateAdvisorGrades(UpdateAdvisorGradesRequest $request, Internship $internship): RedirectResponse
+    {
+        $data = $request->validated();
+        $data['consolidated_grade'] = $internship->calculateConsolidatedGrade($data);
+
+        $internship->update($data);
+
+        activity('internships')
+            ->performedOn($internship)
+            ->causedBy($request->user())
+            ->withProperties([
+                'report_grade' => $internship->report_grade,
+                'presentation_grade' => $internship->presentation_grade,
+                'consolidated_grade' => $internship->consolidated_grade,
+            ])
+            ->log('Notas do relatório e da apresentação atualizadas');
+
+        return redirect()
+            ->route('internship-view.show', $internship)
+            ->with('message', 'Notas atualizadas com sucesso!')
+            ->with('messageType', 'success');
     }
 }

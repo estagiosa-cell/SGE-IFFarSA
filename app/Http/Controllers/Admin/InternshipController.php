@@ -141,6 +141,7 @@ class InternshipController extends Controller
         try {
             // Recalcula a nota final da avaliação com base nos critérios preenchidos.
             $validatedData['evaluation_grade'] = $internship->calculateEvaluationGrade($validatedData);
+            $validatedData['consolidated_grade'] = $internship->calculateConsolidatedGrade($validatedData);
 
             // Atualiza o estágio com os dados validados e a nota calculada.
             $internship->update($validatedData);

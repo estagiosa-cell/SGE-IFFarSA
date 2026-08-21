@@ -199,15 +199,31 @@
                                         </div>
                                         <div class="mb-1">
                                             <i class="bi bi-award-fill me-1 text-warning"></i>
-                                            <strong>Nota:</strong>
-                                            @if ($internship->evaluation_grade !== null)
-                                                <span>
-                                                    {{ number_format($internship->evaluation_grade, 2, ',', '.') }}@if ($internship->internship_type_weight)/{{ number_format($internship->internship_type_weight, 2, ',', '.') }}@endif
-                                                </span>
+                                            @if (auth()->user()->can('updateAdvisorGrades', $internship))
+                                                <strong>Concedente:</strong>
+                                                <span>{{ $internship->evaluation_grade !== null ? number_format($internship->evaluation_grade, 2, ',', '.') : 'Pendente' }}/{{ number_format($internship->internship_type_weight, 2, ',', '.') }}</span>
                                             @else
-                                                <span class="text-muted">Pendente</span>
+                                                <strong>Nota consolidada:</strong>
+                                                <span>{{ $internship->consolidated_grade !== null ? number_format($internship->consolidated_grade, 2, ',', '.') . '/10,00' : 'Pendente' }}</span>
                                             @endif
                                         </div>
+                                        @if (auth()->user()->can('updateAdvisorGrades', $internship))
+                                            <div class="mb-1">
+                                                <i class="bi bi-file-earmark-text me-1"></i>
+                                                <strong>Relatório:</strong>
+                                                <span>{{ $internship->report_grade !== null ? number_format($internship->report_grade, 2, ',', '.') : 'Pendente' }}/{{ $internship->report_weight ?? 'N/D' }}</span>
+                                            </div>
+                                            <div class="mb-1">
+                                                <i class="bi bi-easel me-1"></i>
+                                                <strong>Apresentação:</strong>
+                                                <span>{{ $internship->presentation_grade !== null ? number_format($internship->presentation_grade, 2, ',', '.') : 'Pendente' }}/{{ $internship->presentation_weight ?? 'N/D' }}</span>
+                                            </div>
+                                            <div class="mb-1">
+                                                <i class="bi bi-calculator me-1"></i>
+                                                <strong>Consolidada:</strong>
+                                                <span>{{ $internship->consolidated_grade !== null ? number_format($internship->consolidated_grade, 2, ',', '.') . '/10,00' : 'Pendente' }}</span>
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-1">

@@ -226,6 +226,76 @@
             </div>
         </div>
 
+        {{-- Notas do Estágio --}}
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-primary text-white py-2">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-award me-2"></i>Notas do Estágio
+                </h5>
+            </div>
+            <div class="card-body">
+                @can('updateAdvisorGrades', $internship)
+                    @if (! $internship->hasGradeWeightsConfigured())
+                        <div class="alert alert-warning mb-0" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Os pesos das avaliações ainda não foram configurados para este estágio. Solicite o ajuste ao administrador.
+                        </div>
+                    @else
+                        <form method="POST" action="{{ route('internship-view.advisor-grades.update', $internship) }}">
+                            @csrf
+                            @method('PATCH')
+
+                            <div class="row m-0 g-3 align-items-end">
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="evaluation_grade" placeholder="Nota da Concedente"
+                                            value="{{ $internship->evaluation_grade !== null ? number_format($internship->evaluation_grade, 2, ',', '.') : 'Pendente' }}" readonly>
+                                        <label for="evaluation_grade">Nota da Concedente (máx. {{ $internship->internship_type_weight }})</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <x-form.input type="number" name="report_grade" value="{{ $internship->report_grade }}"
+                                        label="Nota do Relatório" placeholder="0,00" min="0" max="{{ $internship->report_weight }}"
+                                        step="0.01" icon="bi-file-earmark-text" />
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <x-form.input type="number" name="presentation_grade" value="{{ $internship->presentation_grade }}"
+                                        label="Nota da Apresentação" placeholder="0,00" min="0" max="{{ $internship->presentation_weight }}"
+                                        step="0.01" icon="bi-easel" />
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="consolidated_grade" placeholder="Nota Consolidada"
+                                            value="{{ $internship->consolidated_grade !== null ? number_format($internship->consolidated_grade, 2, ',', '.') : 'Pendente' }}" readonly>
+                                        <label for="consolidated_grade">Nota Consolidada (máx. 10)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <small class="text-muted">Relatório: até {{ $internship->report_weight }} ponto(s). Apresentação: até {{ $internship->presentation_weight }} ponto(s).</small>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-2"></i>Salvar Notas
+                                </button>
+                            </div>
+                        </form>
+                    @endif
+                @elsecan('is-coordenador')
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-0 fw-medium">Nota Consolidada</p>
+                            <small class="text-muted">Soma das avaliações da concedente, do relatório e da apresentação.</small>
+                        </div>
+                        @if ($internship->consolidated_grade !== null)
+                            <span class="badge bg-success fs-5">{{ number_format($internship->consolidated_grade, 2, ',', '.') }}/10,00</span>
+                        @else
+                            <span class="badge bg-secondary fs-6">Pendente</span>
+                        @endif
+                    </div>
+                @endcan
+            </div>
+        </div>
+
         {{-- Atividades --}}
         <div class="card mb-4 shadow-sm border-0">
             <div class="card-header bg-primary text-white py-2">
@@ -390,14 +460,14 @@
                         </div>
                     @endcan
                     {{-- Nota Final --}}
-                    @if ($internship->evaluation_grade !== null)
+                    @if ($internship->evaluation_grade !== null && auth()->user()->can('updateAdvisorGrades', $internship))
                         <div class="row m-0 g-3 mb-4">
                             <div class="col-12">
                                 <div class="alert alert-success mb-0" role="alert">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <i class="bi bi-star-fill me-2"></i>
-                                            <strong>Nota Final da Avaliação</strong>
+                                            <strong>Nota da Concedente</strong>
                                         </div>
                                         <span
                                             class="badge bg-success fs-5">{{ number_format($internship->evaluation_grade, 2) }}/{{ number_format($internship->internship_type_weight, 1) }}</span>

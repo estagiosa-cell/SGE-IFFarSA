@@ -8,6 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class UpdateInternshipRequest extends FormRequest
 {
@@ -91,6 +92,8 @@ class UpdateInternshipRequest extends FormRequest
             'internship_type_name' => 'required|string|max:100',
             'internship_sector' => 'nullable|string|max:100',
             'internship_type_weight' => 'nullable|integer|min:1|max:10',
+            'report_weight' => 'nullable|integer|min:1|max:10',
+            'presentation_weight' => 'nullable|integer|min:1|max:10',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'required_hours' => 'required|integer|min:1',
@@ -178,5 +181,29 @@ class UpdateInternshipRequest extends FormRequest
             'satisfactory_value' => 'required|numeric|min:0',
             'unsatisfactory_value' => 'required|numeric|min:0',
         ];
+    }
+
+    /**
+     * Configure the validator after its initial rules run.
+     *
+     * @return array<int, callable>
+     */
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            $weights = [
+                $this->input('internship_type_weight'),
+                $this->input('report_weight'),
+                $this->input('presentation_weight'),
+            ];
+
+            if (in_array(null, $weights, true) || in_array('', $weights, true)) {
+                return;
+            }
+
+            if (array_sum(array_map('floatval', $weights)) !== 10.0) {
+                $validator->errors()->add('internship_type_weight', 'A soma dos pesos da concedente, do relatório e da apresentação deve ser 10.');
+            }
+        }];
     }
 }

@@ -48,23 +48,8 @@
                             </div>
                         </div>
 
-                        {{-- Peso --}}
-                        <div class="col-md-2 mb-3">
-                            <div class="form-floating">
-                                <input type="number" min="1" max="10"
-                                    class="form-control @error('weight') is-invalid @enderror" id="weight" name="weight"
-                                    value="{{ old('weight', '1') }}" placeholder="Ex: 1" required>
-                                <label for="weight"><i class="bi bi-percent me-2"></i>Peso *</label>
-                                @error('weight')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @else
-                                    <div class="invalid-feedback">Informe o peso.</div>
-                                @enderror
-                            </div>
-                        </div>
-
                         {{-- Curso --}}
-                        <div class="col-md-2 mb-3">
+                        <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <select class="form-select @error('course_id') is-invalid @enderror" id="course_id"
                                     name="course_id" required>
@@ -81,6 +66,49 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @else
                                     <div class="invalid-feedback">Selecione o curso.</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3 pt-3 border-bottom pb-2">Pesos das Avaliações</h5>
+                    <div class="row m-0">
+                        <div class="col-md-4 mb-3">
+                            <div class="form-floating">
+                                <input type="number" min="1" max="10"
+                                    class="form-control @error('weight') is-invalid @enderror" id="weight" name="weight"
+                                    value="{{ old('weight', '6') }}" placeholder="Ex: 6" required>
+                                <label for="weight"><i class="bi bi-percent me-2"></i>Concedente *</label>
+                                @error('weight')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @else
+                                    <div class="invalid-feedback">Informe o peso.</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-floating">
+                                <input type="number" min="1" max="10"
+                                    class="form-control @error('report_weight') is-invalid @enderror" id="report_weight"
+                                    name="report_weight" value="{{ old('report_weight', '2') }}" placeholder="Ex: 2" required>
+                                <label for="report_weight"><i class="bi bi-file-earmark-text me-2"></i>Relatório *</label>
+                                @error('report_weight')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @else
+                                    <div class="invalid-feedback">Informe o peso do relatório.</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-floating">
+                                <input type="number" min="1" max="10"
+                                    class="form-control @error('presentation_weight') is-invalid @enderror" id="presentation_weight"
+                                    name="presentation_weight" value="{{ old('presentation_weight', '2') }}" placeholder="Ex: 2" required>
+                                <label for="presentation_weight"><i class="bi bi-easel me-2"></i>Apresentação *</label>
+                                @error('presentation_weight')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @else
+                                    <div class="invalid-feedback">Informe o peso da apresentação.</div>
                                 @enderror
                             </div>
                         </div>
@@ -152,8 +180,7 @@
 
                     <x-form-info-alert>
                         <li>A carga horária deve ser definida em horas</li>
-                        <li>O peso define a importância do tipo de estágio (escala de 1 a 10, onde 1 é o menor peso e 10 é o
-                            maior)</li>
+                        <li>Os pesos da concedente, do relatório e da apresentação devem somar 10</li>
                         <li>Cada curso pode ter múltiplos tipos de estágio</li>
                     </x-form-info-alert>
 
