@@ -18,6 +18,7 @@ use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\InternshipViewController;
+use App\Http\Controllers\OrientationCertificateController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TeachingDirectorController;
 use Illuminate\Support\Facades\Route;
@@ -133,6 +134,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/estagios', [InternshipViewController::class, 'index'])->name('internship-view.index');
         Route::get('/estagios/{internship}', [InternshipViewController::class, 'show'])->name('internship-view.show');
         Route::patch('/estagios/{internship}/notas', [InternshipViewController::class, 'updateAdvisorGrades'])->name('internship-view.advisor-grades.update');
+        Route::post('/estagios/{internship}/atestado-orientacao', OrientationCertificateController::class)
+            ->name('internship-view.orientation-certificate.generate');
     });
 
     // Rotas para Direção de Ensino
