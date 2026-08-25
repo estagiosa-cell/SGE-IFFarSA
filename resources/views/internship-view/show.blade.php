@@ -12,7 +12,7 @@
             </div>
             <div class="d-flex gap-2">
                 @can('generateOrientationCertificate', $internship)
-                    <form method="POST" action="{{ route('internship-view.orientation-certificate.generate', $internship) }}">
+                    <form method="POST" action="{{ route('internship-view.orientation-certificate.generate', $internship) }}" class="no-spinner">
                         @csrf
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-file-earmark-word me-2"></i>Gerar Atestado

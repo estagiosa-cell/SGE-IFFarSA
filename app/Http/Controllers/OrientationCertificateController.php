@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\GenerateOrientationCertificateRequest;
 use App\Models\Internship;
 use App\Services\OrientationCertificateService;
-use Illuminate\Http\BinaryFileResponse;
 use Illuminate\Http\RedirectResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class OrientationCertificateController extends Controller
 {
