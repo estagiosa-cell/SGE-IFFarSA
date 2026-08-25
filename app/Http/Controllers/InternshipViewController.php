@@ -149,7 +149,7 @@ class InternshipViewController extends Controller
         $this->authorize('view', $internship);
 
         // Carrega os relacionamentos para evitar N+1 queries na view.
-        $internship->load(['advisor:id,name', 'course:id,name']);
+        $internship->load(['advisor:id,name', 'course:id,name,coordinator_id,secondary_coordinator_id']);
 
         return view('internship-view.show', compact('internship'));
     }

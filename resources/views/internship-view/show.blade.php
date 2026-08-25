@@ -10,9 +10,19 @@
                 <h2 class="h4 mb-1">Detalhes do Estágio</h2>
                 <p class="text-muted mb-0">{{ $internship->student_name }} - {{ $internship->course->name }}</p>
             </div>
-            <a href="{{ route('internship-view.index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left-circle me-2"></i>Voltar
-            </a>
+            <div class="d-flex gap-2">
+                @can('generateOrientationCertificate', $internship)
+                    <form method="POST" action="{{ route('internship-view.orientation-certificate.generate', $internship) }}" class="no-spinner">
+                        @csrf
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-file-earmark-word me-2"></i>Gerar Atestado
+                        </button>
+                    </form>
+                @endcan
+                <a href="{{ route('internship-view.index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left-circle me-2"></i>Voltar
+                </a>
+            </div>
         </div>
 
         {{-- Status e Nota --}}

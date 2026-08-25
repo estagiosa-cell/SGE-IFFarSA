@@ -81,6 +81,24 @@ class InternshipPolicy
     }
 
     /**
+     * Determine whether the user can generate the course orientation certificate.
+     */
+    public function generateOrientationCertificate(User $user, Internship $internship): bool
+    {
+        if (! $user->can('is-coordenador')) {
+            return false;
+        }
+
+        $course = $internship->relationLoaded('course')
+            ? $internship->course
+            : $internship->course()->first(['id', 'coordinator_id', 'secondary_coordinator_id']);
+
+        return $course !== null
+            && ((string) $course->coordinator_id === (string) $user->id
+                || (string) $course->secondary_coordinator_id === (string) $user->id);
+    }
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Internship $internship): bool
