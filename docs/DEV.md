@@ -26,7 +26,7 @@ Certifique-se de ter as seguintes ferramentas instaladas:
    cp .env.example .env
    ```
 
-   O arquivo `.env.example` já está configurado para utilizar PostgreSQL com o Laravel Sail por padrão. Você pode ajustar as configurações de banco de dados se necessário, mas o padrão é recomendado:
+   O arquivo `.env.example` já está configurado para utilizar PostgreSQL com o Laravel Sail. O SGE-IFFarSA usa recursos específicos do PostgreSQL; mantenha esse banco também no desenvolvimento e não troque para SQLite ou MySQL:
 
    ```env
    DB_CONNECTION=pgsql
