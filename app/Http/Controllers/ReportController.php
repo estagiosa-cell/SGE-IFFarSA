@@ -87,7 +87,7 @@ class ReportController extends Controller
         $query = Internship::select([
             'id', 'student_name', 'student_registration_number',
             'company_name', 'company_legal_identifier',
-            'start_date', 'end_date', 'status', 'evaluation_grade',
+            'start_date', 'end_date', 'status', 'evaluation_grade', 'report_grade', 'presentation_grade',
             'supervisor_name', 'advisor_id', 'course_id',
         ])
             ->with(['course:id,name', 'advisor:id,name']);
@@ -145,7 +145,8 @@ class ReportController extends Controller
         // Define o cabeçalho do CSV.
         $columns = [
             'Curso', 'Matrícula', 'Nome do Aluno', 'Concedente', 'CNPJ da Concedente',
-            'Data de Início', 'Data de Fim', 'Orientador', 'Supervisor', 'Status', 'Nota da Avaliação',
+            'Data de Início', 'Data de Fim', 'Orientador', 'Supervisor', 'Status',
+            'Nota do Supervisor', 'Nota do Relatório', 'Nota da Apresentação', 'Nota Final',
         ];
 
         // Usa um callback para gerar o CSV em streaming, otimizando o uso de memória.
@@ -161,6 +162,9 @@ class ReportController extends Controller
 
             // Itera sobre os estágios e escreve cada um como uma linha no CSV usando cursor (menos uso de memória).
             foreach ($query->cursor() as $internship) {
+                $grades = [$internship->evaluation_grade, $internship->report_grade, $internship->presentation_grade];
+                $finalGrade = in_array(null, $grades, true) ? 0 : round(array_sum($grades), 1);
+
                 // Monta a linha do CSV com os dados do estágio.
                 $row = [
                     $internship->course->name ?? 'Não informado',
@@ -173,7 +177,10 @@ class ReportController extends Controller
                     $internship->advisor->name ?? 'Não informado',
                     $internship->supervisor_name ?? 'Não informado',
                     $internship->status->value ?? 'Não informado',
-                    $internship->evaluation_grade ?? 'Não avaliado',
+                    $internship->evaluation_grade ?? 0,
+                    $internship->report_grade ?? 0,
+                    $internship->presentation_grade ?? 0,
+                    $finalGrade,
                 ];
 
                 fputcsv($file, $row);
