@@ -417,64 +417,99 @@ class CompanyController extends Controller
      *
      * @return StreamedResponse
      */
-    public function exportCsv(Request $request)
+    public function exportCsv(Request $request): StreamedResponse|RedirectResponse
     {
         $this->authorize('viewAny', Company::class);
-
-        $searchCity = $request->get('address_city');
-
+        $validated = $request->validate([
+            'format' => ['nullable', 'in:contacts,sge'],
+            'address_city' => ['nullable', 'string', 'max:255'],
+            'sge_part' => ['nullable', 'integer', 'min:1', 'max:100000'],
+        ]);
+        $isSge = ($validated['format'] ?? 'contacts') === 'sge';
+        $part = (int) ($validated['sge_part'] ?? 1);
+        $searchCity = $validated['address_city'] ?? null;
         $query = Company::query();
-
         if ($searchCity) {
-            $query->search($searchCity, ['address_city']);
+            if ($isSge) {
+                $query->where('address_city', $searchCity);
+            } else {
+                $query->search($searchCity, ['address_city']);
+            }
         }
-
-        // Agrupa (ordena) por cidade em ordem alfabética e depois por nome
-        $companies = $query->orderBy('address_city')->orderBy('name')->get();
-
+        $query->orderBy('address_city')->orderBy('name')->orderBy('id');
+        if ($isSge) {
+            $query->offset(($part - 1) * 500)->limit(500);
+        }
+        $companies = $query->get();
         if ($companies->isEmpty()) {
-            return redirect()->back()
-                ->with('message', 'Nenhuma empresa encontrada com os filtros informados.')
+            return redirect()->back()->with('message', 'Nenhuma empresa encontrada nesta parte com os filtros informados.')
                 ->with('messageType', 'warning');
         }
 
-        $fileName = 'empresas_'.date('Y-m-d_H-i-s').'.csv';
+        $fileName = $isSge ? 'concedentes_sge_parte_'.$part.'.csv' : 'empresas_'.date('Y-m-d_H-i-s').'.csv';
+        $columns = $isSge ? [
+            'tipo_documento', 'documento', 'nome', 'representante_nome', 'representante_cargo', 'atividade',
+            'telefone', 'email', 'conselho_profissional', 'registro_conselho', 'processo_credenciamento',
+            'logradouro', 'numero', 'bairro', 'cep', 'cidade', 'uf',
+        ] : ['Nome/Razão Social', 'Cidade', 'Telefone', 'Email'];
+        $records = $companies->map(fn (Company $company): array => $isSge
+            ? $this->sgeCsvRecord($company)
+            : [(string) $company->name, (string) $company->address_city, (string) $company->phone, (string) $company->email])->all();
+        $escapeMetadata = $isSge && collect($records)->contains(fn (array $record): bool => collect($record)->contains(fn (string $value): bool => $this->needsCsvEscape($value)));
+        if ($escapeMetadata) {
+            $columns = [...$columns, '__sge_formato', '__sge_linha_original', '__sge_erros', '__sge_excedentes', '__sge_escape'];
+        }
 
-        $headers = [
-            'Content-type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename={$fileName}",
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
-        ];
-
-        $columns = [
-            'Nome/Razão Social',
-            'Cidade',
-            'Telefone',
-            'Email',
-        ];
-
-        $callback = function () use ($companies, $columns) {
+        return response()->streamDownload(function () use ($records, $columns, $escapeMetadata): void {
             $file = fopen('php://output', 'w');
-
-            // BOM UTF-8 for Excel
-            fwrite($file, "\xEF\xBB\xBF");
-
-            fputcsv($file, $columns, ';');
-
-            foreach ($companies as $company) {
-                fputcsv($file, [
-                    $company->name,
-                    $company->address_city,
-                    $company->phone,
-                    $company->email,
-                ], ';');
+            if ($file === false) {
+                return;
             }
+            try {
+                fwrite($file, "\xEF\xBB\xBF");
+                fputcsv($file, $columns, ';', '"', '', "\r\n");
+                $line = 2;
+                foreach ($records as $record) {
+                    $endLine = $line + array_sum(array_map(static fn (string $value): int => substr_count($value, "\n"), $record));
+                    if ($escapeMetadata) {
+                        $escaped = [];
+                        foreach ($record as $column => &$value) {
+                            if ($this->needsCsvEscape($value)) {
+                                $value = "'".$value;
+                                $escaped[] = $columns[$column];
+                            }
+                        }
+                        unset($value);
+                        $record = [...$record, 'erros-v1', ($line === $endLine ? (string) $line : $line.'–'.$endLine), '', '[]', json_encode($escaped, JSON_THROW_ON_ERROR)];
+                    }
+                    fputcsv($file, $record, ';', '"', '', "\r\n");
+                    $line = $endLine + 1;
+                }
+            } finally {
+                fclose($file);
+            }
+        }, $fileName, ['Content-Type' => 'text/csv; charset=UTF-8', 'Cache-Control' => 'private, no-store']);
+    }
 
-            fclose($file);
-        };
+    /** @return list<string> */
+    private function sgeCsvRecord(Company $company): array
+    {
+        $document = $this->cleanLegalIdentifier((string) $company->legal_identifier);
 
-        return response()->stream($callback, 200, $headers);
+        return [
+            strlen($document) === 11 && ctype_digit($document) ? 'cpf' : 'cnpj',
+            $document, (string) $company->name, (string) $company->representative_name,
+            (string) $company->representative_role, (string) $company->field_of_activity,
+            (string) $company->phone, (string) $company->email, (string) $company->professional_council,
+            (string) $company->council_registration_number, (string) $company->process_number,
+            (string) $company->address_street, (string) $company->address_number,
+            (string) $company->address_neighborhood, (string) $company->address_zip,
+            (string) $company->address_city, (string) $company->address_state,
+        ];
+    }
+
+    private function needsCsvEscape(string $value): bool
+    {
+        return preg_match('/^(?:[ \t\r\n]*[=+@-]|[\t\r\n])/u', $value) === 1;
     }
 }

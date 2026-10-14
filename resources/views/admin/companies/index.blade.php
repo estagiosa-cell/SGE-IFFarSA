@@ -158,8 +158,20 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p class="text-muted small mb-3">O arquivo gerado conterá Nome da empresa, Cidade, Telefone e E-mail.</p>
+                        <p class="text-muted small mb-3">Escolha o CSV de contatos ou o cadastro completo compatível com a importação no novo SGE. Apenas partes concedentes ativas serão exportadas.</p>
                         
+                        <div class="form-floating mb-3">
+                            <select class="form-select" name="format" id="export_format">
+                                <option value="contacts">Contatos: nome, cidade, telefone e e-mail</option>
+                                <option value="sge">Importar no novo SGE: cadastro completo</option>
+                            </select>
+                            <label for="export_format">Formato do CSV</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" name="sge_part" id="export_sge_part" value="1" min="1" max="100000">
+                            <label for="export_sge_part">Parte do arquivo (formato novo SGE)</label>
+                        </div>
+                        <p class="text-muted small">No formato novo SGE, cada parte contém até 500 empresas. Para exportar as seguintes, repita com a parte 2, 3 e assim por diante, mantendo o mesmo filtro de cidade. O arquivo usa UTF-8 e ponto e vírgula.</p>
                         <div class="form-floating mb-3">
                             <select class="form-select" name="address_city" id="export_city" aria-label="Filtrar por Cidade">
                                 <option value="">Todas as Cidades</option>
