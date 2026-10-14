@@ -7,11 +7,14 @@ use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use ZipArchive;
 
 /**
  * Controlador para gerenciar as Partes Concedentes (empresas) no painel administrativo.
@@ -413,9 +416,7 @@ class CompanyController extends Controller
     }
 
     /**
-     * Exporta as empresas filtradas para um arquivo CSV.
-     *
-     * @return StreamedResponse
+     * Exporta as empresas filtradas para CSV ou ZIP compatível com o novo SGE.
      */
     public function exportCsv(Request $request): StreamedResponse|RedirectResponse
     {
@@ -423,10 +424,8 @@ class CompanyController extends Controller
         $validated = $request->validate([
             'format' => ['nullable', 'in:contacts,sge'],
             'address_city' => ['nullable', 'string', 'max:255'],
-            'sge_part' => ['nullable', 'integer', 'min:1', 'max:100000'],
         ]);
         $isSge = ($validated['format'] ?? 'contacts') === 'sge';
-        $part = (int) ($validated['sge_part'] ?? 1);
         $searchCity = $validated['address_city'] ?? null;
         $query = Company::query();
         if ($searchCity) {
@@ -437,58 +436,109 @@ class CompanyController extends Controller
             }
         }
         $query->orderBy('address_city')->orderBy('name')->orderBy('id');
-        if ($isSge) {
-            $query->offset(($part - 1) * 500)->limit(500);
-        }
-        $companies = $query->get();
-        if ($companies->isEmpty()) {
-            return redirect()->back()->with('message', 'Nenhuma empresa encontrada nesta parte com os filtros informados.')
+        if (! $query->exists()) {
+            return redirect()->back()->with('message', 'Nenhuma empresa encontrada com os filtros informados.')
                 ->with('messageType', 'warning');
         }
 
-        $fileName = $isSge ? 'concedentes_sge_parte_'.$part.'.csv' : 'empresas_'.date('Y-m-d_H-i-s').'.csv';
-        $columns = $isSge ? [
-            'tipo_documento', 'documento', 'nome', 'representante_nome', 'representante_cargo', 'atividade',
-            'telefone', 'email', 'conselho_profissional', 'registro_conselho', 'processo_credenciamento',
-            'logradouro', 'numero', 'bairro', 'cep', 'cidade', 'uf',
-        ] : ['Nome/Razão Social', 'Cidade', 'Telefone', 'Email'];
-        $records = $companies->map(fn (Company $company): array => $isSge
-            ? $this->sgeCsvRecord($company)
-            : [(string) $company->name, (string) $company->address_city, (string) $company->phone, (string) $company->email])->all();
+        if ($isSge) {
+            return response()->streamDownload(function () use ($query): void {
+                $path = tempnam(sys_get_temp_dir(), 'sge-export-');
+                if ($path === false) {
+                    throw new RuntimeException('Não foi possível preparar a exportação.');
+                }
+                $zip = new ZipArchive;
+                $opened = false;
+                try {
+                    if ($zip->open($path, ZipArchive::OVERWRITE) !== true) {
+                        throw new RuntimeException('Não foi possível criar o ZIP da exportação.');
+                    }
+                    $opened = true;
+                    $part = 0;
+                    $query->chunk(500, function (Collection $companies) use ($zip, &$part): void {
+                        $records = $companies->map(fn (Company $company): array => $this->sgeCsvRecord($company))->all();
+                        $columns = [
+                            'tipo_documento', 'documento', 'nome', 'representante_nome', 'representante_cargo', 'atividade',
+                            'telefone', 'email', 'conselho_profissional', 'registro_conselho', 'processo_credenciamento',
+                            'logradouro', 'numero', 'bairro', 'cep', 'cidade', 'uf',
+                        ];
+                        $stream = fopen('php://temp', 'w+');
+                        if ($stream === false) {
+                            throw new RuntimeException('Não foi possível preparar o CSV.');
+                        }
+                        try {
+                            $this->writeExportCsv($stream, $columns, $records, true);
+                            rewind($stream);
+                            $contents = stream_get_contents($stream);
+                            if ($contents === false || ! $zip->addFromString('concedentes_sge_parte_'.(++$part).'.csv', $contents)) {
+                                throw new RuntimeException('Não foi possível adicionar o CSV ao ZIP.');
+                            }
+                        } finally {
+                            fclose($stream);
+                        }
+                    });
+                    $closed = $zip->close();
+                    $opened = false;
+                    if (! $closed) {
+                        throw new RuntimeException('Não foi possível concluir o ZIP da exportação.');
+                    }
+                    readfile($path);
+                } finally {
+                    if ($opened) {
+                        $zip->close();
+                    }
+                    unlink($path);
+                }
+            }, 'concedentes_sge.zip', ['Content-Type' => 'application/zip', 'Cache-Control' => 'private, no-store']);
+        }
+
+        $records = $query->get()->map(fn (Company $company): array => [
+            (string) $company->name, (string) $company->address_city, (string) $company->phone, (string) $company->email,
+        ])->all();
+
+        return response()->streamDownload(function () use ($records): void {
+            $stream = fopen('php://output', 'w');
+            if ($stream === false) {
+                throw new RuntimeException('Não foi possível preparar o CSV.');
+            }
+            try {
+                $this->writeExportCsv($stream, ['Nome/Razão Social', 'Cidade', 'Telefone', 'Email'], $records);
+            } finally {
+                fclose($stream);
+            }
+        }, 'empresas_'.date('Y-m-d_H-i-s').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8', 'Cache-Control' => 'private, no-store']);
+    }
+
+    /**
+     * @param  resource  $stream
+     * @param  list<string>  $columns
+     * @param  list<list<string>>  $records
+     */
+    private function writeExportCsv($stream, array $columns, array $records, bool $isSge = false): void
+    {
         $escapeMetadata = $isSge && collect($records)->contains(fn (array $record): bool => collect($record)->contains(fn (string $value): bool => $this->needsCsvEscape($value)));
         if ($escapeMetadata) {
             $columns = [...$columns, '__sge_formato', '__sge_linha_original', '__sge_erros', '__sge_excedentes', '__sge_escape'];
         }
-
-        return response()->streamDownload(function () use ($records, $columns, $escapeMetadata): void {
-            $file = fopen('php://output', 'w');
-            if ($file === false) {
-                return;
-            }
-            try {
-                fwrite($file, "\xEF\xBB\xBF");
-                fputcsv($file, $columns, ';', '"', '', "\r\n");
-                $line = 2;
-                foreach ($records as $record) {
-                    $endLine = $line + array_sum(array_map(static fn (string $value): int => substr_count($value, "\n"), $record));
-                    if ($escapeMetadata) {
-                        $escaped = [];
-                        foreach ($record as $column => &$value) {
-                            if ($this->needsCsvEscape($value)) {
-                                $value = "'".$value;
-                                $escaped[] = $columns[$column];
-                            }
-                        }
-                        unset($value);
-                        $record = [...$record, 'erros-v1', ($line === $endLine ? (string) $line : $line.'–'.$endLine), '', '[]', json_encode($escaped, JSON_THROW_ON_ERROR)];
+        fwrite($stream, "\xEF\xBB\xBF");
+        fputcsv($stream, $columns, ';', '"', '', "\r\n");
+        $line = 2;
+        foreach ($records as $record) {
+            $endLine = $line + array_sum(array_map(static fn (string $value): int => substr_count($value, "\n"), $record));
+            if ($escapeMetadata) {
+                $escaped = [];
+                foreach ($record as $column => &$value) {
+                    if ($this->needsCsvEscape($value)) {
+                        $value = "'".$value;
+                        $escaped[] = $columns[$column];
                     }
-                    fputcsv($file, $record, ';', '"', '', "\r\n");
-                    $line = $endLine + 1;
                 }
-            } finally {
-                fclose($file);
+                unset($value);
+                $record = [...$record, 'erros-v1', ($line === $endLine ? (string) $line : $line.'–'.$endLine), '', '[]', json_encode($escaped, JSON_THROW_ON_ERROR)];
             }
-        }, $fileName, ['Content-Type' => 'text/csv; charset=UTF-8', 'Cache-Control' => 'private, no-store']);
+            fputcsv($stream, $record, ';', '"', '', "\r\n");
+            $line = $endLine + 1;
+        }
     }
 
     /** @return list<string> */
