@@ -158,16 +158,16 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p class="text-muted small mb-3">Escolha o CSV de contatos ou o ZIP com os cadastros completos para importar no novo SGE. Apenas partes concedentes ativas serão exportadas.</p>
+                        <p class="text-muted small mb-3">Escolha o CSV de contatos ou os cadastros completos para importar no novo SGE. Apenas partes concedentes ativas serão exportadas.</p>
                         
                         <div class="form-floating mb-3">
                             <select class="form-select" name="format" id="export_format">
                                 <option value="contacts">Contatos: nome, cidade, telefone e e-mail</option>
-                                <option value="sge">Importar no novo SGE: ZIP com CSVs completos</option>
+                                <option value="sge">Importar no novo SGE: cadastro completo</option>
                             </select>
                             <label for="export_format">Formato do CSV</label>
                         </div>
-                        <p class="text-muted small">No formato novo SGE, o download será um ZIP com todos os CSVs separados automaticamente em até 500 empresas por arquivo. Os CSVs usam UTF-8 e ponto e vírgula e respeitam o filtro de cidade.</p>
+                        <p class="text-muted small">No formato novo SGE, até 500 empresas serão baixadas em um único CSV. Acima de 500, o download será um ZIP com os CSVs separados automaticamente em até 500 empresas por arquivo. Os CSVs usam UTF-8 e ponto e vírgula e respeitam o filtro de cidade.</p>
                         <div class="form-floating mb-3">
                             <select class="form-select" name="address_city" id="export_city" aria-label="Filtrar por Cidade">
                                 <option value="">Todas as Cidades</option>

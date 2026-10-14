@@ -436,13 +436,22 @@ class CompanyController extends Controller
             }
         }
         $query->orderBy('address_city')->orderBy('name')->orderBy('id');
-        if (! $query->exists()) {
+        $sample = $isSge ? (clone $query)->limit(501)->get() : null;
+        if ($isSge ? $sample->isEmpty() : ! $query->exists()) {
             return redirect()->back()->with('message', 'Nenhuma empresa encontrada com os filtros informados.')
                 ->with('messageType', 'warning');
         }
 
-        if ($isSge) {
-            return response()->streamDownload(function () use ($query): void {
+        $columns = $isSge ? [
+            'tipo_documento', 'documento', 'nome', 'representante_nome', 'representante_cargo', 'atividade',
+            'telefone', 'email', 'conselho_profissional', 'registro_conselho', 'processo_credenciamento',
+            'logradouro', 'numero', 'bairro', 'cep', 'cidade', 'uf',
+        ] : ['Nome/Razão Social', 'Cidade', 'Telefone', 'Email'];
+
+        if ($isSge && $sample->count() > 500) {
+            unset($sample);
+
+            return response()->streamDownload(function () use ($query, $columns): void {
                 $path = tempnam(sys_get_temp_dir(), 'sge-export-');
                 if ($path === false) {
                     throw new RuntimeException('Não foi possível preparar a exportação.');
@@ -455,13 +464,8 @@ class CompanyController extends Controller
                     }
                     $opened = true;
                     $part = 0;
-                    $query->chunk(500, function (Collection $companies) use ($zip, &$part): void {
+                    $query->chunk(500, function (Collection $companies) use ($zip, $columns, &$part): void {
                         $records = $companies->map(fn (Company $company): array => $this->sgeCsvRecord($company))->all();
-                        $columns = [
-                            'tipo_documento', 'documento', 'nome', 'representante_nome', 'representante_cargo', 'atividade',
-                            'telefone', 'email', 'conselho_profissional', 'registro_conselho', 'processo_credenciamento',
-                            'logradouro', 'numero', 'bairro', 'cep', 'cidade', 'uf',
-                        ];
                         $stream = fopen('php://temp', 'w+');
                         if ($stream === false) {
                             throw new RuntimeException('Não foi possível preparar o CSV.');
@@ -492,21 +496,23 @@ class CompanyController extends Controller
             }, 'concedentes_sge.zip', ['Content-Type' => 'application/zip', 'Cache-Control' => 'private, no-store']);
         }
 
-        $records = $query->get()->map(fn (Company $company): array => [
-            (string) $company->name, (string) $company->address_city, (string) $company->phone, (string) $company->email,
-        ])->all();
+        $records = $isSge
+            ? $sample->map(fn (Company $company): array => $this->sgeCsvRecord($company))->all()
+            : $query->get()->map(fn (Company $company): array => [
+                (string) $company->name, (string) $company->address_city, (string) $company->phone, (string) $company->email,
+            ])->all();
 
-        return response()->streamDownload(function () use ($records): void {
+        return response()->streamDownload(function () use ($records, $columns, $isSge): void {
             $stream = fopen('php://output', 'w');
             if ($stream === false) {
                 throw new RuntimeException('Não foi possível preparar o CSV.');
             }
             try {
-                $this->writeExportCsv($stream, ['Nome/Razão Social', 'Cidade', 'Telefone', 'Email'], $records);
+                $this->writeExportCsv($stream, $columns, $records, $isSge);
             } finally {
                 fclose($stream);
             }
-        }, 'empresas_'.date('Y-m-d_H-i-s').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8', 'Cache-Control' => 'private, no-store']);
+        }, $isSge ? 'concedentes_sge.csv' : 'empresas_'.date('Y-m-d_H-i-s').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8', 'Cache-Control' => 'private, no-store']);
     }
 
     /**
